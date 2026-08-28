@@ -716,7 +716,7 @@ h1 span { color: #ed6907; }
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--orange);
+  color: #a73c00;
 }
 
 .bataa-learn-title {
@@ -1408,9 +1408,9 @@ h1 span { color: #ed6907; }
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 14px;
   line-height: 20px;
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: 0.04em;
-  color: var(--orange);
+  color: #a73c00;
   text-transform: uppercase;
 }
 
