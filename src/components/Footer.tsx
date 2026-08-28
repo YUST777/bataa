@@ -15,7 +15,7 @@ export function Footer() {
 
           {/* Column 1: Company */}
           <div className="bataa-footer-col">
-            <h4 className="bataa-footer-col-title">Company</h4>
+            <h3 className="bataa-footer-col-title">Company</h3>
             <ul className="bataa-footer-links">
               <li><a href="#about" className="bataa-footer-link">About</a></li>
               <li><a href="#careers" className="bataa-footer-link">Careers</a></li>
@@ -28,7 +28,7 @@ export function Footer() {
 
           {/* Column 2: Resources */}
           <div className="bataa-footer-col">
-            <h4 className="bataa-footer-col-title">Resources</h4>
+            <h3 className="bataa-footer-col-title">Resources</h3>
             <ul className="bataa-footer-links">
               <li><a href="#blog" className="bataa-footer-link">Blog</a></li>
               <li><a href="#glossary" className="bataa-footer-link">Glossary</a></li>
@@ -40,7 +40,7 @@ export function Footer() {
 
           {/* Column 3: Courses */}
           <div className="bataa-footer-col">
-            <h4 className="bataa-footer-col-title">Courses</h4>
+            <h3 className="bataa-footer-col-title">Courses</h3>
             <ul className="bataa-footer-links">
               <li><a href="#courses" className="bataa-footer-link">All courses</a></li>
               <li><a href="#blender-path" className="bataa-footer-link">3D Artist & Animator</a></li>
@@ -60,7 +60,7 @@ export function Footer() {
 
           {/* Column 4: Product */}
           <div className="bataa-footer-col">
-            <h4 className="bataa-footer-col-title">Product</h4>
+            <h3 className="bataa-footer-col-title">Product</h3>
             <ul className="bataa-footer-links">
               <li><a href="#login" className="bataa-footer-link">Login</a></li>
               <li><a href="#register" className="bataa-footer-link">Register</a></li>

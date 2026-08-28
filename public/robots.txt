@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://bataamimo.vercel.app/sitemap.xml

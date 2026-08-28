@@ -279,7 +279,7 @@ export function HowItWorks() {
         <div className="mimo-showcase-wrapper">
           <div className="mimo-showcase-grid">
             {/* Left: Clean empty widget box with nothing inside it */}
-            <div className="mimo-video-box" aria-label="Media placeholder" />
+            <div className="mimo-video-box" aria-hidden="true" />
 
             {/* Right: 3 Interactive Tab Buttons */}
             <div className="mimo-tabs-column" role="tablist" aria-label="Learning progression steps">

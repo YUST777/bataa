@@ -1,0 +1,6 @@
+# Bataa - AI-Powered Hands-On Learning Tutor
+
+> Bataa is an Arabic-first, AI-powered mentor that guides learners inside real desktop software like Blender and VS Code.
+
+- [Home](https://bataamimo.vercel.app/)
+- [Register](https://bataamimo.vercel.app/web/register)
