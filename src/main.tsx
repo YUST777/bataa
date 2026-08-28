@@ -16,7 +16,16 @@ import './styles.css'
 function FloatingArt() {
   return (
     <div className="art" aria-label="Bataa coding mascot illustration">
-      <img className="hero-image" src="/hero.webp" alt="Bataa duck surrounded by coding tools" />
+      <img
+        className="hero-image"
+        src="/hero.webp"
+        alt="Bataa duck surrounded by coding tools"
+        width={620}
+        height={540}
+        // @ts-expect-error fetchpriority is standard in modern HTML
+        fetchpriority="high"
+        decoding="sync"
+      />
     </div>
   )
 }

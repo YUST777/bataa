@@ -408,9 +408,13 @@ export function WhatYoullLearn() {
             {/* Bataa Duck Mascot on the Right Edge Side */}
             <div className="bataa-quiz-duck-wrap">
               <img
-                src="/notsure.png"
+                src="/notsure.webp"
                 alt="Bataa Duck Mascot Peeking"
                 className="bataa-quiz-duck-img"
+                width={200}
+                height={180}
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
