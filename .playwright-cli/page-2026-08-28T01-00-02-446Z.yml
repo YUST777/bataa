@@ -1,0 +1,33 @@
+- main [ref=f18e3]:
+  - generic [ref=f18e4]:
+    - generic "mimo home" [ref=f18e5]: mimo
+    - navigation "Primary navigation" [ref=f18e6]:
+      - link "Courses" [ref=f18e7] [cursor=pointer]:
+        - /url: "#courses"
+      - link "Resources" [ref=f18e10] [cursor=pointer]:
+        - /url: "#resources"
+    - generic [ref=f18e13]:
+      - button "EN" [ref=f18e14] [cursor=pointer]
+      - link "Log in" [ref=f18e23] [cursor=pointer]:
+        - /url: "#login"
+      - button "Start learning for free" [ref=f18e24] [cursor=pointer]
+  - region [ref=f18e25]:
+    - generic [ref=f18e26]:
+      - heading "Learn Python for the age of AI" [level=1] [ref=f18e27]: Learn Pythonfor the age of AI
+      - paragraph [ref=f18e28]: Become a software developer, build your own apps, or advance your career with interactive lessons and projects
+      - generic [ref=f18e29]:
+        - button "Sign up with Google" [ref=f18e30] [cursor=pointer]
+        - generic [ref=f18e37]: or
+        - generic [ref=f18e41]: Your email
+        - textbox "Your email" [ref=f18e42]
+        - generic [ref=f18e43]: Your password
+        - generic [ref=f18e44]:
+          - textbox "Your password" [ref=f18e45]
+          - button "Toggle password visibility" [ref=f18e46] [cursor=pointer]
+        - button "Start learning for free" [ref=f18e52] [cursor=pointer]
+        - paragraph [ref=f18e53]:
+          - text: By signing up, you agree to Mimo’s
+          - link "Terms of Service." [ref=f18e54] [cursor=pointer]:
+            - /url: "#terms"
+    - generic "Mimo coding mascot illustration" [ref=f18e55]:
+      - img "Mimo duck surrounded by coding tools" [ref=f18e56]
