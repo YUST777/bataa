@@ -1,0 +1,40 @@
+{
+  "duolingo_juicy_tokens": {
+    "juicyOwl": "#58cc02",
+    "juicyTreeFrog": "#58a700",
+    "juicyFox": "#ff9600",
+    "juicyGuineaPig": "#cd7900",
+    "juicyCardinal": "#ff4b4b",
+    "juicyFireAnt": "#ea2b2b",
+    "juicyMacaw": "#1cb0f6",
+    "juicyHumpback": "#2b70c9",
+    "juicyBeetle": "#ce82ff",
+    "juicyBetta": "#9069cd",
+    "juicySnow": "#ffffff",
+    "juicyPolar": "#f7f7f7",
+    "juicySwan": "#e5e5e5",
+    "juicyHare": "#afafaf",
+    "juicyWolf": "#777777",
+    "juicyEel": "#4b4b4b"
+  },
+  "mimo_tokens": {
+    "primary_purple": "#7e4bde",
+    "primary_lip": "#5a2bb8",
+    "code_bg": "#2f314f",
+    "code_surface": "#252746",
+    "text_primary": "#333661",
+    "bg_primary": "#f6f7fb",
+    "accent_success": "#66bc5a",
+    "accent_error": "#f05a6e"
+  },
+  "bataa_tokens": {
+    "brand_orange": "#ff7a00",
+    "brand_orange_lip": "#d45900",
+    "cream_bg": "#fff6e9",
+    "obsidian_dark": "#18130f",
+    "card_bg": "#ffffff",
+    "card_border": "#ebe1d3",
+    "highlight_yellow": "#ffd600",
+    "highlight_yellow_glow": "rgba(255, 214, 0, 0.4)"
+  }
+}
