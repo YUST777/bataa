@@ -1,0 +1,7 @@
+interface:
+  display_name: "Bataa Mobile Learning System"
+  short_description: "Design Bataa's Duolingo-style coding app"
+  brand_color: "#FF7A00"
+  default_prompt: "Use $mimo-duolingo-design-system to design a Bataa mobile coding-learning flow for the Web Design course."
+policy:
+  allow_implicit_invocation: true

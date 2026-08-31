@@ -1,40 +1,86 @@
 {
-  "duolingo_juicy_tokens": {
-    "juicyOwl": "#58cc02",
-    "juicyTreeFrog": "#58a700",
-    "juicyFox": "#ff9600",
-    "juicyGuineaPig": "#cd7900",
-    "juicyCardinal": "#ff4b4b",
-    "juicyFireAnt": "#ea2b2b",
-    "juicyMacaw": "#1cb0f6",
-    "juicyHumpback": "#2b70c9",
-    "juicyBeetle": "#ce82ff",
-    "juicyBetta": "#9069cd",
-    "juicySnow": "#ffffff",
-    "juicyPolar": "#f7f7f7",
-    "juicySwan": "#e5e5e5",
-    "juicyHare": "#afafaf",
-    "juicyWolf": "#777777",
-    "juicyEel": "#4b4b4b"
+  "meta": {
+    "product": "Bataa mobile learning app",
+    "scope": "semantic reference tokens; reconcile with approved app tokens before implementation"
   },
-  "mimo_tokens": {
-    "primary_purple": "#7e4bde",
-    "primary_lip": "#5a2bb8",
-    "code_bg": "#2f314f",
-    "code_surface": "#252746",
-    "text_primary": "#333661",
-    "bg_primary": "#f6f7fb",
-    "accent_success": "#66bc5a",
-    "accent_error": "#f05a6e"
+  "color": {
+    "background": {
+      "app": "#FFF6E9",
+      "surface": "#FFFFFF",
+      "surfaceWarm": "#FFF9F1"
+    },
+    "text": {
+      "primary": "#18130F",
+      "secondary": "#6F6258",
+      "inverse": "#FFFFFF"
+    },
+    "border": {
+      "subtle": "#EBE1D3",
+      "strong": "#BFAE9D"
+    },
+    "action": {
+      "primary": "#FF7A00",
+      "primaryDepth": "#D45900",
+      "primaryBorder": "#B94B00",
+      "onPrimary": "#FFFFFF",
+      "secondary": "#FFFFFF",
+      "secondaryDepth": "#D8CABB",
+      "onSecondary": "#3B2D24"
+    },
+    "status": {
+      "success": "#2E8B57",
+      "successSurface": "#EAF7EF",
+      "correction": "#C43D3D",
+      "correctionSurface": "#FFF0EE",
+      "warning": "#A36200",
+      "warningSurface": "#FFF4D6",
+      "locked": "#8A8078"
+    },
+    "instruction": {
+      "highlight": "#FFD600",
+      "highlightSurface": "#FFF7B8"
+    },
+    "focus": {
+      "ring": "#7A3E00"
+    }
   },
-  "bataa_tokens": {
-    "brand_orange": "#ff7a00",
-    "brand_orange_lip": "#d45900",
-    "cream_bg": "#fff6e9",
-    "obsidian_dark": "#18130f",
-    "card_bg": "#ffffff",
-    "card_border": "#ebe1d3",
-    "highlight_yellow": "#ffd600",
-    "highlight_yellow_glow": "rgba(255, 214, 0, 0.4)"
+  "space": {
+    "1": "4px",
+    "2": "8px",
+    "3": "12px",
+    "4": "16px",
+    "5": "20px",
+    "6": "24px",
+    "8": "32px",
+    "10": "40px"
+  },
+  "radius": {
+    "small": "10px",
+    "control": "14px",
+    "card": "20px",
+    "round": "999px"
+  },
+  "size": {
+    "targetMinimum": "44px",
+    "controlComfortable": "52px",
+    "bottomNav": "64px"
+  },
+  "depth": {
+    "control": "4px",
+    "card": "3px"
+  },
+  "type": {
+    "bodyFamily": "Avenir Next, Nunito Sans, Segoe UI, Arial, sans-serif",
+    "arabicFamily": "Noto Sans Arabic, system-ui, sans-serif",
+    "codeFamily": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    "buttonWeight": 800,
+    "headingWeight": 800,
+    "bodyWeight": 500
+  },
+  "motion": {
+    "press": "80ms",
+    "feedback": "160ms",
+    "route": "220ms",
+    "celebrationMaximum": "1200ms"
   }
 }

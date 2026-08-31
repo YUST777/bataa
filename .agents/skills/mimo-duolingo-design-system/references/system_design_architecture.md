@@ -1,32 +1,131 @@
-# System Design Architecture: Interactive AI Learning Engine
+# Mobile Learning Application Architecture
 
-## 1. Client-Side State Machine (MVI Pattern)
+This architecture covers Bataa's phone learning app only.
 
-- Intent / User Actions:
-  - SelectAnswer(optionId)
-  - ClickScreenTarget(targetCoords, targetSelector)
-  - SubmitCode(sourceCode)
-  - RequestHint()
-  - DismissMistakeDialog()
+## Route model
 
-- Lesson State:
-  - currentStepIndex: number
-  - totalSteps: number
-  - heartsRemaining: number (1-5)
-  - currentStreak: number
-  - activeHighlightBox: { x, y, width, height, label } | null
-  - mistakeExplanation: { arabicTitle, arabicBody, fixHint } | null
-  - xpEarned: number
+```text
+/
+/onboarding/:step
+/learn
+/course/:courseId
+/lesson/:lessonId
+/lesson/:lessonId/review
+/practice
+/projects
+/glossary
+/profile
+/settings/accessibility
+```
 
-## 2. Desktop Hook & Highlight Subsystem (Bataa Native)
+Use TanStack Router loaders to resolve course and lesson data. Keep ephemeral task interaction inside the lesson feature, and persist resumable progress separately.
 
-- Process Inspector: Checks if target desktop software is installed (Blender, VS Code, Python).
-- Overlay Window: Transparent click-through overlay capable of rendering glowing yellow bounding boxes around native window controls.
-- Accessibility & Image Matching: Uses accessibility tree + visual matching to detect UI button coordinates.
-- Audio & Mascot Synthesis: Natural Arabic TTS with reactive duck avatar expressions.
+## Core domain models
 
-## 3. Offline Sync & Idempotency
+```ts
+type Locale = 'ar' | 'en'
+type LessonStatus = 'locked' | 'available' | 'in-progress' | 'completed' | 'mastered'
+type TaskKind = 'reorder' | 'fill' | 'choose-output' | 'match' | 'edit' | 'debug' | 'predict' | 'explain' | 'build'
 
-- Lessons packaged into self-contained JSON units.
-- Results stored in local SQLite/IndexedDB queue with UUID idempotency keys.
-- Automatic background replay when network connection resumes.
+interface Course {
+  id: string
+  title: Record<Locale, string>
+  unitIds: string[]
+}
+
+interface Unit {
+  id: string
+  courseId: string
+  title: Record<Locale, string>
+  capability: Record<Locale, string>
+  lessonIds: string[]
+}
+
+interface Lesson {
+  id: string
+  unitId: string
+  title: Record<Locale, string>
+  objective: Record<Locale, string>
+  estimatedMinutes: number
+  tasks: TaskDefinition[]
+}
+
+interface TaskDefinition {
+  id: string
+  kind: TaskKind
+  conceptIds: string[]
+  instruction: Record<Locale, string>
+  content: unknown
+  validator: string
+  hints: Array<Record<Locale, string>>
+}
+
+interface LessonProgress {
+  lessonId: string
+  status: LessonStatus
+  currentTaskIndex: number
+  attempts: Attempt[]
+  startedAt: string
+  completedAt?: string
+}
+
+interface Attempt {
+  id: string
+  taskId: string
+  submittedAt: string
+  accepted: boolean
+  checkIds: string[]
+  hintLevel: number
+}
+```
+
+Do not store hearts because mistakes do not block learning.
+
+## State boundaries
+
+- **Server/catalog state:** courses, units, lessons, glossary entries, localization.
+- **Learner progress:** enrollment, completed lessons, concept strength, streak/rest day, reminders.
+- **Active lesson state:** current task, draft answer, validation, feedback, hint level, mascot cue.
+- **Presentation state:** open sheets, animation completion, selected tab.
+
+Do not mix animation state with learning truth. A task becomes complete because validation accepted it, not because a celebration ended.
+
+## Persistence rules
+
+- Save accepted task progress immediately.
+- Save drafts on backgrounding and at safe intervals.
+- Resume the exact active task after interruption.
+- Use idempotency keys for submitted attempts.
+- Queue progress offline and reconcile without duplicating rewards.
+- Version lesson content so progress remains interpretable after curriculum updates.
+
+## Code execution and preview
+
+- Render learner HTML/CSS in a constrained sandboxed preview.
+- Sanitize or isolate user markup from the application shell.
+- Apply deterministic validation to lesson objectives.
+- Separate required checks from optional style warnings.
+- Keep preview failure recoverable and preserve learner code.
+- Never execute arbitrary remote scripts in beginner lessons.
+
+## Localization architecture
+
+- Store user-facing content by translation key or localized content object.
+- Keep HTML/CSS syntax LTR inside Arabic screens.
+- Mark code blocks with `dir="ltr"` and isolate bidi content.
+- Use logical CSS properties for layout.
+- Test routes and validation messages in both locales.
+
+## Analytics events
+
+Collect only events that answer product or learning questions:
+
+- onboarding step viewed/completed/skipped.
+- lesson started/resumed/completed.
+- task attempted/accepted.
+- hint requested by level.
+- correction category.
+- review started/completed.
+- reminder changed.
+
+Do not optimize solely for time in app. Pair engagement metrics with lesson completion, transfer success, and mistake resolution.
