@@ -1,14 +1,21 @@
-/**
- * Web Audio API Harmonic Synthesizer
- * Provides Duolingo-style ascending chromatic scale combo chimes,
- * mechanical tactile button clicks, celebration fanfares, and error cues.
- */
-
-class SoundEffectsEngine {
+class SoundEngine {
   private ctx: AudioContext | null = null;
-  private muted: boolean = false;
+  private audioCache: { [key: string]: HTMLAudioElement } = {};
 
-  private initCtx() {
+  constructor() {
+    // Preload audio files if available
+    if (typeof window !== 'undefined') {
+      try {
+        this.audioCache['correct'] = new Audio('/sounds/correct.wav');
+        this.audioCache['incorrect'] = new Audio('/sounds/incorrect.wav');
+        this.audioCache['finish'] = new Audio('/sounds/finish.mp3');
+      } catch {
+        // Fallback to Web Audio Synth
+      }
+    }
+  }
+
+  private init() {
     if (!this.ctx && typeof window !== 'undefined') {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (AudioCtx) {
@@ -20,184 +27,168 @@ class SoundEffectsEngine {
     }
   }
 
-  public setMuted(mute: boolean) {
-    this.muted = mute;
-  }
-
-  public isMuted(): boolean {
-    return this.muted;
-  }
-
-  /**
-   * Tactile button mechanical click
-   */
-  public playClick(freq = 420) {
-    if (this.muted) return;
-    this.initCtx();
-    if (!this.ctx) return;
-
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    const now = this.ctx.currentTime;
-
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, now);
-    osc.frequency.exponentialRampToValueAtTime(160, now + 0.04);
-
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start(now);
-    osc.stop(now + 0.045);
-  }
-
-  /**
-   * Ascending combo chime based on combo index k
-   * Frequencies based on C-Major Scale: C4, D4, E4, F4, G4, A4, B4, C5
-   */
-  public playAscendingCorrect(comboIndex = 0) {
-    if (this.muted) return;
-    this.initCtx();
-    if (!this.ctx) return;
-
-    const majorScale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25];
-    const baseFreq = majorScale[comboIndex % majorScale.length];
-
-    const now = this.ctx.currentTime;
-    
-    // Main chime note
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(baseFreq, now);
-    osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 0.2);
-
-    gain.gain.setValueAtTime(0.35, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.36);
-
-    // Harmonic fifth sparkle
-    const osc2 = this.ctx.createOscillator();
-    const gain2 = this.ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(baseFreq * 1.5, now + 0.05);
-
-    gain2.gain.setValueAtTime(0.18, now + 0.05);
-    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
-
-    osc2.connect(gain2);
-    gain2.connect(this.ctx.destination);
-    osc2.start(now + 0.05);
-    osc2.stop(now + 0.33);
-  }
-
-  /**
-   * Harmonic Major Fanfare upon completing a lesson
-   */
-  public playCelebrationFanfare() {
-    if (this.muted) return;
-    this.initCtx();
-    if (!this.ctx) return;
-
-    const chord = [261.63, 329.63, 392.00, 523.25]; // C Major
-    const now = this.ctx.currentTime;
-
-    chord.forEach((freq, i) => {
-      const osc = this.ctx!.createOscillator();
-      const gain = this.ctx!.createGain();
-      const noteStart = now + i * 0.09;
-
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, noteStart);
-
-      gain.gain.setValueAtTime(0.25, noteStart);
-      gain.gain.exponentialRampToValueAtTime(0.001, noteStart + 0.6);
-
-      osc.connect(gain);
-      gain.connect(this.ctx!.destination);
-
-      osc.start(noteStart);
-      osc.stop(noteStart + 0.62);
-    });
-
-    // Grand resolution chord
-    setTimeout(() => {
+  playClick(freq = 440) {
+    try {
+      this.init();
       if (!this.ctx) return;
-      const resNow = this.ctx.currentTime;
-      [523.25, 659.25, 783.99, 1046.50].forEach((freq) => {
-        const osc = this.ctx!.createOscillator();
-        const gain = this.ctx!.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, resNow);
-        gain.gain.setValueAtTime(0.2, resNow);
-        gain.gain.exponentialRampToValueAtTime(0.001, resNow + 1.1);
-        osc.connect(gain);
-        gain.connect(this.ctx!.destination);
-        osc.start(resNow);
-        osc.stop(resNow + 1.15);
-      });
-    }, 450);
-  }
-
-  /**
-   * Gentle Mistake Tone (Non-punitive soft boing)
-   */
-  public playMistake() {
-    if (this.muted) return;
-    this.initCtx();
-    if (!this.ctx) return;
-
-    const now = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(220, now);
-    osc.frequency.exponentialRampToValueAtTime(140, now + 0.22);
-
-    gain.gain.setValueAtTime(0.18, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start(now);
-    osc.stop(now + 0.23);
-  }
-
-  /**
-   * Chest Unlock Mystery Jingle
-   */
-  public playChestOpen() {
-    if (this.muted) return;
-    this.initCtx();
-    if (!this.ctx) return;
-
-    const now = this.ctx.currentTime;
-    [440, 554.37, 659.25, 880].forEach((freq, idx) => {
-      const osc = this.ctx!.createOscillator();
-      const gain = this.ctx!.createGain();
-      const noteTime = now + idx * 0.08;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, noteTime);
-      gain.gain.setValueAtTime(0.22, noteTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.4);
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.7, this.ctx.currentTime + 0.04);
+
+      gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
 
       osc.connect(gain);
-      gain.connect(this.ctx!.destination);
+      gain.connect(this.ctx.destination);
 
-      osc.start(noteTime);
-      osc.stop(noteTime + 0.42);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.04);
+    } catch {
+      // ignore
+    }
+  }
+
+  playAscendingCorrect(combo = 0) {
+    try {
+      const audio = this.audioCache['correct'];
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(() => this.playSynthCorrect(combo));
+        return;
+      }
+    } catch {
+      // fallback
+    }
+    this.playSynthCorrect(combo);
+  }
+
+  private playSynthCorrect(combo = 0) {
+    try {
+      this.init();
+      if (!this.ctx) return;
+
+      const scale = [261.63, 293.66, 329.63, 349.23, 392.0, 440.0, 493.88, 523.25];
+      const baseFreq = scale[combo % scale.length];
+
+      const osc1 = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+
+      osc1.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
+      osc2.frequency.setValueAtTime(baseFreq * 1.5, this.ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.28);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc1.start();
+      osc2.start();
+      osc1.stop(this.ctx.currentTime + 0.28);
+      osc2.stop(this.ctx.currentTime + 0.28);
+    } catch {
+      // ignore
+    }
+  }
+
+  playMistake() {
+    try {
+      const audio = this.audioCache['incorrect'];
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(() => this.playSynthMistake());
+        return;
+      }
+    } catch {
+      // fallback
+    }
+    this.playSynthMistake();
+  }
+
+  private playSynthMistake() {
+    try {
+      this.init();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(95, this.ctx.currentTime + 0.25);
+
+      gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.25);
+    } catch {
+      // ignore
+    }
+  }
+
+  playCelebrationFanfare() {
+    try {
+      const audio = this.audioCache['finish'];
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(() => this.playSynthFanfare());
+        return;
+      }
+    } catch {
+      // fallback
+    }
+    this.playSynthFanfare();
+  }
+
+  private playSynthFanfare() {
+    const notes = [
+      { freq: 261.63, time: 0, dur: 0.12 },
+      { freq: 329.63, time: 0.12, dur: 0.12 },
+      { freq: 392.0, time: 0.24, dur: 0.12 },
+      { freq: 523.25, time: 0.36, dur: 0.4 },
+    ];
+
+    notes.forEach(({ freq, time, dur }) => {
+      setTimeout(() => {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start();
+          osc.stop(this.ctx.currentTime + dur);
+        } catch {
+          // ignore
+        }
+      }, time * 1000);
     });
+  }
+
+  playChestOpen() {
+    this.playCelebrationFanfare();
   }
 }
 
-export const sound = new SoundEffectsEngine();
+export const sound = new SoundEngine();
