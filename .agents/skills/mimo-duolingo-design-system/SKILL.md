@@ -25,6 +25,15 @@ Build Bataa as an original mobile coding-learning product. Apply the learning an
 6. Verify the flow on a narrow phone viewport, in Arabic RTL, by keyboard, and with reduced motion.
 7. Audit the result with `evaluation_checklist.md` before declaring it finished.
 
+When the Appllama MCP is connected, apply the installed `appllama-usage` and
+`appllama-app-design-skill` skills before designing a new mobile screen. Start
+with the free credit check, study the whole relevant flow in journey order,
+save notes and expiring media promptly, extract the interaction grammar rather
+than pixels, then run the mobile implementation and full-flow verification bar.
+If the current repository is not Expo/React Native, preserve its existing
+stack while applying the same research, navigation, motion, and anti-slop
+principles.
+
 ## Apply the non-negotiable rules
 
 - Give each onboarding screen one question or decision.
@@ -52,9 +61,13 @@ Build Bataa as an original mobile coding-learning product. Apply the learning an
 | Build the course path, daily goal, streak, or progress systems | `references/course_path_and_retention.md` |
 | Build a lesson, validation flow, completion, or review | `references/lesson_engine.md` |
 | Animate or place the duck mascot | `references/mascot_orchestration.md` |
-| Build buttons, cards, navigation, or visual tokens | `references/component_system.md` and `references/ui_tokens.json` |
+| Choose screen components, route graphs, guards, or back behavior | `references/ui_components_and_navigation_graphs.md` |
+| Build buttons, cards, lesson shells, or visual tokens | `references/component_system.md` and `references/ui_tokens.json` |
 | Implement Arabic, RTL, focus, contrast, or reduced motion | `references/accessibility_and_rtl.md` |
 | Choose routes, TypeScript models, or state boundaries | `references/system_design_architecture.md` |
+| Design mobile APIs, offline sync, persistence, or telemetry | `references/network_api_and_database_schemas.md` |
+| Research top-grossing mobile apps with Appllama | Installed `appllama-usage` skill and connected `appllama` MCP |
+| Build or polish native-feeling mobile screens | Installed `appllama-app-design-skill` skill |
 | Review a screen or decide whether it is complete | `references/evaluation_checklist.md` |
 
 ## Use the core mobile learning loop
