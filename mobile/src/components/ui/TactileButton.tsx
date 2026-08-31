@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { sound } from '@/lib/sound';
 
 interface TactileButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -29,15 +30,15 @@ export const TactileButton: React.FC<TactileButtonProps> = ({
   const getVariantStyles = () => {
     switch (variant) {
       case 'primary':
-        return 'bg-[#ff8500] hover:bg-[#ff951a] text-white shadow-[0_4px_0_0_#d45900] active:shadow-[0_0_0_0_#d45900]';
+        return 'bg-gradient-to-b from-[#ff951a] to-[#ff8500] text-white shadow-[0_4px_0_0_#d45900,0_6px_12px_rgba(212,89,0,0.25)] active:shadow-[0_0_0_0_#d45900] border-t border-white/25';
       case 'success':
-        return 'bg-[#58cc02] hover:bg-[#64dc0b] text-white shadow-[0_4px_0_0_#58a700] active:shadow-[0_0_0_0_#58a700]';
+        return 'bg-gradient-to-b from-[#64dc0b] to-[#58cc02] text-white shadow-[0_4px_0_0_#469e00,0_6px_12px_rgba(70,158,0,0.25)] active:shadow-[0_0_0_0_#469e00] border-t border-white/25';
       case 'danger':
-        return 'bg-[#ff4b4b] hover:bg-[#ff5e5e] text-white shadow-[0_4px_0_0_#ea2b2b] active:shadow-[0_0_0_0_#ea2b2b]';
+        return 'bg-gradient-to-b from-[#ff5e5e] to-[#ff4b4b] text-white shadow-[0_4px_0_0_#d92020,0_6px_12px_rgba(217,32,32,0.25)] active:shadow-[0_0_0_0_#d92020] border-t border-white/25';
       case 'secondary':
-        return 'bg-white hover:bg-[#fff9f2] text-[#2d180b] border-2 border-[#edcfad] shadow-[0_4px_0_0_#d8baa0] active:shadow-[0_0_0_0_#d8baa0]';
+        return 'bg-white text-[#2d180b] shadow-[0_3px_0_0_#e0cbba,0_4px_8px_rgba(45,24,11,0.05),0_0_0_1px_rgba(45,24,11,0.08)] active:shadow-[0_0_0_0_#e0cbba] hover:bg-[#fff9f2]';
       case 'outline':
-        return 'bg-transparent text-[#ff8500] border-2 border-[#ff8500] hover:bg-[#ff8500]/10 shadow-[0_4px_0_0_#ff8500]/30 active:shadow-[0_0_0_0_#ff8500]';
+        return 'bg-transparent text-[#ff8500] border-2 border-[#ff8500] hover:bg-[#ff8500]/10 shadow-[0_3px_0_0_#ff8500]/20 active:shadow-none';
       case 'ghost':
         return 'bg-transparent text-[#895f3c] hover:bg-[#2d180b]/5 shadow-none active:translate-y-0';
       default:
@@ -48,15 +49,15 @@ export const TactileButton: React.FC<TactileButtonProps> = ({
   const getSizeStyles = () => {
     switch (size) {
       case 'sm':
-        return 'py-2 px-3.5 text-sm rounded-xl font-bold';
+        return 'py-2 px-3.5 text-xs rounded-xl font-extrabold';
       case 'md':
-        return 'py-3.5 px-6 text-base rounded-2xl font-bold tracking-wide';
+        return 'py-3 px-5 text-sm rounded-2xl font-black tracking-wide';
       case 'lg':
-        return 'py-4 px-8 text-lg rounded-2xl font-extrabold tracking-wide';
+        return 'py-4 px-6 text-base rounded-2xl font-black tracking-wide min-h-[52px]';
       case 'xl':
-        return 'py-4.5 px-8 text-xl rounded-3xl font-black tracking-wider';
+        return 'py-4.5 px-8 text-lg rounded-3xl font-black tracking-wider min-h-[58px]';
       default:
-        return 'py-3.5 px-6 text-base rounded-2xl font-bold';
+        return 'py-3.5 px-6 text-sm rounded-2xl font-black';
     }
   };
 
@@ -65,7 +66,7 @@ export const TactileButton: React.FC<TactileButtonProps> = ({
       onClick={handleClick}
       disabled={disabled}
       className={`
-        relative inline-flex items-center justify-center gap-2.5 select-none
+        relative inline-flex items-center justify-center gap-2 select-none
         transition-all duration-75 ease-out
         active:translate-y-1 focus:outline-none
         disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 disabled:shadow-none
@@ -77,7 +78,7 @@ export const TactileButton: React.FC<TactileButtonProps> = ({
       {...props}
     >
       {icon && <span className="flex-shrink-0">{icon}</span>}
-      <span>{children}</span>
+      <span className="truncate">{children}</span>
     </button>
   );
 };
