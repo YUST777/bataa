@@ -24,7 +24,7 @@ export function GemIcon({ size = 22 }: VectorProps) {
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Defs>
         <SvgGradient id="gemGrad" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#FFE066" />
+          <Stop offset="0" stopColor="#FFE57F" />
           <Stop offset="0.45" stopColor="#FF9F1A" />
           <Stop offset="1" stopColor="#D96600" />
         </SvgGradient>
@@ -39,7 +39,7 @@ export function GemIcon({ size = 22 }: VectorProps) {
       <Path
         d="M7 3.5L9.5 8.5h5L17 3.5M3 8.5h18M9.5 8.5L12 21.5l2.5-13"
         fill="none"
-        stroke="#FFF5B8"
+        stroke="#FFF8C4"
         strokeWidth="1.1"
         opacity="0.85"
       />
@@ -48,20 +48,20 @@ export function GemIcon({ size = 22 }: VectorProps) {
 }
 
 /**
- * 2. StreakFlame: Glowing Orange Fire Streak
+ * 2. StreakFlame: Glowing Orange Fire Streak with 3D Depth
  */
 export function StreakFlame({ size = 24 }: VectorProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Defs>
         <SvgGradient id="flameOuter" x1="0" y1="1" x2="0" y2="0">
-          <Stop offset="0" stopColor="#FF4500" />
-          <Stop offset="0.6" stopColor="#FF8C00" />
-          <Stop offset="1" stopColor="#FFA500" />
+          <Stop offset="0" stopColor="#FF3D00" />
+          <Stop offset="0.6" stopColor="#FF8F00" />
+          <Stop offset="1" stopColor="#FFA000" />
         </SvgGradient>
         <SvgGradient id="flameInner" x1="0" y1="1" x2="0" y2="0">
-          <Stop offset="0" stopColor="#FFD700" />
-          <Stop offset="1" stopColor="#FFF8DC" />
+          <Stop offset="0" stopColor="#FFD54F" />
+          <Stop offset="1" stopColor="#FFFDE7" />
         </SvgGradient>
       </Defs>
       {/* Outer Flame */}
@@ -110,7 +110,7 @@ export function XPStar({ size = 24 }: VectorProps) {
 }
 
 /**
- * 4. BataaAvatar: Friendly Duck Avatar with optional Edit Pencil
+ * 4. BataaAvatar: Friendly 3D White Duck Portrait with optional Edit Pencil
  */
 export function BataaAvatar({
   size = 64,
@@ -122,12 +122,12 @@ export function BataaAvatar({
         <Defs>
           <SvgGradient id="avatarBg" x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor="#FFF2DC" />
-            <Stop offset="1" stopColor="#FFE1B3" />
+            <Stop offset="1" stopColor="#FFE0B2" />
           </SvgGradient>
           <SvgGradient id="duckHead" x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor="#FFFFFF" />
             <Stop offset="0.8" stopColor="#F9F5EE" />
-            <Stop offset="1" stopColor="#EFE5D3" />
+            <Stop offset="1" stopColor="#EDE3D1" />
           </SvgGradient>
           <SvgGradient id="billGrad" x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor="#FFA62B" />
@@ -181,106 +181,105 @@ export function BataaAvatar({
 }
 
 /**
- * 5. BataaCelebrationMascot: Cute 3D White Duck jumping on Golden Star with Confetti
+ * 5. BataaCelebrationMascot: The White 3D Duck jumping on Golden Star with Confetti (Exact match to Screen 4)
  */
-export function BataaCelebrationMascot({ size = 180 }: VectorProps) {
+export function BataaCelebrationMascot({ size = 210 }: VectorProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 200 200">
+    <Svg width={size} height={size} viewBox="0 0 220 220">
       <Defs>
-        <SvgGradient id="starBase" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#FFE270" />
-          <Stop offset="0.5" stopColor="#FFBA19" />
+        <SvgGradient id="starBevel" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#FFE675" />
+          <Stop offset="0.45" stopColor="#FFBA19" />
           <Stop offset="1" stopColor="#E68A00" />
         </SvgGradient>
-        <SvgGradient id="duck3d" x1="0" y1="0" x2="0" y2="1">
+        <SvgGradient id="duckBodyGrad" x1="0" y1="0" x2="0" y2="1">
           <Stop offset="0" stopColor="#FFFFFF" />
-          <Stop offset="0.75" stopColor="#F5EFE3" />
-          <Stop offset="1" stopColor="#E2D6C0" />
+          <Stop offset="0.7" stopColor="#F7F1E6" />
+          <Stop offset="1" stopColor="#E5D9C4" />
         </SvgGradient>
-        <SvgGradient id="beak3d" x1="0" y1="0" x2="0" y2="1">
+        <SvgGradient id="beakOrange" x1="0" y1="0" x2="0" y2="1">
           <Stop offset="0" stopColor="#FFB338" />
           <Stop offset="1" stopColor="#E66800" />
         </SvgGradient>
       </Defs>
 
-      {/* Confetti Particles */}
-      <Rect x="25" y="40" width="7" height="7" rx="2" fill="#22C55E" transform="rotate(25 25 40)" />
-      <Circle cx="170" cy="50" r="4" fill="#FF7A00" />
-      <Polygon points="180,90 186,95 180,100 174,95" fill="#3B82F6" />
-      <Rect x="35" y="110" width="8" height="5" rx="1.5" fill="#EF4444" transform="rotate(-30 35 110)" />
-      <Circle cx="150" cy="25" r="3.5" fill="#FACC15" />
-      <Polygon points="40,20 46,25 40,30" fill="#EC4899" />
-      <Rect x="165" y="130" width="6" height="6" rx="1" fill="#10B981" transform="rotate(15 165 130)" />
+      {/* Celebration Confetti in the sky */}
+      <Rect x="30" y="38" width="9" height="7" rx="2" fill="#22C55E" transform="rotate(25 30 38)" />
+      <Circle cx="185" cy="45" r="4.5" fill="#FF7A00" />
+      <Polygon points="195,85 202,91 195,97 188,91" fill="#3B82F6" />
+      <Rect x="42" y="105" width="8" height="6" rx="1.5" fill="#EF4444" transform="rotate(-30 42 105)" />
+      <Circle cx="165" cy="22" r="4" fill="#FACC15" />
+      <Polygon points="45,18 52,24 45,30" fill="#EC4899" />
+      <Rect x="180" y="125" width="7" height="7" rx="1.5" fill="#10B981" transform="rotate(15 180 125)" />
+      <Circle cx="22" cy="75" r="3.5" fill="#A855F7" />
 
-      {/* Golden Base Star that the duck jumps on */}
+      {/* Golden 3D Star Platform */}
       <Path
-        d="M100 135l14 26 30 4-22 20 5 30-27-14-27 14 5-30-22-20 30-4z"
-        fill="url(#starBase)"
+        d="M110 148l16 28 32 4-24 22 6 32-30-16-30 16 6-32-24-22 32-4z"
+        fill="url(#starBevel)"
         stroke="#BD7200"
         strokeWidth="2"
         strokeLinejoin="round"
       />
-
-      {/* Duck Feet standing on star */}
-      <Ellipse cx="88" cy="144" rx="8" ry="4" fill="#FFA500" stroke="#C86E00" strokeWidth="1" />
-      <Ellipse cx="112" cy="144" rx="8" ry="4" fill="#FFA500" stroke="#C86E00" strokeWidth="1" />
-
-      {/* Duck Body */}
+      {/* Star Highlight */}
       <Path
-        d="M72 105c0-16 12-28 28-28s28 12 28 28c0 18-12 36-28 36s-28-18-28-36z"
-        fill="url(#duck3d)"
+        d="M110 152l12 22 24 3-18 16 4 24-22-12"
+        fill="none"
+        stroke="#FFF8C4"
+        strokeWidth="1.5"
+        opacity="0.8"
+      />
+
+      {/* Duck Webbed Feet */}
+      <Path d="M96 158c-4 0-8 3-8 6s4 4 8 4 8-1 8-4-4-6-8-6z" fill="#FFA500" stroke="#C86E00" strokeWidth="1" />
+      <Path d="M124 158c-4 0-8 3-8 6s4 4 8 4 8-1 8-4-4-6-8-6z" fill="#FFA500" stroke="#C86E00" strokeWidth="1" />
+
+      {/* Duck Chubby Body */}
+      <Path
+        d="M80 115c0-18 14-32 30-32s30 14 30 32c0 20-13 40-30 40s-30-20-30-40z"
+        fill="url(#duckBodyGrad)"
         stroke="#D5C7B0"
         strokeWidth="1.5"
       />
 
-      {/* Flapping Wings */}
-      {/* Left Wing (flapping up) */}
+      {/* Left Flapping Wing (up & waving) */}
       <Path
-        d="M74 100c-14-10-24-6-30 4-3 5 2 12 10 11 8-1 16-7 20-15z"
+        d="M82 110c-16-12-28-8-34 4-4 6 2 14 11 12 9-2 18-8 23-16z"
         fill="#FFFFFF"
         stroke="#D5C7B0"
         strokeWidth="1.5"
       />
-      {/* Right Wing (flapping up) */}
+      {/* Right Flapping Wing (up & waving) */}
       <Path
-        d="M126 100c14-10 24-6 30 4 3 5-2 12-10 11-8-1-16-7-20-15z"
+        d="M138 110c16-12 28-8 34 4 4 6-2 14-11 12-9-2-18-8-23-16z"
         fill="#FFFFFF"
         stroke="#D5C7B0"
         strokeWidth="1.5"
       />
 
-      {/* Duck Head */}
-      <Circle cx="100" cy="74" r="26" fill="url(#duck3d)" stroke="#D5C7B0" strokeWidth="1.5" />
+      {/* Cute Round Duck Head */}
+      <Circle cx="110" cy="80" r="30" fill="url(#duckBodyGrad)" stroke="#D5C7B0" strokeWidth="1.5" />
 
-      {/* Cheeks */}
-      <Circle cx="84" cy="80" r="4.5" fill="#FFAE9E" opacity="0.65" />
-      <Circle cx="116" cy="80" r="4.5" fill="#FFAE9E" opacity="0.65" />
+      {/* Rosy Cheeks */}
+      <Circle cx="92" cy="88" r="5.5" fill="#FFAE9E" opacity="0.65" />
+      <Circle cx="128" cy="88" r="5.5" fill="#FFAE9E" opacity="0.65" />
 
-      {/* Eyes */}
-      <Circle cx="91" cy="70" r="5" fill="#1C140E" />
-      <Circle cx="93" cy="68" r="1.8" fill="#FFFFFF" />
-      <Circle cx="109" cy="70" r="5" fill="#1C140E" />
-      <Circle cx="111" cy="68" r="1.8" fill="#FFFFFF" />
+      {/* Big Sparkling Eyes */}
+      <Circle cx="99" cy="76" r="6" fill="#1C140E" />
+      <Circle cx="101" cy="74" r="2.2" fill="#FFFFFF" />
+      <Circle cx="121" cy="76" r="6" fill="#1C140E" />
+      <Circle cx="123" cy="74" r="2.2" fill="#FFFFFF" />
 
-      {/* Beak */}
+      {/* Cheerful Beak */}
       <Path
-        d="M87 77c4-3 8-4 13-4s9 1 13 4c2 3 1 6-3 8-3 2-7 2.5-10 2.5s-7-.5-10-2.5c-4-2-5-5-3-8z"
-        fill="url(#beak3d)"
+        d="M95 84c5-4 10-5 15-5s10 1 15 5c3 4 1 8-4 10-4 2-8 3-11 3s-7-1-11-3c-5-2-6-6-4-10z"
+        fill="url(#beakOrange)"
         stroke="#B85500"
         strokeWidth="1.2"
       />
+      {/* Smile Crease */}
+      <Path d="M103 91c2 1 5 1.5 7 1.5s5-.5 7-1.5" fill="none" stroke="#8E4300" strokeWidth="1.2" strokeLinecap="round" />
     </Svg>
-  )
-}
-
-function Ellipse({ cx, cy, rx, ry, fill, stroke, strokeWidth }: any) {
-  return (
-    <Path
-      d={`M ${cx - rx} ${cy} A ${rx} ${ry} 0 1 0 ${cx + rx} ${cy} A ${rx} ${ry} 0 1 0 ${cx - rx} ${cy} Z`}
-      fill={fill}
-      stroke={stroke}
-      strokeWidth={strokeWidth}
-    />
   )
 }
 
@@ -321,10 +320,8 @@ export function DoubleXPBadge({ size = 52 }: VectorProps) {
       </Defs>
       <Circle cx="30" cy="30" r="26" fill="url(#xpPurp)" stroke="#7E22CE" strokeWidth="2" />
       <Circle cx="30" cy="30" r="22" fill="none" stroke="#E9D5FF" strokeWidth="1" opacity="0.5" />
-      {/* Sparkles */}
       <Circle cx="44" cy="16" r="2" fill="#FFFFFF" />
       <Circle cx="16" cy="44" r="1.5" fill="#FFFFFF" />
-      {/* XP Letters stylized */}
       <Path
         d="M20 22L27 38M27 22L20 38M31 22h6c3 0 5 1.5 5 4.5s-2 4.5-5 4.5h-6v7"
         stroke="#FFFFFF"
@@ -349,16 +346,13 @@ export function HintLightbulb({ size = 52 }: VectorProps) {
           <Stop offset="1" stopColor="#E59B00" />
         </SvgGradient>
       </Defs>
-      {/* Bulb body */}
       <Path
         d="M30 8c-9.5 0-17 7.5-17 17 0 6 3 11 8 14v5h18v-5c5-3 8-8 8-14 0-9.5-7.5-17-17-17z"
         fill="url(#bulbGrad)"
         stroke="#D98A00"
         strokeWidth="1.5"
       />
-      {/* Glow rays */}
       <Path d="M30 2v3M10 14l3 2M50 14l-3 2" stroke="#FFD000" strokeWidth="2" strokeLinecap="round" />
-      {/* Screw base */}
       <Rect x="23" y="44" width="14" height="3" rx="1.5" fill="#B0A292" />
       <Rect x="24" y="48" width="12" height="3" rx="1.5" fill="#8C7D6D" />
       <Path d="M26 52h8" stroke="#66594C" strokeWidth="2" strokeLinecap="round" />
@@ -385,7 +379,6 @@ export function HeartRefill({ size = 52 }: VectorProps) {
         stroke="#80001B"
         strokeWidth="1.5"
       />
-      {/* Gloss reflection */}
       <Path
         d="M17 17a6 6 0 0 1 8 2"
         stroke="#FFA1B5"
