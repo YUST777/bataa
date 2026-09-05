@@ -7,7 +7,9 @@
     "background": {
       "app": "#FFF6E9",
       "surface": "#FFFFFF",
-      "surfaceWarm": "#FFF9F1"
+      "surfaceWarm": "#FFF9F1",
+      "glass": "rgba(255, 249, 241, 0.78)",
+      "glassStrong": "rgba(255, 255, 255, 0.9)"
     },
     "text": {
       "primary": "#18130F",
@@ -16,7 +18,8 @@
     },
     "border": {
       "subtle": "#EBE1D3",
-      "strong": "#BFAE9D"
+      "strong": "#BFAE9D",
+      "glass": "rgba(191, 174, 157, 0.52)"
     },
     "action": {
       "primary": "#FF7A00",

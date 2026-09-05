@@ -1,5 +1,8 @@
 node_modules
 dist
 dist-ssr
+web-build
 *.local
+*.log
+.expo/
 .DS_Store

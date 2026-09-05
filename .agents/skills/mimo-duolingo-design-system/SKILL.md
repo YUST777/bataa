@@ -25,14 +25,16 @@ Build Bataa as an original mobile coding-learning product. Apply the learning an
 6. Verify the flow on a narrow phone viewport, in Arabic RTL, by keyboard, and with reduced motion.
 7. Audit the result with `evaluation_checklist.md` before declaring it finished.
 
-When the Appllama MCP is connected, apply the installed `appllama-usage` and
-`appllama-app-design-skill` skills before designing a new mobile screen. Start
-with the free credit check, study the whole relevant flow in journey order,
-save notes and expiring media promptly, extract the interaction grammar rather
-than pixels, then run the mobile implementation and full-flow verification bar.
-If the current repository is not Expo/React Native, preserve its existing
-stack while applying the same research, navigation, motion, and anti-slop
-principles.
+Only use Appllama research when the user explicitly authorizes it and accepts
+its account/credit requirements. If authorized, apply the installed
+`appllama-usage` and `appllama-app-design-skill` skills before designing a new
+mobile screen: check credits first, study the relevant flow in journey order,
+save notes and expiring media promptly, extract interaction grammar rather than
+pixels, then run the mobile implementation and full-flow verification bar.
+For the current Bataa project, do not invoke Appllama; use the free references
+documented in `references/apple_glass_and_reference_patterns.md` instead. If
+the current repository is not Expo/React Native, preserve its existing stack
+while applying the same research, navigation, motion, and anti-slop principles.
 
 ## Apply the non-negotiable rules
 
@@ -66,8 +68,9 @@ principles.
 | Implement Arabic, RTL, focus, contrast, or reduced motion | `references/accessibility_and_rtl.md` |
 | Choose routes, TypeScript models, or state boundaries | `references/system_design_architecture.md` |
 | Design mobile APIs, offline sync, persistence, or telemetry | `references/network_api_and_database_schemas.md` |
-| Research top-grossing mobile apps with Appllama | Installed `appllama-usage` skill and connected `appllama` MCP |
+| Research top-grossing mobile apps with Appllama (only with explicit authorization) | Installed `appllama-usage` skill and connected `appllama` MCP |
 | Build or polish native-feeling mobile screens | Installed `appllama-app-design-skill` skill |
+| Apply Apple platform behavior, glass materials, or reference-site patterns | `references/apple_glass_and_reference_patterns.md` plus installed `apple-ui-designer`, `ios-liquid-glass`, and `glassmorphism` skills |
 | Review a screen or decide whether it is complete | `references/evaluation_checklist.md` |
 
 ## Use the core mobile learning loop

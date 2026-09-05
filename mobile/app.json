@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Bataa",
+    "slug": "bataa-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "bataa",
+    "plugins": [
+      "expo-router",
+      "expo-asset",
+      "expo-status-bar",
+      "expo-font"
+    ],
+    "android": {
+      "package": "com.bataa.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFF1BF"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.bataa.mobile",
+      "supportsTablet": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    }
+  }
+}
