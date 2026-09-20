@@ -411,15 +411,14 @@ export function HowItWorks() {
         {/* Showcase Area */}
         <div className="mimo-showcase-wrapper">
           <div className="mimo-showcase-grid">
-            {/* Left: Interactive Media Box (Pitch Deck, YouTube Video, or Desktop Showcase) */}
+            {/* Left: Interactive Media Box (1st: YouTube Video, 2nd: Pitch Deck, 3rd: Desktop Showcase) */}
             <div
               className="mimo-video-box"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
-              {activeTab === 'learn' && <PitchDeckViewer />}
-
-              {activeTab === 'practice' && (
+              {/* 1st: Video */}
+              {activeTab === 'learn' && (
                 <div style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>
                   <iframe
                     src="https://www.youtube-nocookie.com/embed/4Lz5fNhs49g?rel=0"
@@ -436,36 +435,23 @@ export function HowItWorks() {
                 </div>
               )}
 
+              {/* 2nd: PowerPoint Pitch Deck */}
+              {activeTab === 'practice' && <PitchDeckViewer />}
+
+              {/* 3rd: Screenshot (fully filling the widget) */}
               {activeTab === 'build' && (
-                <div style={{ width: '100%', height: '100%', position: 'relative', background: '#1c0d05', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
                   <img
                     src="/showcase.jpg"
                     alt="Bataa Desktop Practice Showcase"
                     style={{
                       width: '100%',
                       height: '100%',
-                      objectFit: 'contain',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
                       display: 'block'
                     }}
                   />
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '12px',
-                    left: '12px',
-                    background: 'rgba(41, 20, 8, 0.85)',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 207, 151, 0.25)',
-                    borderRadius: '10px',
-                    padding: '6px 14px',
-                    color: '#edcfad',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    <span>Desktop Practice Workspace</span>
-                  </div>
                 </div>
               )}
             </div>
