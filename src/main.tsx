@@ -1,4 +1,4 @@
-import { StrictMode, useState } from 'react'
+import { StrictMode, useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Eye, EyeOff } from 'lucide-react'
 import { FcGoogle } from 'react-icons/fc'
@@ -151,7 +151,34 @@ function Hero() {
 
 const isCapacitor = typeof window !== 'undefined' && Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.())
 
-const rootRoute = createRootRoute({ component: () => <Outlet /> })
+function RootLayout() {
+  useEffect(() => {
+    // 1. Handle incoming OAuth token in hash fragment (#access_token=...)
+    const hash = window.location.hash
+    if (hash && hash.includes('access_token')) {
+      const params = new URLSearchParams(hash.replace(/^#/, ''))
+      const accessToken = params.get('access_token')
+      const refreshToken = params.get('refresh_token')
+      if (accessToken) {
+        localStorage.setItem('bataa_access_token', accessToken)
+        if (refreshToken) localStorage.setItem('bataa_refresh_token', refreshToken)
+        window.history.replaceState({}, document.title, '/app')
+        window.location.href = '/app'
+        return
+      }
+    }
+
+    // 2. Clear stale/consumed OAuth state error query params if user refreshed or navigated back
+    const searchParams = new URLSearchParams(window.location.search)
+    if (searchParams.get('error_code') === 'bad_oauth_state') {
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [])
+
+  return <Outlet />
+}
+
+const rootRoute = createRootRoute({ component: RootLayout })
 const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: isCapacitor ? BataaApp : Hero })
 const appRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app', component: BataaApp })
 const landingRoute = createRoute({ getParentRoute: () => rootRoute, path: '/landing', component: Hero })
