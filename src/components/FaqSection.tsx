@@ -43,36 +43,6 @@ const FAQ_DATA: FaqItem[] = [
     answer:
       'Just 15 to 20 minutes a day is enough to build real skills. Because you are practicing directly inside real software instead of passively watching long videos, you retain skills much faster.',
   },
-  {
-    id: 'faq-6',
-    question: 'How does Bataa use AI in learning?',
-    answer:
-      'Bataa’s AI observes your practice in real time. It explains why each concept matters, diagnoses mistakes immediately in clear English, and adapts instructions to your skill level.',
-  },
-  {
-    id: 'faq-7',
-    question: 'Is Bataa suitable for career-focused learners?',
-    answer:
-      'Yes. Bataa provides structured career paths in 3D modeling, coding, and digital creation. You build portfolio-ready projects inside industry-standard desktop software and earn verified skill certificates.',
-  },
-  {
-    id: 'faq-8',
-    question: 'What are Bataa certificates used for?',
-    answer:
-      'Bataa certificates prove that you completed real hands-on projects in software like Blender and VS Code. You can attach them to your resume, LinkedIn profile, or portfolio to demonstrate practical skills to employers.',
-  },
-  {
-    id: 'faq-9',
-    question: 'Does my subscription work on multiple devices?',
-    answer:
-      'Yes. Bataa runs directly on your computer where you practice in real software, and your learning progress and projects sync seamlessly across all your devices.',
-  },
-  {
-    id: 'faq-10',
-    question: 'Can I cancel my subscription anytime?',
-    answer:
-      'Yes. You can manage or cancel your subscription at any time with a single click in your account settings.',
-  },
 ]
 
 export function FaqSection() {
