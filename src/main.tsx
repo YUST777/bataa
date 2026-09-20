@@ -45,7 +45,9 @@ function SignupForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleGoogleSignUp = () => {
-    setNotice('Google sign-up is not connected in this prototype. Use the form above to continue exploring.')
+    setIsSubmitting(true)
+    const redirectTo = encodeURIComponent(`${window.location.origin}/app`)
+    window.location.href = `https://uspudlodlwjezrbxzbqn.supabase.co/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`
   }
 
   const handleSubmit = async (event: React.FormEvent) => {

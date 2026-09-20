@@ -23,6 +23,12 @@ export function RegisterPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const handleGoogleAuth = () => {
+    setIsSubmitting(true)
+    const redirectTo = encodeURIComponent(`${window.location.origin}/app`)
+    window.location.href = `https://uspudlodlwjezrbxzbqn.supabase.co/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !email.includes('@')) {
@@ -152,7 +158,7 @@ export function RegisterPage() {
             <button
               type="button"
               className="bataa-reg-google-btn"
-              onClick={() => setNotice('Google sign-in is not connected in this prototype. Use the form above to continue exploring.')}
+              onClick={handleGoogleAuth}
             >
               <FcGoogle className="bataa-reg-google-icon" aria-hidden="true" />
               <span>Sign in with Google</span>
@@ -173,10 +179,10 @@ export function RegisterPage() {
               className="bataa-reg-login-link"
               onClick={(event) => {
                 event.preventDefault()
-                setNotice('Log in will be available when account sessions are connected. Your local learning does not need a login.')
+                handleGoogleAuth()
               }}
             >
-              Log in
+              Log in with Google
             </a>
           </p>
         </div>
