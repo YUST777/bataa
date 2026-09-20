@@ -44,7 +44,7 @@ export function AiPowered() {
               <p className="bataa-ai-card-kicker">PRACTICE</p>
               <h3 className="bataa-ai-card-title">Instant mistake diagnosis</h3>
               <p className="bataa-ai-card-desc">
-                Get friendly, real-time explanations in natural Arabic whenever you click the wrong setting, run into an error, or get stuck
+                Get friendly, real-time explanations in clear English whenever you click the wrong setting, run into an error, or get stuck
               </p>
             </div>
             <div className="bataa-ai-widget-placeholder" />

@@ -1,6 +1,32 @@
-import React from 'react'
+import React, { useState } from 'react'
+
+interface FooterLinkProps {
+  href: string
+  label: string
+  onUnavailable: (label: string) => void
+  available?: boolean
+}
+
+/** Keep placeholder destinations honest while the marketing pages are built. */
+function FooterLink({ href, label, onUnavailable, available = false }: FooterLinkProps) {
+  if (!available) {
+    return (
+      <button type="button" className="bataa-footer-link bataa-footer-link-button" onClick={() => onUnavailable(label)}>
+        {label}
+      </button>
+    )
+  }
+
+  return <a href={href} className="bataa-footer-link">{label}</a>
+}
 
 export function Footer() {
+  const [notice, setNotice] = useState('')
+
+  const showUnavailable = (label: string) => {
+    setNotice(`${label} is not available in this prototype yet. Start learning for free to explore the guided path.`)
+  }
+
   return (
     <footer className="bataa-footer">
       <div className="bataa-footer-container">
@@ -17,12 +43,12 @@ export function Footer() {
           <div className="bataa-footer-col">
             <h3 className="bataa-footer-col-title">Company</h3>
             <ul className="bataa-footer-links">
-              <li><a href="#about" className="bataa-footer-link">About</a></li>
-              <li><a href="#careers" className="bataa-footer-link">Careers</a></li>
-              <li><a href="#press" className="bataa-footer-link">Press Kit</a></li>
-              <li><a href="#imprint" className="bataa-footer-link">Imprint</a></li>
-              <li><a href="#terms" className="bataa-footer-link">Terms of Use</a></li>
-              <li><a href="#privacy" className="bataa-footer-link">Privacy Policy</a></li>
+              <li><FooterLink href="#about" label="About" onUnavailable={showUnavailable} available /></li>
+              <li><FooterLink href="#careers" label="Careers" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#press" label="Press Kit" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#imprint" label="Imprint" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#terms" label="Terms of Use" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#privacy" label="Privacy Policy" onUnavailable={showUnavailable} /></li>
             </ul>
           </div>
 
@@ -30,11 +56,11 @@ export function Footer() {
           <div className="bataa-footer-col">
             <h3 className="bataa-footer-col-title">Resources</h3>
             <ul className="bataa-footer-links">
-              <li><a href="#blog" className="bataa-footer-link">Blog</a></li>
-              <li><a href="#glossary" className="bataa-footer-link">Glossary</a></li>
-              <li><a href="#tutorials" className="bataa-footer-link">Tutorials</a></li>
-              <li><a href="#stories" className="bataa-footer-link">Learner stories</a></li>
-              <li><a href="#help" className="bataa-footer-link">Help</a></li>
+              <li><FooterLink href="#blog" label="Blog" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#glossary" label="Glossary" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#tutorials" label="Tutorials" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#stories" label="Learner stories" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#help" label="Help" onUnavailable={showUnavailable} /></li>
             </ul>
           </div>
 
@@ -42,19 +68,19 @@ export function Footer() {
           <div className="bataa-footer-col">
             <h3 className="bataa-footer-col-title">Courses</h3>
             <ul className="bataa-footer-links">
-              <li><a href="#courses" className="bataa-footer-link">All courses</a></li>
-              <li><a href="#blender-path" className="bataa-footer-link">3D Artist & Animator</a></li>
-              <li><a href="#python-path" className="bataa-footer-link">Python & AI Developer</a></li>
-              <li><a href="#frontend-path" className="bataa-footer-link">Front-End Developer</a></li>
-              <li><a href="#fullstack-path" className="bataa-footer-link">Full-Stack Developer</a></li>
-              <li><a href="#blender" className="bataa-footer-link">Blender</a></li>
-              <li><a href="#vscode" className="bataa-footer-link">VS Code</a></li>
-              <li><a href="#python" className="bataa-footer-link">Python</a></li>
-              <li><a href="#html" className="bataa-footer-link">HTML & CSS</a></li>
-              <li><a href="#js" className="bataa-footer-link">JavaScript</a></li>
-              <li><a href="#ts" className="bataa-footer-link">TypeScript</a></li>
-              <li><a href="#react" className="bataa-footer-link">React</a></li>
-              <li><a href="#sql" className="bataa-footer-link">SQL</a></li>
+              <li><FooterLink href="#what-youll-learn" label="All courses" onUnavailable={showUnavailable} available /></li>
+              <li><FooterLink href="#blender-path" label="3D Artist & Animator" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#python-path" label="Python & AI Developer" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#frontend-path" label="Front-End Developer" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#fullstack-path" label="Full-Stack Developer" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#blender" label="Blender" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#vscode" label="VS Code" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#python" label="Python" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#html" label="HTML & CSS" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#js" label="JavaScript" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#ts" label="TypeScript" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#react" label="React" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#sql" label="SQL" onUnavailable={showUnavailable} /></li>
             </ul>
           </div>
 
@@ -62,41 +88,50 @@ export function Footer() {
           <div className="bataa-footer-col">
             <h3 className="bataa-footer-col-title">Product</h3>
             <ul className="bataa-footer-links">
-              <li><a href="#login" className="bataa-footer-link">Login</a></li>
-              <li><a href="#register" className="bataa-footer-link">Register</a></li>
-              <li><a href="#pricing" className="bataa-footer-link">Pricing</a></li>
-              <li><a href="#app" className="bataa-footer-link">Mobile App</a></li>
-              <li><a href="#certs" className="bataa-footer-link">Certifications</a></li>
-              <li><a href="#compilers" className="bataa-footer-link">Code Compilers</a></li>
+              <li><FooterLink href="/web/register#login" label="Login" onUnavailable={showUnavailable} available /></li>
+              <li><FooterLink href="/web/register" label="Register" onUnavailable={showUnavailable} available /></li>
+              <li><FooterLink href="#pricing" label="Pricing" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#app" label="Mobile App" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#certs" label="Certifications" onUnavailable={showUnavailable} /></li>
+              <li><FooterLink href="#compilers" label="Code Compilers" onUnavailable={showUnavailable} /></li>
             </ul>
 
             {/* Mobile App Badges */}
             <div className="bataa-footer-badges">
-              <a
-                href="#app-store"
+              <button
+                type="button"
                 className="bataa-app-badge-link"
                 aria-label="Download Bataa on App Store"
+                onClick={() => showUnavailable('The App Store download')}
               >
                 <img
                   src="/app-store-badge.svg"
                   alt="Download on the App Store"
                   className="bataa-app-badge"
                 />
-              </a>
-              <a
-                href="#google-play"
+              </button>
+              <button
+                type="button"
                 className="bataa-app-badge-link"
                 aria-label="Download Bataa on Google Play"
+                onClick={() => showUnavailable('The Google Play download')}
               >
                 <img
                   src="/google-play-badge.svg"
                   alt="Get it on Google Play"
                   className="bataa-app-badge"
                 />
-              </a>
+              </button>
             </div>
           </div>
         </div>
+
+        {notice && (
+          <p className="bataa-footer-notice" role="status" aria-live="polite">
+            <span>{notice}</span>
+            <button type="button" onClick={() => setNotice('')} aria-label="Dismiss message">Dismiss</button>
+          </p>
+        )}
 
         {/* Bottom Bar: Copyright & Socials */}
         <div className="bataa-footer-bottom">

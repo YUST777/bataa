@@ -29,7 +29,7 @@ const FAQ_DATA: FaqItem[] = [
     id: 'faq-3',
     question: "What's included in a paid subscription?",
     answer:
-      'A paid subscription includes unlimited access to all desktop learning paths (Blender, Python, Web Dev, Game Dev), real-time on-screen mascot guidance, instant Arabic mistake diagnosis, and verified certificates.',
+      'A paid subscription includes unlimited access to web-development learning paths, real-time mentor guidance, instant English mistake diagnosis, and verified certificates.',
   },
   {
     id: 'faq-4',
@@ -47,7 +47,7 @@ const FAQ_DATA: FaqItem[] = [
     id: 'faq-6',
     question: 'How does Bataa use AI in learning?',
     answer:
-      'Bataa’s AI observes your screen in real time as you practice inside real desktop apps. It explains why each tool matters, diagnoses mistakes immediately in natural Arabic, and adapts instructions to your skill level.',
+      'Bataa’s AI observes your practice in real time. It explains why each concept matters, diagnoses mistakes immediately in clear English, and adapts instructions to your skill level.',
   },
   {
     id: 'faq-7',

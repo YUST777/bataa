@@ -5,6 +5,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileCoursesOpen, setMobileCoursesOpen] = useState(false)
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false)
+  const [desktopMenuOpen, setDesktopMenuOpen] = useState<'courses' | 'resources' | null>(null)
 
   // Prevent background scrolling when mobile menu is open
   useEffect(() => {
@@ -24,10 +25,26 @@ export function Navbar() {
       if (e.key === 'Escape' && mobileMenuOpen) {
         setMobileMenuOpen(false)
       }
+      if (e.key === 'Escape' && desktopMenuOpen) {
+        setDesktopMenuOpen(null)
+      }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [mobileMenuOpen])
+  }, [mobileMenuOpen, desktopMenuOpen])
+
+  // A click outside an open desktop menu closes it, matching the mobile drawer
+  // and preventing a menu from staying visually active after focus moves away.
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target
+      if (target instanceof Element && !target.closest('.bataa-nav-item-wrap')) {
+        setDesktopMenuOpen(null)
+      }
+    }
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [])
 
   return (
     <header className="topbar">
@@ -51,18 +68,28 @@ export function Navbar() {
       {/* Desktop Navigation */}
       <nav className="main-nav" aria-label="Primary navigation">
         {/* Courses Nav Item & Mega-Menu */}
-        <div className="bataa-nav-item-wrap">
+        <div
+          className={`bataa-nav-item-wrap ${desktopMenuOpen === 'courses' ? 'menu-open' : ''}`}
+          onMouseEnter={() => setDesktopMenuOpen('courses')}
+          onMouseLeave={() => setDesktopMenuOpen((current) => current === 'courses' ? null : current)}
+          onFocus={() => setDesktopMenuOpen('courses')}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDesktopMenuOpen((current) => current === 'courses' ? null : current)
+          }}
+        >
           <button
             type="button"
             className="bataa-nav-trigger"
             aria-haspopup="menu"
-            aria-expanded="false"
+            aria-expanded={desktopMenuOpen === 'courses'}
+            aria-controls="bataa-courses-menu"
+            onClick={() => setDesktopMenuOpen((current) => current === 'courses' ? null : 'courses')}
           >
             <span>Courses</span>
             <ChevronDown size={18} className="bataa-nav-chevron" />
           </button>
 
-          <div className="bataa-nav-dropdown-portal bataa-courses-dropdown-portal" role="menu">
+          <div id="bataa-courses-menu" className="bataa-nav-dropdown-portal bataa-courses-dropdown-portal" role="menu">
             <div className="bataa-courses-dropdown-layout">
               {/* Column 1: CAREER PATHS */}
               <div className="bataa-dropdown-col">
@@ -122,18 +149,28 @@ export function Navbar() {
         </div>
 
         {/* Resources Nav Item & Dropdown */}
-        <div className="bataa-nav-item-wrap">
+        <div
+          className={`bataa-nav-item-wrap ${desktopMenuOpen === 'resources' ? 'menu-open' : ''}`}
+          onMouseEnter={() => setDesktopMenuOpen('resources')}
+          onMouseLeave={() => setDesktopMenuOpen((current) => current === 'resources' ? null : current)}
+          onFocus={() => setDesktopMenuOpen('resources')}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDesktopMenuOpen((current) => current === 'resources' ? null : current)
+          }}
+        >
           <button
             type="button"
             className="bataa-nav-trigger"
             aria-haspopup="menu"
-            aria-expanded="false"
+            aria-expanded={desktopMenuOpen === 'resources'}
+            aria-controls="bataa-resources-menu"
+            onClick={() => setDesktopMenuOpen((current) => current === 'resources' ? null : 'resources')}
           >
             <span>Resources</span>
             <ChevronDown size={18} className="bataa-nav-chevron" />
           </button>
 
-          <div className="bataa-nav-dropdown-portal bataa-resources-dropdown-portal" role="menu">
+          <div id="bataa-resources-menu" className="bataa-nav-dropdown-portal bataa-resources-dropdown-portal" role="menu">
             <div className="bataa-dropdown-col">
               <span className="bataa-dropdown-kicker">RESOURCES</span>
               <div className="bataa-dropdown-links-list">
@@ -178,6 +215,9 @@ export function Navbar() {
 
       <div
         className={`bataa-mobile-drawer ${mobileMenuOpen ? 'bataa-mobile-drawer-open' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-hidden={!mobileMenuOpen}
         aria-label="Mobile navigation menu"
       >
         <div className="bataa-mobile-drawer-header">

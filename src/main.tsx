@@ -1,6 +1,6 @@
 import { StrictMode, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ChevronDown, Globe2, EyeOff, Eye } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { FcGoogle } from 'react-icons/fc'
 import { createRootRoute, createRoute, createRouter, Outlet, RouterProvider } from '@tanstack/react-router'
 import { Button } from './components/ui/button'
@@ -11,6 +11,7 @@ import { FaqSection } from './components/FaqSection'
 import { Footer } from './components/Footer'
 import { RegisterPage } from './components/RegisterPage'
 import { Navbar } from './components/Navbar'
+import { BataaApp } from './app/BataaApp'
 import './styles.css'
 
 function FloatingArt() {
@@ -32,10 +33,21 @@ function FloatingArt() {
 
 function SignupForm() {
   const [showPassword, setShowPassword] = useState(false)
+  const [notice, setNotice] = useState('')
+
+  const handleGoogleSignUp = () => {
+    setNotice('Google sign-up is not connected in this prototype. Use the form above to continue exploring.')
+  }
 
   return (
-    <form className="signup-form" onSubmit={(event) => event.preventDefault()}>
-      <Button className="google-button" variant="outline" type="submit">
+    <form
+      className="signup-form"
+      onSubmit={(event) => {
+        event.preventDefault()
+        setNotice('Use “Start learning for free” to open the guided learning experience.')
+      }}
+    >
+      <Button className="google-button" variant="outline" type="button" onClick={handleGoogleSignUp}>
         <FcGoogle className="google-icon" aria-hidden="true" />
         <span>Sign up with Google</span>
       </Button>
@@ -63,20 +75,21 @@ function SignupForm() {
       <a href="/web/register" className="submit-button" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
         Start learning for free
       </a>
-      <p className="terms">By signing up, you agree to Bataa’s <a href="#terms">Terms of Service.</a></p>
+      <p className="terms">By signing up, you agree to Bataa’s <a href="/web/register#terms">Terms of Service.</a></p>
+      {notice && <p className="signup-notice" role="status" aria-live="polite">{notice}</p>}
     </form>
   )
 }
 
 function Hero() {
   return (
-    <main className="hero-shell">
+    <main id="about" className="hero-shell">
       <Navbar />
 
       <section className="hero-content" aria-labelledby="hero-title">
         <div className="copy-column">
           <h1 id="hero-title"><span>Learn by doing</span><br />with your AI mentor</h1>
-          <p className="subhead">Bataa sits on your screen as a friendly mascot, opens real desktop apps like Blender, highlights where to click with glowing yellow boxes, and explains mistakes in natural Arabic as you build.</p>
+          <p className="subhead">Bataa sits beside you as a friendly duck mentor, guides each step, and explains mistakes in clear English as you build real projects.</p>
           <SignupForm />
         </div>
         <FloatingArt />
@@ -92,9 +105,10 @@ function Hero() {
 }
 
 const rootRoute = createRootRoute({ component: () => <Outlet /> })
-const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: Hero })
+const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: BataaApp })
+const landingRoute = createRoute({ getParentRoute: () => rootRoute, path: '/landing', component: Hero })
 const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: '/web/register', component: RegisterPage })
-const routeTree = rootRoute.addChildren([indexRoute, registerRoute])
+const routeTree = rootRoute.addChildren([indexRoute, landingRoute, registerRoute])
 const router = createRouter({ routeTree })
 
 declare module '@tanstack/react-router' {

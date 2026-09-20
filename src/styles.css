@@ -87,8 +87,7 @@ a { color: inherit; text-decoration: none; }
   font-family: inherit;
 }
 
-.bataa-nav-item-wrap:hover .bataa-nav-trigger,
-.bataa-nav-item-wrap:focus-within .bataa-nav-trigger {
+.bataa-nav-item-wrap.menu-open .bataa-nav-trigger {
   background-color: rgba(45, 24, 11, 0.08);
 }
 
@@ -97,8 +96,7 @@ a { color: inherit; text-decoration: none; }
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.bataa-nav-item-wrap:hover .bataa-nav-chevron,
-.bataa-nav-item-wrap:focus-within .bataa-nav-chevron {
+.bataa-nav-item-wrap.menu-open .bataa-nav-chevron {
   transform: rotate(180deg);
 }
 
@@ -115,8 +113,7 @@ a { color: inherit; text-decoration: none; }
   padding: 24px 28px;
 }
 
-.bataa-nav-item-wrap:hover .bataa-nav-dropdown-portal,
-.bataa-nav-item-wrap:focus-within .bataa-nav-dropdown-portal {
+.bataa-nav-item-wrap.menu-open .bataa-nav-dropdown-portal {
   display: block;
   animation: navDropdownFade 0.15s ease-out;
 }
@@ -282,6 +279,16 @@ h1 span { color: #ed6907; }
 .submit-button { margin-top: 15px; font-size: 18px; }
 .terms { margin: 16px 0 0; color: #8b5d38; font-size: 13.5px; }
 .terms a { color: #68401f; text-decoration: underline; text-underline-offset: 2px; }
+.signup-notice {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(183, 79, 0, 0.22);
+  border-radius: 10px;
+  color: #6b3c1c;
+  background: rgba(255, 236, 208, 0.78);
+  font-size: 13px;
+  line-height: 1.4;
+}
 
 .art { position: relative; min-height: 650px; height: min(74vh, 760px); max-height: 760px; width: 100%; align-self: center; display: flex; align-items: center; justify-content: flex-end; padding-right: 0; }
 .hero-image { display: block; width: min(56vw, 900px); max-width: 100%; max-height: 96%; object-fit: contain; height: auto; transform: translateX(7%); filter: drop-shadow(0 17px 21px rgba(197, 131, 68, .12)); }
@@ -1042,6 +1049,8 @@ h1 span { color: #ed6907; }
   text-decoration: none;
   box-shadow: inset 0 2px 0 rgba(255, 240, 210, 0.75), 0 4px 0 #9e3f00, 0 8px 20px rgba(183, 79, 0, 0.28);
   transition: background 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .bataa-quiz-btn:hover {
@@ -1139,11 +1148,16 @@ h1 span { color: #ed6907; }
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 0;
+    border: 0;
+    background: transparent;
     font-size: 15px;
     font-weight: 700;
     color: var(--brown);
     text-decoration: none;
     margin-top: 8px;
+    cursor: pointer;
+    font-family: inherit;
   }
   .bataa-learn-quiz-banner {
     padding: 36px 24px 0 24px;
@@ -1614,8 +1628,53 @@ h1 span { color: #ed6907; }
   transition: color 0.15s ease;
 }
 
+.bataa-footer-link-button {
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
 .bataa-footer-link:hover {
   color: var(--orange);
+}
+
+.bataa-footer-notice,
+.bataa-learn-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 28px 0 0;
+  padding: 11px 14px;
+  border: 1px solid rgba(183, 79, 0, 0.2);
+  border-radius: 10px;
+  color: #6b3c1c;
+  background: #fff2df;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.bataa-footer-notice button,
+.bataa-learn-notice button {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 6px;
+  color: #6b3c1c;
+  background: rgba(183, 79, 0, 0.1);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.bataa-footer-notice button:hover,
+.bataa-learn-notice button:hover {
+  background: rgba(183, 79, 0, 0.18);
 }
 
 .bataa-footer-badges {
@@ -1627,6 +1686,11 @@ h1 span { color: #ed6907; }
 
 .bataa-app-badge-link {
   display: inline-block;
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
   transition: opacity 0.15s ease;
 }
 
@@ -1915,12 +1979,94 @@ body:has(.bataa-register-shell) {
   color: #a18a7c;
 }
 
+.bataa-reg-notice {
+  margin: -10px 0 0;
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 173, 77, 0.28);
+  border-radius: 10px;
+  color: #ffd8a8;
+  background: rgba(255, 133, 0, 0.12);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+
 .bataa-reg-login-link {
   color: #ffffff;
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 2px;
   margin-left: 4px;
+}
+
+.bataa-reg-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(12, 6, 3, 0.72);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.bataa-reg-modal {
+  position: relative;
+  width: min(100%, 440px);
+  padding: 26px 24px 22px;
+  border: 1px solid rgba(255, 173, 77, 0.28);
+  border-radius: 18px;
+  color: #ffffff;
+  background: #24140c;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+
+.bataa-reg-modal h2 {
+  margin: 0 0 9px;
+  font-size: 22px;
+}
+
+.bataa-reg-modal p {
+  margin: 0;
+  color: #d8c2b3;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.bataa-reg-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: #d8c2b3;
+  background: transparent;
+  cursor: pointer;
+}
+
+.bataa-reg-modal-close:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bataa-reg-modal-action {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 19px;
+  border: 0;
+  border-radius: 10px;
+  color: #ffffff;
+  background: #ff8500;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 /* Right Bottom Mascot Video Animation */
@@ -2429,7 +2575,3 @@ body:has(.bataa-register-shell) {
     gap: 28px;
   }
 }
-
-
-
-

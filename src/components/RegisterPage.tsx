@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { Eye, EyeOff, X } from 'lucide-react'
 import { FcGoogle } from 'react-icons/fc'
 
 export function RegisterPage() {
@@ -7,10 +7,23 @@ export function RegisterPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [notice, setNotice] = useState('')
+  const [showTerms, setShowTerms] = useState(false)
+
+  // Landing-page legal/login links include a hash so deep links still explain
+  // what is available in this prototype instead of silently landing on the
+  // form with no context.
+  useEffect(() => {
+    if (window.location.hash === '#terms') {
+      setShowTerms(true)
+    } else if (window.location.hash === '#login') {
+      setNotice('Log in will be available when account sessions are connected. Your local learning does not need a login.')
+    }
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Mock registration submission
+    setNotice('Account creation is not connected in this prototype. Your details were not sent.')
   }
 
   return (
@@ -67,11 +80,7 @@ export function RegisterPage() {
                   onClick={() => setShowPassword((prev) => !prev)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? (
-                    <Eye size={18} strokeWidth={1.8} />
-                  ) : (
-                    <EyeOff size={18} strokeWidth={1.8} />
-                  )}
+                  {showPassword ? <Eye size={18} strokeWidth={1.8} /> : <EyeOff size={18} strokeWidth={1.8} />}
                 </button>
               </div>
             </div>
@@ -87,7 +96,16 @@ export function RegisterPage() {
               />
               <span className="bataa-reg-checkbox-text">
                 I agree to Bataa's{' '}
-                <a href="#terms" className="bataa-reg-link">
+                <a
+                  href="#terms"
+                  id="terms"
+                  className="bataa-reg-link"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    setShowTerms(true)
+                  }}
+                >
                   Terms of Service
                 </a>
                 .
@@ -100,16 +118,33 @@ export function RegisterPage() {
             </button>
 
             {/* Secondary Google Button */}
-            <button type="button" className="bataa-reg-google-btn">
+            <button
+              type="button"
+              className="bataa-reg-google-btn"
+              onClick={() => setNotice('Google sign-in is not connected in this prototype. Use the form above to continue exploring.')}
+            >
               <FcGoogle className="bataa-reg-google-icon" aria-hidden="true" />
               <span>Sign in with Google</span>
             </button>
           </form>
 
+          {notice && (
+            <p className="bataa-reg-notice" role="status" aria-live="polite">
+              {notice}
+            </p>
+          )}
+
           {/* Already have an account */}
           <p className="bataa-reg-footer-text">
             You already have an account?{' '}
-            <a href="#login" className="bataa-reg-login-link">
+            <a
+              href="#login"
+              className="bataa-reg-login-link"
+              onClick={(event) => {
+                event.preventDefault()
+                setNotice('Log in will be available when account sessions are connected. Your local learning does not need a login.')
+              }}
+            >
               Log in
             </a>
           </p>
@@ -134,6 +169,25 @@ export function RegisterPage() {
           />
         </video>
       </aside>
+
+      {showTerms && (
+        <div className="bataa-reg-modal-backdrop" role="presentation" onClick={() => setShowTerms(false)}>
+          <section
+            className="bataa-reg-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bataa-terms-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button type="button" className="bataa-reg-modal-close" onClick={() => setShowTerms(false)} aria-label="Close terms">
+              <X size={19} />
+            </button>
+            <h2 id="bataa-terms-title">Terms of Service</h2>
+            <p>This prototype is for learning exploration. Keep your account details private, and only submit information when account services are connected.</p>
+            <button type="button" className="bataa-reg-modal-action" onClick={() => setShowTerms(false)}>Back to sign up</button>
+          </section>
+        </div>
+      )}
     </div>
   )
 }

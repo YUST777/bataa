@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 /* =========================================================================
    EXACT 100% VECTOR SHIELD BADGES & ICONS (BATAA THEME)
@@ -321,6 +321,12 @@ const CARDS_DATA = [
 ]
 
 export function WhatYoullLearn() {
+  const [notice, setNotice] = useState('')
+
+  const explainUnavailable = (label: string) => {
+    setNotice(`${label} is not available in this prototype yet. Start learning for free to preview the first path.`)
+  }
+
   return (
     <section id="what-youll-learn" className="bataa-learn-section" aria-labelledby="catalog-heading">
       <div className="bataa-learn-container">
@@ -340,9 +346,10 @@ export function WhatYoullLearn() {
             {CARDS_DATA.map((card, i) => (
               <a
                 key={i}
-                href="#courses"
+                href="/web/register"
                 className={`bataa-learn-card ${card.hoverClass}`}
                 tabIndex={0}
+                aria-label={`${card.title} career path — start learning`}
               >
                 {/* Top Row: Kicker & Shield */}
                 <div className="bataa-learn-card-top">
@@ -381,16 +388,16 @@ export function WhatYoullLearn() {
             </div>
 
             {/* Desktop Floating Centered CTA Button */}
-            <a href="#courses" className="bataa-courses-catalog-btn">
+            <button type="button" className="bataa-courses-catalog-btn" onClick={() => explainUnavailable('The full catalog')}>
               <span>See full catalog</span>
               <ArrowIcon />
-            </a>
+            </button>
 
             {/* Mobile CTA Button */}
-            <a href="#courses" className="bataa-courses-catalog-btn-mobile">
+            <button type="button" className="bataa-courses-catalog-btn-mobile" onClick={() => explainUnavailable('The full catalog')}>
               <span>See full catalog</span>
               <ArrowIcon />
-            </a>
+            </button>
           </div>
 
           {/* Quiz Banner with Bataa Duck Mascot */}
@@ -400,9 +407,9 @@ export function WhatYoullLearn() {
               <p className="bataa-quiz-desc">
                 Take a quick 2-minute quiz to find the perfect skill path for your goals.
               </p>
-              <a href="#quiz" className="bataa-quiz-btn">
+              <button type="button" className="bataa-quiz-btn" onClick={() => explainUnavailable('The learning quiz')}>
                 <span>Take the quiz</span>
-              </a>
+              </button>
             </div>
 
             {/* Bataa Duck Mascot on the Right Edge Side */}
@@ -418,6 +425,13 @@ export function WhatYoullLearn() {
               />
             </div>
           </div>
+
+          {notice && (
+            <p className="bataa-learn-notice" role="status" aria-live="polite">
+              <span>{notice}</span>
+              <button type="button" onClick={() => setNotice('')} aria-label="Dismiss message">Dismiss</button>
+            </p>
+          )}
         </div>
       </div>
     </section>

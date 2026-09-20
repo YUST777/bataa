@@ -27,10 +27,10 @@ const TABS: TabData[] = [
   },
   {
     id: 'build',
-    kicker: 'ARABIC TUTORING',
+    kicker: 'ENGLISH TUTORING',
     title: 'Real-time mistake diagnosis',
     description:
-      'Bataa observes your progress, explains mistakes in natural Arabic as you make them, and adapts instructions to your skill level without requiring a live human tutor.',
+      'Bataa observes your progress, explains mistakes in clear English as you make them, and adapts instructions to your skill level without requiring a live human tutor.',
   },
 ]
 
@@ -139,7 +139,7 @@ function BataaAnimatedMascot() {
         <source src="/mascot_waddle.webm" type="video/webm" />
         <img
           src="/mascot_waddle.webp"
-          alt="Friendly Arabic-first mascot"
+          alt="Friendly English-speaking mascot"
           className="bataa-mascot-video"
         />
       </video>
@@ -383,9 +383,9 @@ export function HowItWorks() {
                 </div>
               </div>
               <div className="mimo-pillar-content">
-                <h3 className="mimo-pillar-title">Friendly Arabic-first mascot</h3>
+                <h3 className="mimo-pillar-title">Friendly English-speaking mascot</h3>
                 <p className="mimo-pillar-desc">
-                  An AI companion that highlights tools with glowing yellow boxes, explains mistakes in natural Arabic, and stays until you succeed.
+                  An AI companion that highlights the next action, explains mistakes in clear English, and stays until you succeed.
                 </p>
               </div>
             </div>
