@@ -1,0 +1,86 @@
+{
+  "meta": {
+    "product": "Bataa mobile learning app",
+    "scope": "semantic reference tokens; reconcile with approved app tokens before implementation"
+  },
+  "color": {
+    "background": {
+      "app": "#FFF6E9",
+      "surface": "#FFFFFF",
+      "surfaceWarm": "#FFF9F1"
+    },
+    "text": {
+      "primary": "#18130F",
+      "secondary": "#6F6258",
+      "inverse": "#FFFFFF"
+    },
+    "border": {
+      "subtle": "#EBE1D3",
+      "strong": "#BFAE9D"
+    },
+    "action": {
+      "primary": "#FF7A00",
+      "primaryDepth": "#D45900",
+      "primaryBorder": "#B94B00",
+      "onPrimary": "#FFFFFF",
+      "secondary": "#FFFFFF",
+      "secondaryDepth": "#D8CABB",
+      "onSecondary": "#3B2D24"
+    },
+    "status": {
+      "success": "#2E8B57",
+      "successSurface": "#EAF7EF",
+      "correction": "#C43D3D",
+      "correctionSurface": "#FFF0EE",
+      "warning": "#A36200",
+      "warningSurface": "#FFF4D6",
+      "locked": "#8A8078"
+    },
+    "instruction": {
+      "highlight": "#FFD600",
+      "highlightSurface": "#FFF7B8"
+    },
+    "focus": {
+      "ring": "#7A3E00"
+    }
+  },
+  "space": {
+    "1": "4px",
+    "2": "8px",
+    "3": "12px",
+    "4": "16px",
+    "5": "20px",
+    "6": "24px",
+    "8": "32px",
+    "10": "40px"
+  },
+  "radius": {
+    "small": "10px",
+    "control": "14px",
+    "card": "20px",
+    "round": "999px"
+  },
+  "size": {
+    "targetMinimum": "44px",
+    "controlComfortable": "52px",
+    "bottomNav": "64px"
+  },
+  "depth": {
+    "control": "4px",
+    "card": "3px"
+  },
+  "type": {
+    "bodyFamily": "Avenir Next, Nunito Sans, Segoe UI, Arial, sans-serif",
+    "arabicFamily": "Noto Sans Arabic, system-ui, sans-serif",
+    "codeFamily": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    "buttonWeight": 800,
+    "headingWeight": 800,
+    "bodyWeight": 500
+  },
+  "motion": {
+    "press": "80ms",
+    "feedback": "160ms",
+    "route": "220ms",
+    "celebrationMaximum": "1200ms"
+  }
+}
