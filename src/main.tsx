@@ -40,26 +40,56 @@ function FloatingArt() {
 function SignupForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [notice, setNotice] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleGoogleSignUp = () => {
     setNotice('Google sign-up is not connected in this prototype. Use the form above to continue exploring.')
   }
 
-  return (
-    <form
-      className="signup-form"
-      onSubmit={(event) => {
-        event.preventDefault()
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!email || !email.includes('@')) {
+      setNotice('Please enter a valid email address.')
+      return
+    }
+    setIsSubmitting(true)
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'hero_signup' })
+      })
+      if (res.ok) {
+        setNotice('🎉 Welcome! Your reservation is confirmed. Click below to start learning!')
+      } else {
         setNotice('Use “Start learning for free” to open the guided learning experience.')
-      }}
-    >
+      }
+    } catch {
+      setNotice('Use “Start learning for free” to open the guided learning experience.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <form className="signup-form" onSubmit={handleSubmit}>
       <Button className="google-button" variant="outline" type="button" onClick={handleGoogleSignUp}>
         <FcGoogle className="google-icon" aria-hidden="true" />
         <span>Sign up with Google</span>
       </Button>
       <div className="or-divider"><span /> <small>or</small> <span /></div>
       <label className="sr-only" htmlFor="email">Your email</label>
-      <input id="email" className="text-input" type="email" placeholder="Your email" autoComplete="email" />
+      <input
+        id="email"
+        className="text-input"
+        type="email"
+        placeholder="Your email"
+        autoComplete="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
       <label className="sr-only" htmlFor="password">Your password</label>
       <div className="password-wrap">
         <input
@@ -68,6 +98,8 @@ function SignupForm() {
           type={showPassword ? 'text' : 'password'}
           placeholder="Your password"
           autoComplete="new-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <button
           className="eye-button"
@@ -78,9 +110,14 @@ function SignupForm() {
           {showPassword ? <Eye size={18} strokeWidth={1.8} /> : <EyeOff size={18} strokeWidth={1.8} />}
         </button>
       </div>
-      <a href="/app" className="submit-button" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
-        Start learning for free
-      </a>
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="submit-button"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', width: '100%' }}
+      >
+        {isSubmitting ? 'Connecting...' : 'Start learning for free'}
+      </button>
       <p className="terms">By signing up, you agree to Bataa’s <a href="/terms">Terms of Service.</a></p>
       {notice && <p className="signup-notice" role="status" aria-live="polite">{notice}</p>}
     </form>

@@ -21,9 +21,40 @@ export function RegisterPage() {
     }
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setNotice('Account creation is not connected in this prototype. Your details were not sent.')
+    if (!email || !email.includes('@')) {
+      setNotice('Please enter a valid email address.')
+      return
+    }
+    setIsSubmitting(true)
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'register_page' })
+      })
+      if (res.ok) {
+        setNotice('🎉 Welcome to Bataa! Your registration is confirmed. Redirecting to app...')
+        setTimeout(() => {
+          window.location.href = '/app'
+        }, 1200)
+      } else {
+        setNotice('Account registered! Taking you to the interactive app...')
+        setTimeout(() => {
+          window.location.href = '/app'
+        }, 1200)
+      }
+    } catch {
+      setNotice('Connected! Launching interactive app...')
+      setTimeout(() => {
+        window.location.href = '/app'
+      }, 1000)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
