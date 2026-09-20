@@ -12,6 +12,7 @@ import { Footer } from './components/Footer'
 import { RegisterPage } from './components/RegisterPage'
 import { Navbar } from './components/Navbar'
 import { BataaApp } from './app/BataaApp'
+import { WorkingOnItPage } from './components/WorkingOnItPage'
 import './styles.css'
 
 function FloatingArt() {
@@ -111,7 +112,9 @@ const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', com
 const appRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app', component: BataaApp })
 const landingRoute = createRoute({ getParentRoute: () => rootRoute, path: '/landing', component: Hero })
 const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: '/web/register', component: RegisterPage })
-const routeTree = rootRoute.addChildren([indexRoute, appRoute, landingRoute, registerRoute])
+const workingOnItRoute = createRoute({ getParentRoute: () => rootRoute, path: '/working-on-it', component: WorkingOnItPage })
+const comingSoonRoute = createRoute({ getParentRoute: () => rootRoute, path: '/coming-soon', component: WorkingOnItPage })
+const routeTree = rootRoute.addChildren([indexRoute, appRoute, landingRoute, registerRoute, workingOnItRoute, comingSoonRoute])
 const router = createRouter({ routeTree })
 
 declare module '@tanstack/react-router' {
