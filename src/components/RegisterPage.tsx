@@ -97,7 +97,7 @@ export function RegisterPage() {
               <span className="bataa-reg-checkbox-text">
                 I agree to Bataa's{' '}
                 <a
-                  href="#terms"
+                  href="/terms"
                   id="terms"
                   className="bataa-reg-link"
                   onClick={(event) => {
@@ -138,7 +138,7 @@ export function RegisterPage() {
           <p className="bataa-reg-footer-text">
             You already have an account?{' '}
             <a
-              href="#login"
+              href="/login"
               className="bataa-reg-login-link"
               onClick={(event) => {
                 event.preventDefault()

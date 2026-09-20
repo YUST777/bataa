@@ -10,6 +10,11 @@ import { AiPowered } from './components/AiPowered'
 import { FaqSection } from './components/FaqSection'
 import { Footer } from './components/Footer'
 import { RegisterPage } from './components/RegisterPage'
+import { AboutPage } from './components/AboutPage'
+import { HowItWorksPage } from './components/HowItWorksPage'
+import { CoursesPage } from './components/CoursesPage'
+import { FaqPage } from './components/FaqPage'
+import { TermsPage } from './components/TermsPage'
 import { Navbar } from './components/Navbar'
 import { BataaApp } from './app/BataaApp'
 import { WorkingOnItPage } from './components/WorkingOnItPage'
@@ -76,7 +81,7 @@ function SignupForm() {
       <a href="/app" className="submit-button" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
         Start learning for free
       </a>
-      <p className="terms">By signing up, you agree to Bataa’s <a href="/web/register#terms">Terms of Service.</a></p>
+      <p className="terms">By signing up, you agree to Bataa’s <a href="/terms">Terms of Service.</a></p>
       {notice && <p className="signup-notice" role="status" aria-live="polite">{notice}</p>}
     </form>
   )
@@ -111,10 +116,32 @@ const rootRoute = createRootRoute({ component: () => <Outlet /> })
 const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: isCapacitor ? BataaApp : Hero })
 const appRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app', component: BataaApp })
 const landingRoute = createRoute({ getParentRoute: () => rootRoute, path: '/landing', component: Hero })
-const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: '/web/register', component: RegisterPage })
+const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: AboutPage })
+const howItWorksRoute = createRoute({ getParentRoute: () => rootRoute, path: '/how-it-works', component: HowItWorksPage })
+const coursesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/courses', component: CoursesPage })
+const faqRoute = createRoute({ getParentRoute: () => rootRoute, path: '/faq', component: FaqPage })
+const termsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/terms', component: TermsPage })
+const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: '/register', component: RegisterPage })
+const webRegisterRoute = createRoute({ getParentRoute: () => rootRoute, path: '/web/register', component: RegisterPage })
+const loginRoute = createRoute({ getParentRoute: () => rootRoute, path: '/login', component: RegisterPage })
 const workingOnItRoute = createRoute({ getParentRoute: () => rootRoute, path: '/working-on-it', component: WorkingOnItPage })
 const comingSoonRoute = createRoute({ getParentRoute: () => rootRoute, path: '/coming-soon', component: WorkingOnItPage })
-const routeTree = rootRoute.addChildren([indexRoute, appRoute, landingRoute, registerRoute, workingOnItRoute, comingSoonRoute])
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  appRoute,
+  landingRoute,
+  aboutRoute,
+  howItWorksRoute,
+  coursesRoute,
+  faqRoute,
+  termsRoute,
+  registerRoute,
+  webRegisterRoute,
+  loginRoute,
+  workingOnItRoute,
+  comingSoonRoute
+])
 const router = createRouter({ routeTree })
 
 declare module '@tanstack/react-router' {

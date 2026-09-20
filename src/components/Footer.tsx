@@ -30,10 +30,10 @@ export function Footer() {
           <div className="bataa-footer-col">
             <h3 className="bataa-footer-col-title">Explore</h3>
             <ul className="bataa-footer-links">
-              <li><a href="#about" className="bataa-footer-link">About Bataa</a></li>
-              <li><a href="#how-it-works" className="bataa-footer-link">How it works</a></li>
-              <li><a href="#what-youll-learn" className="bataa-footer-link">Courses & Curriculum</a></li>
-              <li><a href="#faq" className="bataa-footer-link">Frequently Asked Questions</a></li>
+              <li><a href="/about" className="bataa-footer-link">About Bataa</a></li>
+              <li><a href="/how-it-works" className="bataa-footer-link">How it works</a></li>
+              <li><a href="/courses" className="bataa-footer-link">Courses & Curriculum</a></li>
+              <li><a href="/faq" className="bataa-footer-link">Frequently Asked Questions</a></li>
             </ul>
           </div>
 
@@ -43,8 +43,8 @@ export function Footer() {
             <ul className="bataa-footer-links">
               <li><a href="/app" className="bataa-footer-link">Interactive Web App</a></li>
               <li><a href="/Bataa.apk" download="Bataa.apk" className="bataa-footer-link">Download Android APK</a></li>
-              <li><a href="/web/register" className="bataa-footer-link">Create Account</a></li>
-              <li><a href="/web/register#terms" className="bataa-footer-link">Terms of Service</a></li>
+              <li><a href="/register" className="bataa-footer-link">Create Account</a></li>
+              <li><a href="/terms" className="bataa-footer-link">Terms of Service</a></li>
             </ul>
           </div>
 
