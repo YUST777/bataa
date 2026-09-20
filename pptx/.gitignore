@@ -9,3 +9,4 @@
 .build/**/*.inspect.*
 .build/**/*.validation.json
 .build/bataa-pitch-deck-candidate.pptx
+.build/evidence-*
