@@ -196,7 +196,7 @@ export function Navbar() {
       <div className="account-nav">
         <a href="/web/register" className="nav-login-link">Log in</a>
         <a
-          href="/web/register"
+          href="/app"
           className="top-cta"
           style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
         >
@@ -333,7 +333,7 @@ export function Navbar() {
 
         <div className="bataa-mobile-drawer-footer">
           <a
-            href="/web/register"
+            href="/app"
             className="bataa-mobile-btn-primary"
             onClick={() => setMobileMenuOpen(false)}
           >

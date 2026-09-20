@@ -72,7 +72,7 @@ function SignupForm() {
           {showPassword ? <Eye size={18} strokeWidth={1.8} /> : <EyeOff size={18} strokeWidth={1.8} />}
         </button>
       </div>
-      <a href="/web/register" className="submit-button" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+      <a href="/app" className="submit-button" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
         Start learning for free
       </a>
       <p className="terms">By signing up, you agree to Bataa’s <a href="/web/register#terms">Terms of Service.</a></p>
@@ -104,11 +104,14 @@ function Hero() {
   )
 }
 
+const isCapacitor = typeof window !== 'undefined' && Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.())
+
 const rootRoute = createRootRoute({ component: () => <Outlet /> })
-const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: BataaApp })
+const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: isCapacitor ? BataaApp : Hero })
+const appRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app', component: BataaApp })
 const landingRoute = createRoute({ getParentRoute: () => rootRoute, path: '/landing', component: Hero })
 const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: '/web/register', component: RegisterPage })
-const routeTree = rootRoute.addChildren([indexRoute, landingRoute, registerRoute])
+const routeTree = rootRoute.addChildren([indexRoute, appRoute, landingRoute, registerRoute])
 const router = createRouter({ routeTree })
 
 declare module '@tanstack/react-router' {

@@ -606,7 +606,7 @@ function OnboardingScreen({ step, answers, onChange, onNext, onBack, onSkip }: {
     <div className="bataa-app-root onboarding-root">
       <div className="app-device onboarding-device">
         <main className="onboarding-content">
-          <div className="onboarding-progress"><button type="button" className="text-button onboarding-back" onClick={onBack} disabled={step === 0} aria-label="Back"><ArrowLeft size={16} /></button><span className="brand-wordmark">bataa</span><span>{step + 1} / 4</span></div>
+          <div className="onboarding-progress"><button type="button" className="text-button onboarding-back" onClick={onBack} disabled={step === 0} aria-label="Back"><ArrowLeft size={16} /></button><a href="/" className="brand-wordmark" style={{ textDecoration: 'none' }}>bataa</a><span>{step + 1} / 4</span></div>
           <div className="onboarding-visual">{content.visual}</div>
           <span className="eyebrow accent-eyebrow">A SMALL STEP EVERY DAY</span>
           <h1>{content.title}</h1>
