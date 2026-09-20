@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { ChevronLeft, ChevronRight, Download } from 'lucide-react'
 
 type TabType = 'learn' | 'practice' | 'build'
 
@@ -228,15 +229,147 @@ function CertificateGraphic() {
 }
 
 /* =========================================================================
-   HOW IT WORKS (CLEAN EMPTY BOX + MIMO.ORG ACCURATE LAYOUT IN BATAA THEME)
+   PITCH DECK SLIDE VIEWER FOR TAB 1 (BATAA PITCH DECK UNIT 01)
+   ========================================================================= */
+
+function PitchDeckViewer() {
+  const [slide, setSlide] = useState(1)
+  const totalSlides = 16
+
+  const nextSlide = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSlide((prev) => (prev % totalSlides) + 1)
+  }
+
+  const prevSlide = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSlide((prev) => (prev === 1 ? totalSlides : prev - 1))
+  }
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%', background: '#1c0d05', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <img
+        src={`/pitch-deck/slide-${String(slide).padStart(2, '0')}.jpg`}
+        alt={`Bataa pitch deck slide ${slide}`}
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+      />
+
+      {/* Top Banner with PPTX Download */}
+      <div style={{
+        position: 'absolute',
+        top: '12px',
+        left: '12px',
+        right: '12px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        pointerEvents: 'none'
+      }}>
+        <span style={{
+          background: 'rgba(41, 20, 8, 0.85)',
+          backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 207, 151, 0.25)',
+          color: '#edcfad',
+          fontSize: '12px',
+          fontWeight: 700,
+          padding: '5px 12px',
+          borderRadius: '8px',
+          pointerEvents: 'auto'
+        }}>
+          bataa pitch deck_unit01
+        </span>
+
+        <a
+          href="/bataa_pitch_deck_unit01.pptx"
+          download="bataa pitch deck_unit01.pptx"
+          style={{
+            background: 'var(--orange, #ff8500)',
+            color: '#ffffff',
+            fontSize: '12px',
+            fontWeight: 700,
+            padding: '5px 12px',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            pointerEvents: 'auto'
+          }}
+        >
+          <Download size={13} /> Download PPTX
+        </a>
+      </div>
+
+      {/* Navigation Controls Overlay at Bottom */}
+      <div style={{
+        position: 'absolute',
+        bottom: '12px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        background: 'rgba(41, 20, 8, 0.85)',
+        backdropFilter: 'blur(8px)',
+        border: '1px solid rgba(255, 207, 151, 0.25)',
+        borderRadius: '999px',
+        padding: '4px 14px',
+        color: '#ffffff'
+      }}>
+        <button
+          type="button"
+          onClick={prevSlide}
+          aria-label="Previous slide"
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#edcfad',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '2px'
+          }}
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <span style={{ fontSize: '12px', fontWeight: 700, minWidth: '80px', textAlign: 'center', color: '#edcfad' }}>
+          Slide {slide} / {totalSlides}
+        </span>
+        <button
+          type="button"
+          onClick={nextSlide}
+          aria-label="Next slide"
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#edcfad',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '2px'
+          }}
+        >
+          <ChevronRight size={18} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* =========================================================================
+   HOW IT WORKS (INTERACTIVE SHOWCASE IN BATAA THEME)
    ========================================================================= */
 
 export function HowItWorks() {
   const [activeTab, setActiveTab] = useState<TabType>('learn')
   const [seconds, setSeconds] = useState(20)
+  const [isHovered, setIsHovered] = useState(false)
 
-  // Auto-cycle through the 3 tabs every 20 seconds, exactly like mimo.org
+  // Auto-cycle through the 3 tabs every 20 seconds unless user is interacting/hovering
   useEffect(() => {
+    if (isHovered) return
+
     const timer = setInterval(() => {
       setSeconds((prev) => {
         if (prev <= 1) {
@@ -251,7 +384,7 @@ export function HowItWorks() {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [activeTab])
+  }, [activeTab, isHovered])
 
   const handleTabClick = (tabId: TabType) => {
     setActiveTab(tabId)
@@ -278,8 +411,64 @@ export function HowItWorks() {
         {/* Showcase Area */}
         <div className="mimo-showcase-wrapper">
           <div className="mimo-showcase-grid">
-            {/* Left: Clean empty widget box with nothing inside it */}
-            <div className="mimo-video-box" aria-hidden="true" />
+            {/* Left: Interactive Media Box (Pitch Deck, YouTube Video, or Desktop Showcase) */}
+            <div
+              className="mimo-video-box"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              {activeTab === 'learn' && <PitchDeckViewer />}
+
+              {activeTab === 'practice' && (
+                <div style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>
+                  <iframe
+                    src="https://www.youtube-nocookie.com/embed/4Lz5fNhs49g?rel=0"
+                    title="Bataa Desktop Practice Video"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      border: 'none',
+                      display: 'block'
+                    }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+
+              {activeTab === 'build' && (
+                <div style={{ width: '100%', height: '100%', position: 'relative', background: '#1c0d05', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <img
+                    src="/showcase.jpg"
+                    alt="Bataa Desktop Practice Showcase"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      display: 'block'
+                    }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '12px',
+                    left: '12px',
+                    background: 'rgba(41, 20, 8, 0.85)',
+                    backdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255, 207, 151, 0.25)',
+                    borderRadius: '10px',
+                    padding: '6px 14px',
+                    color: '#edcfad',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <span>Desktop Practice Workspace</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Right: 3 Interactive Tab Buttons */}
             <div className="mimo-tabs-column" role="tablist" aria-label="Learning progression steps">
