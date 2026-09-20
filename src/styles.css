@@ -1284,9 +1284,9 @@ h1 span { color: #ed6907; }
   width: 100%;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 860px) {
   .bataa-ai-cards-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -1295,20 +1295,21 @@ h1 span { color: #ed6907; }
   background: #1c0e06;
   border: 1px solid rgba(255, 173, 77, 0.16);
   border-radius: 24px;
-  padding: 32px;
+  padding: 32px 28px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 20px;
+  justify-content: flex-start;
+  gap: 14px;
   overflow: hidden;
   box-sizing: border-box;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  transition: border-color 0.25s ease;
+  transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.2s ease;
 }
 
 .bataa-ai-card:hover {
   border-color: rgba(255, 173, 77, 0.35);
-  /* Minimalist: no transform */
+  background: #231208;
+  transform: translateY(-2px);
 }
 
 .bataa-ai-card-text {

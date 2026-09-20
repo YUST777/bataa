@@ -35,7 +35,6 @@ export function AiPowered() {
                 Bataa checks your setup, opens real apps like Blender, places glowing yellow boxes over the exact tools to click next, and waits for you to finish
               </p>
             </div>
-            <div className="bataa-ai-widget-placeholder" />
           </article>
 
           {/* Card 2: Instant mistake diagnosis */}
@@ -47,11 +46,10 @@ export function AiPowered() {
                 Get friendly, real-time explanations in clear English whenever you click the wrong setting, run into an error, or get stuck
               </p>
             </div>
-            <div className="bataa-ai-widget-placeholder" />
           </article>
 
           {/* Card 3: Real software mastery */}
-          <article className="bataa-ai-card bataa-ai-card-wide">
+          <article className="bataa-ai-card">
             <div className="bataa-ai-card-text">
               <p className="bataa-ai-card-kicker">BUILD</p>
               <h3 className="bataa-ai-card-title">Real software mastery</h3>
@@ -59,7 +57,6 @@ export function AiPowered() {
                 No toy sandboxes or passive videos. Build complete, portfolio-ready 3D and coding projects directly inside actual desktop software without needing a human tutor
               </p>
             </div>
-            <div className="bataa-ai-widget-placeholder bataa-ai-widget-placeholder-wide" />
           </article>
         </div>
       </div>

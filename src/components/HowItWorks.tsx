@@ -340,41 +340,41 @@ export function HowItWorks() {
 
           {/* Tier 2: Three Core Value Pillars */}
           <div className="mimo-pillars-grid">
-            {/* Pillar 1: LEARN */}
+            {/* Pillar 1: HANDS-ON */}
             <div className="mimo-pillar-card">
               <div className="mimo-pillar-header">
-                <p className="mimo-pillar-kicker">LEARN</p>
+                <p className="mimo-pillar-kicker">HANDS-ON</p>
               </div>
               <div className="mimo-pillar-content">
-                <h3 className="mimo-pillar-title">Live screen guidance</h3>
+                <h3 className="mimo-pillar-title">Never pause a video again</h3>
                 <p className="mimo-pillar-desc">
-                  Bataa checks your setup, opens real apps like Blender, places glowing yellow boxes over the exact tools to click next, and waits for you to finish
+                  Courses leave you alone when it is time to build. Bataa sits on your desktop, pointing out where to click live so you learn by doing.
                 </p>
               </div>
             </div>
 
-            {/* Pillar 2: PRACTICE */}
+            {/* Pillar 2: PERSONALIZED */}
             <div className="mimo-pillar-card">
               <div className="mimo-pillar-header">
-                <p className="mimo-pillar-kicker">PRACTICE</p>
+                <p className="mimo-pillar-kicker">PERSONALIZED</p>
               </div>
               <div className="mimo-pillar-content">
-                <h3 className="mimo-pillar-title">Instant mistake diagnosis</h3>
+                <h3 className="mimo-pillar-title">Friendly English-speaking mascot</h3>
                 <p className="mimo-pillar-desc">
-                  Get friendly, real-time explanations in clear English whenever you click the wrong setting, run into an error, or get stuck
+                  An AI companion that highlights the next action, explains mistakes in clear English, and stays until you succeed.
                 </p>
               </div>
             </div>
 
-            {/* Pillar 3: BUILD */}
+            {/* Pillar 3: SELF-GUIDED */}
             <div className="mimo-pillar-card">
               <div className="mimo-pillar-header">
-                <p className="mimo-pillar-kicker">BUILD</p>
+                <p className="mimo-pillar-kicker">SELF-GUIDED</p>
               </div>
               <div className="mimo-pillar-content">
-                <h3 className="mimo-pillar-title">Real software mastery</h3>
+                <h3 className="mimo-pillar-title">Master real desktop software</h3>
                 <p className="mimo-pillar-desc">
-                  No toy sandboxes or passive videos. Build complete, portfolio-ready 3D and coding projects directly inside actual desktop software without needing a human tutor
+                  Learn Blender, code editors, and professional software directly on your own computer with 24/7 self-guided mentorship.
                 </p>
               </div>
             </div>
