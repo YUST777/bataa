@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { X, Volume2, VolumeX, Play, Maximize2 } from 'lucide-react'
 
 export function FloatingVideoWidget() {
   const [isVisible, setIsVisible] = useState(false)
   const [isDismissed, setIsDismissed] = useState(true)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const [isMuted, setIsMuted] = useState(true)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     // Only show on public marketing/landing pages, not inside the desktop app (/app)
@@ -34,8 +37,39 @@ export function FloatingVideoWidget() {
     }
   }, [])
 
+  useEffect(() => {
+    if (isVisible && videoRef.current) {
+      videoRef.current.play().catch(() => {
+        if (videoRef.current) {
+          videoRef.current.muted = true
+          setIsMuted(true)
+          videoRef.current.play().catch(() => {})
+        }
+      })
+    }
+  }, [isVisible])
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted
+    }
+  }, [isMuted])
+
+  const togglePlay = () => {
+    if (!videoRef.current) return
+    if (videoRef.current.paused) {
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {})
+    } else {
+      videoRef.current.pause()
+      setIsPlaying(false)
+    }
+  }
+
   const handleClose = () => {
     setIsVisible(false)
+    if (videoRef.current) {
+      videoRef.current.pause()
+    }
     try {
       window.localStorage.setItem('bataa_video_popup_closed', '1')
     } catch {
@@ -65,13 +99,53 @@ export function FloatingVideoWidget() {
         </button>
       </div>
 
-      <div className="bataa-video-widget-media">
-        <iframe
-          src="https://www.youtube-nocookie.com/embed/4Lz5fNhs49g?autoplay=1&mute=1&rel=0&playsinline=1"
-          title="Bataa AI Tutor Live Demo"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-        />
+      <div className="bataa-video-widget-media" onClick={togglePlay}>
+        <video
+          ref={videoRef}
+          className="bataa-video-widget-player"
+          autoPlay
+          muted={isMuted}
+          loop
+          playsInline
+          preload="metadata"
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+        >
+          <source src="/bataa-demo.webm" type="video/webm" />
+          <source src="/bataa-demo.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {!isPlaying && (
+          <div className="bataa-video-widget-play-overlay">
+            <div className="bataa-video-widget-play-icon">
+              <Play size={22} fill="currentColor" />
+            </div>
+          </div>
+        )}
+
+        <div className="bataa-video-widget-overlay-controls" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className="bataa-video-widget-btn"
+            onClick={() => setIsMuted((prev) => !prev)}
+            title={isMuted ? 'Unmute' : 'Mute'}
+            aria-label={isMuted ? 'Unmute video' : 'Mute video'}
+          >
+            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+          </button>
+
+          <a
+            href="https://www.youtube.com/watch?v=4Lz5fNhs49g"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bataa-video-widget-btn"
+            title="Watch full video on YouTube"
+            aria-label="Watch full video on YouTube"
+          >
+            <Maximize2 size={13} />
+          </a>
+        </div>
       </div>
     </aside>
   )
