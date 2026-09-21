@@ -2770,61 +2770,23 @@ body:has(.bataa-register-shell) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px 10px 14px;
+  padding: 10px 14px;
   background: #fff9f0;
   border-bottom: 1px solid #f0e1cd;
 }
 
-.bataa-video-widget-title-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.bataa-video-widget-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
-  flex-shrink: 0;
-  animation: bataaPulse 2s infinite ease-in-out;
-}
-
-@keyframes bataaPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.18); opacity: 0.75; }
-}
-
-.bataa-video-widget-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: #ffe8d3;
-  color: #a84100;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
 .bataa-video-widget-title {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 850;
   color: #2d180b;
   letter-spacing: -0.02em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .bataa-video-widget-close {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: 1px solid #e7cdab;
   background: #ffffff;
@@ -2847,6 +2809,8 @@ body:has(.bataa-register-shell) {
   background: #110c08;
   position: relative;
   overflow: hidden;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
 }
 
 .bataa-video-widget-media iframe {
@@ -2854,57 +2818,6 @@ body:has(.bataa-register-shell) {
   height: 100%;
   border: none;
   display: block;
-}
-
-.bataa-video-widget-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 14px;
-  background: #ffffff;
-}
-
-.bataa-video-widget-caption {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.bataa-video-widget-caption strong {
-  font-size: 11.5px;
-  font-weight: 800;
-  color: #2d180b;
-  line-height: 1.2;
-}
-
-.bataa-video-widget-caption small {
-  font-size: 10px;
-  color: #7b593f;
-  line-height: 1.3;
-}
-
-.bataa-video-widget-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border-radius: 10px;
-  background: #ef6b0a;
-  color: #ffffff;
-  font-size: 11.5px;
-  font-weight: 800;
-  text-decoration: none;
-  box-shadow: 0 2px 0 #b84c00;
-  transition: all 0.16s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.bataa-video-widget-action:hover {
-  background: #df5d00;
-  transform: translateY(-1px);
-  box-shadow: 0 3px 0 #b84c00;
 }
 
 @media (max-width: 600px) {

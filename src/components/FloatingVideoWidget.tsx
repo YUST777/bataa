@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, Sparkles, ArrowRight } from 'lucide-react'
+import { X } from 'lucide-react'
 
 export function FloatingVideoWidget() {
   const [isVisible, setIsVisible] = useState(false)
@@ -54,14 +54,7 @@ export function FloatingVideoWidget() {
       aria-modal="false"
     >
       <div className="bataa-video-widget-header">
-        <div className="bataa-video-widget-title-group">
-          <span className="bataa-video-widget-dot" />
-          <span className="bataa-video-widget-badge">
-            <Sparkles size={13} style={{ color: '#ef6b0a' }} />
-            <span>Live Demo</span>
-          </span>
-          <span className="bataa-video-widget-title">See Bataa in Action</span>
-        </div>
+        <span className="bataa-video-widget-title">See Bataa in Action</span>
         <button
           type="button"
           className="bataa-video-widget-close"
@@ -79,17 +72,6 @@ export function FloatingVideoWidget() {
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
         />
-      </div>
-
-      <div className="bataa-video-widget-footer">
-        <div className="bataa-video-widget-caption">
-          <strong>AI tutor inside real apps</strong>
-          <small>Watch how Bataa guides your screen</small>
-        </div>
-        <a href="/app" className="bataa-video-widget-action">
-          <span>Try App</span>
-          <ArrowRight size={13} />
-        </a>
       </div>
     </aside>
   )
