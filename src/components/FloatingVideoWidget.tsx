@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, ArrowRight } from 'lucide-react'
+import { X } from 'lucide-react'
 
 export function FloatingVideoWidget() {
   const [isVisible, setIsVisible] = useState(false)
@@ -72,13 +72,6 @@ export function FloatingVideoWidget() {
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
         />
-      </div>
-
-      <div className="bataa-video-widget-footer">
-        <a href="/app" className="bataa-video-widget-action" title="Open Bataa App">
-          <span>bataa.app | Your AI Mentor for Learning by Doing.</span>
-          <ArrowRight size={14} />
-        </a>
       </div>
     </aside>
   )

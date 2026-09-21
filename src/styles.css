@@ -2820,6 +2820,8 @@ body:has(.bataa-register-shell) {
   background: #110c08;
   position: relative;
   overflow: hidden;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
 }
 
 .bataa-video-widget-media iframe {
@@ -2827,51 +2829,6 @@ body:has(.bataa-register-shell) {
   height: 100%;
   border: none;
   display: block;
-}
-
-.bataa-video-widget-footer {
-  padding: 9px 12px;
-  background: #ffffff;
-  border-top: 1px solid #f0e1cd;
-}
-
-.bataa-video-widget-action {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  color: #ea580c;
-  text-decoration: none;
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1.35;
-  transition: all 0.18s ease;
-  box-sizing: border-box;
-}
-
-.bataa-video-widget-action:hover {
-  background: #ffedd5;
-  border-color: #fdba74;
-  color: #c2410c;
-  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.14);
-}
-
-.bataa-video-widget-action span {
-  letter-spacing: -0.01em;
-}
-
-.bataa-video-widget-action svg {
-  flex-shrink: 0;
-  transition: transform 0.18s ease;
-}
-
-.bataa-video-widget-action:hover svg {
-  transform: translateX(3px);
 }
 
 @media (max-width: 600px) {
