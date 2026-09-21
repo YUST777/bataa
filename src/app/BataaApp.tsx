@@ -13,6 +13,7 @@ import {
   Heart,
   Home,
   Lightbulb,
+  ListTodo,
   LockKeyhole,
   Medal,
   Moon,
@@ -32,7 +33,7 @@ import {
 import { APP_COPY, FIRST_LESSON, WEB_DEVELOPMENT_PATH, validateStep } from '../data/bataaContent'
 import './bataa-app.css'
 
-type Tab = 'home' | 'learn' | 'goals' | 'profile'
+type Tab = 'home' | 'task' | 'learn' | 'goals' | 'leaderboard' | 'shop' | 'profile' | 'settings'
 type Overlay = 'task' | 'lesson' | 'success' | 'progress' | 'streak' | 'shop' | 'leaderboard' | 'settings' | 'achievements' | 'info' | null
 type LessonMode = 'learn' | 'review'
 type InfoKind = 'account' | 'privacy' | 'logout'
@@ -87,9 +88,13 @@ function earnedBadgeCount(progress: ProgressState) {
 
 const iconForTab: Record<Tab, typeof Home> = {
   home: Home,
+  task: ListTodo,
   learn: BookOpen,
-  goals: Trophy,
+  goals: Target,
+  leaderboard: Medal,
+  shop: ShoppingBag,
   profile: UserRound,
+  settings: Settings,
 }
 
 function loadProgress(): ProgressState {
@@ -216,15 +221,22 @@ function ProgressBar({ value, className = '' }: { value: number; className?: str
 }
 
 function BottomNav({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
+  const mobileTabs: Array<{ id: Tab; label: string; icon: typeof Home }> = [
+    { id: 'home', label: 'Home', icon: Home },
+    { id: 'task', label: 'Task', icon: ListTodo },
+    { id: 'learn', label: 'Curriculum', icon: BookOpen },
+    { id: 'goals', label: 'Goals', icon: Target },
+    { id: 'profile', label: 'Profile', icon: UserRound },
+  ]
   return (
     <nav className="bottom-nav" aria-label="Primary navigation">
-      {(Object.keys(iconForTab) as Tab[]).map((item) => {
-        const Icon = iconForTab[item]
-        const active = tab === item
+      {mobileTabs.map((item) => {
+        const Icon = item.icon
+        const active = tab === item.id
         return (
-          <button key={item} className={`nav-item ${active ? 'active' : ''}`} onClick={() => onTab(item)} aria-current={active ? 'page' : undefined}>
+          <button key={item.id} className={`nav-item ${active ? 'active' : ''}`} onClick={() => onTab(item.id)} aria-current={active ? 'page' : undefined}>
             <span className="nav-icon"><Icon size={21} strokeWidth={active ? 2.5 : 1.8} /></span>
-            <span>{APP_COPY.navigation[item]}</span>
+            <span>{item.label}</span>
           </button>
         )
       })}
@@ -839,8 +851,17 @@ function DesktopSidebar({
           className={`desktop-nav-item ${tab === 'home' ? 'active' : ''}`}
           onClick={() => onTab('home')}
         >
-          <Home size={20} strokeWidth={tab === 'home' ? 2.5 : 1.8} />
+          <Home size={18} strokeWidth={tab === 'home' ? 2.5 : 1.8} />
           <span>Home</span>
+        </button>
+
+        <button
+          type="button"
+          className={`desktop-nav-item ${tab === 'task' ? 'active' : ''}`}
+          onClick={() => onTab('task')}
+        >
+          <ListTodo size={18} strokeWidth={tab === 'task' ? 2.5 : 1.8} />
+          <span>Daily Task</span>
         </button>
 
         <button
@@ -848,7 +869,7 @@ function DesktopSidebar({
           className={`desktop-nav-item ${tab === 'learn' ? 'active' : ''}`}
           onClick={() => onTab('learn')}
         >
-          <BookOpen size={20} strokeWidth={tab === 'learn' ? 2.5 : 1.8} />
+          <BookOpen size={18} strokeWidth={tab === 'learn' ? 2.5 : 1.8} />
           <span>Curriculum</span>
         </button>
 
@@ -857,8 +878,26 @@ function DesktopSidebar({
           className={`desktop-nav-item ${tab === 'goals' ? 'active' : ''}`}
           onClick={() => onTab('goals')}
         >
-          <Trophy size={20} strokeWidth={tab === 'goals' ? 2.5 : 1.8} />
+          <Target size={18} strokeWidth={tab === 'goals' ? 2.5 : 1.8} />
           <span>Daily Goals</span>
+        </button>
+
+        <button
+          type="button"
+          className={`desktop-nav-item ${tab === 'leaderboard' ? 'active' : ''}`}
+          onClick={() => onTab('leaderboard')}
+        >
+          <Medal size={18} strokeWidth={tab === 'leaderboard' ? 2.5 : 1.8} />
+          <span>Leaderboard</span>
+        </button>
+
+        <button
+          type="button"
+          className={`desktop-nav-item ${tab === 'shop' ? 'active' : ''}`}
+          onClick={() => onTab('shop')}
+        >
+          <ShoppingBag size={18} strokeWidth={tab === 'shop' ? 2.5 : 1.8} />
+          <span>Boost Shop</span>
         </button>
 
         <button
@@ -866,34 +905,16 @@ function DesktopSidebar({
           className={`desktop-nav-item ${tab === 'profile' ? 'active' : ''}`}
           onClick={() => onTab('profile')}
         >
-          <UserRound size={20} strokeWidth={tab === 'profile' ? 2.5 : 1.8} />
+          <UserRound size={18} strokeWidth={tab === 'profile' ? 2.5 : 1.8} />
           <span>Profile</span>
         </button>
 
         <button
           type="button"
-          className="desktop-nav-item"
-          onClick={() => onOpen('leaderboard')}
+          className={`desktop-nav-item ${tab === 'settings' ? 'active' : ''}`}
+          onClick={() => onTab('settings')}
         >
-          <Medal size={20} />
-          <span>Leaderboard</span>
-        </button>
-
-        <button
-          type="button"
-          className="desktop-nav-item"
-          onClick={() => onOpen('shop')}
-        >
-          <ShoppingBag size={20} />
-          <span>Boost Shop</span>
-        </button>
-
-        <button
-          type="button"
-          className="desktop-nav-item"
-          onClick={() => onOpen('settings')}
-        >
-          <Settings size={20} />
+          <Settings size={18} strokeWidth={tab === 'settings' ? 2.5 : 1.8} />
           <span>Settings</span>
         </button>
       </nav>
@@ -1009,7 +1030,6 @@ export function BataaApp() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [overlay])
 
-  const open = (next: Overlay) => setOverlay(next)
   const close = () => setOverlay(null)
   const startLesson = () => {
     const nextMode: LessonMode = progress.completedSteps >= FIRST_LESSON.steps.length ? 'review' : 'learn'
@@ -1045,9 +1065,48 @@ export function BataaApp() {
     })
     setOverlay('success')
   }
+  const handlePurchase = (cost: number, title: string) => {
+    setProgress((current) => {
+      const boostKey = title === 'Streak Freeze' || title === 'Double XP' || title === 'Hint Token' ? title : null
+      return {
+        ...current,
+        gems: Math.max(0, current.gems - cost),
+        hearts: title === 'Heart Refill' ? 5 : current.hearts,
+        boosts: boostKey ? { ...current.boosts, [boostKey]: current.boosts[boostKey] + 1 } : current.boosts,
+      }
+    })
+  }
+
   const handleTab = (next: Tab) => { setTab(next); setOverlay(null) }
 
-  const screen = tab === 'home' ? <HomeScreen progress={progress} onOpen={open} onViewPath={() => { setTab('learn'); setOverlay(null) }} onTab={handleTab} /> : tab === 'learn' ? <LearnScreen progress={progress} onOpen={open} /> : tab === 'goals' ? <GoalsScreen progress={progress} onOpen={open} /> : <ProfileScreen progress={progress} onOpen={open} />
+  const open = (next: Overlay) => {
+    if (next === 'task' || next === 'leaderboard' || next === 'shop' || next === 'settings') {
+      handleTab(next)
+    } else {
+      setOverlay(next)
+    }
+  }
+
+  const screen =
+    tab === 'home' ? (
+      <HomeScreen progress={progress} onOpen={open} onViewPath={() => handleTab('learn')} onTab={handleTab} />
+    ) : tab === 'task' ? (
+      <TaskScreen progress={progress} onBack={() => handleTab('home')} onStart={startLesson} onCalendar={() => setOverlay('streak')} />
+    ) : tab === 'learn' ? (
+      <LearnScreen progress={progress} onOpen={open} />
+    ) : tab === 'goals' ? (
+      <GoalsScreen progress={progress} onOpen={open} />
+    ) : tab === 'leaderboard' ? (
+      <LeaderboardScreen progress={progress} onBack={() => handleTab('home')} />
+    ) : tab === 'shop' ? (
+      <ShopScreen progress={progress} onBack={() => handleTab('home')} onPurchase={handlePurchase} />
+    ) : tab === 'profile' ? (
+      <ProfileScreen progress={progress} onOpen={open} />
+    ) : tab === 'settings' ? (
+      <SettingsScreen settings={settings} onChange={setSettings} onInfo={openInfo} onBack={() => handleTab('home')} />
+    ) : (
+      <HomeScreen progress={progress} onOpen={open} onViewPath={() => handleTab('learn')} onTab={handleTab} />
+    )
 
   const finishOnboarding = () => { setOnboarding(false); try { window.localStorage.setItem('bataa-onboarding-complete', '1') } catch { /* no-op */ } }
   if (onboarding) return <OnboardingScreen step={onboardingStep} answers={onboardingAnswers} onChange={(next) => setOnboardingAnswers((current) => ({ ...current, ...next }))} onNext={() => { if (onboardingStep >= 3) finishOnboarding(); else setOnboardingStep((value) => value + 1) }} onBack={() => setOnboardingStep((value) => Math.max(0, value - 1))} onSkip={finishOnboarding} />
@@ -1068,15 +1127,11 @@ export function BataaApp() {
 
         <div className="app-device" data-theme={settings.darkMode ? 'dark' : 'light'}>
           {screen}
-          {overlay === 'task' && <TaskScreen progress={progress} onBack={close} onStart={startLesson} onCalendar={() => setOverlay('streak')} />}
           {overlay === 'lesson' && <LessonScreen progress={progress} mode={lessonMode} drafts={drafts} onDraftChange={updateDraft} onClearDraft={clearDraft} onBack={close} onComplete={(step, reward, mode) => completeStep(step, reward, mode)} />}
           {overlay === 'success' && <SuccessScreen progress={progress} mode={successMode} onContinue={() => { if (successMode === 'learn' && progress.completedSteps < FIRST_LESSON.steps.length) { setLessonMode('learn'); setOverlay('lesson') } else { close(); setTab(successMode === 'learn' && progress.completedSteps >= FIRST_LESSON.steps.length ? 'learn' : 'home') } }} />}
           {overlay === 'progress' && <ProgressScreen progress={progress} onBack={close} />}
           {overlay === 'streak' && <StreakScreen progress={progress} onBack={close} />}
-          {overlay === 'shop' && <ShopScreen progress={progress} onBack={close} onPurchase={(cost, title) => setProgress((current) => { const boostKey = title === 'Streak Freeze' || title === 'Double XP' || title === 'Hint Token' ? title : null; return { ...current, gems: Math.max(0, current.gems - cost), hearts: title === 'Heart Refill' ? 5 : current.hearts, boosts: boostKey ? { ...current.boosts, [boostKey]: current.boosts[boostKey] + 1 } : current.boosts } })} />}
-          {overlay === 'leaderboard' && <LeaderboardScreen progress={progress} onBack={close} />}
           {overlay === 'achievements' && <AchievementsScreen progress={progress} onBack={close} />}
-          {overlay === 'settings' && <SettingsScreen settings={settings} onChange={setSettings} onInfo={openInfo} onBack={close} />}
           {overlay === 'info' && <InfoScreen kind={infoKind} onBack={() => setOverlay('settings')} />}
         </div>
       </div>
