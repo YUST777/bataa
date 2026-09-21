@@ -18,6 +18,7 @@ import { TermsPage } from './components/TermsPage'
 import { Navbar } from './components/Navbar'
 import { BataaApp } from './app/BataaApp'
 import { WorkingOnItPage } from './components/WorkingOnItPage'
+import { FloatingVideoWidget } from './components/FloatingVideoWidget'
 import './styles.css'
 
 function FloatingArt() {
@@ -174,7 +175,12 @@ function RootLayout() {
     }
   }, [])
 
-  return <Outlet />
+  return (
+    <>
+      <Outlet />
+      <FloatingVideoWidget />
+    </>
+  )
 }
 
 const rootRoute = createRootRoute({ component: RootLayout })
