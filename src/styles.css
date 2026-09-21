@@ -35,8 +35,8 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (min-width: 821px) {
-  /* Keeps the 125%-browser-zoom composition at a normal browser zoom. */
-  body { zoom: .9; }
+  /* Keeps the 125%-browser-zoom composition at a normal browser zoom on landing page only */
+  body:not(:has(.bataa-app-root)) { zoom: .9; }
   .hero-shell { min-height: 111.112vh; }
   .hero-content { min-height: calc(111.112vh - 92px); }
 }

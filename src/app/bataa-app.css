@@ -192,16 +192,30 @@ button.unit-card { appearance: none; }
   display: none;
 }
 
+/* Prevent any global zoom or body margin from causing empty bottom space on /app */
+html:has(.bataa-app-root),
+body:has(.bataa-app-root) {
+  zoom: 1 !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 @media (min-width: 860px) {
-  /* Layout Root - zoomed-out, high information density */
+  /* Layout Root - full height, zero bottom gap */
   .bataa-app-root.desktop-ready {
     display: flex;
     flex-direction: row;
     height: 100vh;
     min-height: 100vh;
+    max-height: 100vh;
+    width: 100vw;
+    min-width: 100vw;
     overflow: hidden;
     background: var(--app-cream);
-    zoom: 0.85; /* Zoomed out, compact UI feel matching modern SaaS desktop tools */
   }
 
   /* Compact Desktop Sidebar */
