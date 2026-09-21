@@ -46,7 +46,7 @@ function SignupForm() {
 
   const handleGoogleSignUp = () => {
     setIsSubmitting(true)
-    const redirectTo = encodeURIComponent(`${window.location.origin}/app`)
+    const redirectTo = encodeURIComponent(`${window.location.origin}/`)
     window.location.href = `https://uspudlodlwjezrbxzbqn.supabase.co/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`
   }
 
@@ -162,9 +162,8 @@ function RootLayout() {
       if (accessToken) {
         localStorage.setItem('bataa_access_token', accessToken)
         if (refreshToken) localStorage.setItem('bataa_refresh_token', refreshToken)
-        window.history.replaceState({}, document.title, '/app')
-        window.location.href = '/app'
-        return
+        // Clean URL hash and STAY on current page without forcing navigation to /app
+        window.history.replaceState({}, document.title, window.location.pathname)
       }
     }
 

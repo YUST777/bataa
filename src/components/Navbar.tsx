@@ -6,6 +6,15 @@ export function Navbar() {
   const [mobileCoursesOpen, setMobileCoursesOpen] = useState(false)
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false)
   const [desktopMenuOpen, setDesktopMenuOpen] = useState<'courses' | 'resources' | null>(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    try {
+      setIsLoggedIn(Boolean(window.localStorage.getItem('bataa_access_token')))
+    } catch {
+      /* ignore */
+    }
+  }, [])
 
   // Prevent background scrolling when mobile menu is open
   useEffect(() => {
@@ -194,14 +203,27 @@ export function Navbar() {
 
       {/* Right Account Nav */}
       <div className="account-nav">
-        <a href="/web/register" className="nav-login-link">Log in</a>
-        <a
-          href="/app"
-          className="top-cta"
-          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
-        >
-          Start learning for free
-        </a>
+        {isLoggedIn ? (
+          <a
+            href="/app"
+            className="top-cta"
+            style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+          >
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
+            Open App
+          </a>
+        ) : (
+          <>
+            <a href="/web/register" className="nav-login-link">Log in</a>
+            <a
+              href="/app"
+              className="top-cta"
+              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+            >
+              Start learning for free
+            </a>
+          </>
+        )}
       </div>
 
       {/* Mobile Slide-Out Drawer & Backdrop */}
@@ -337,15 +359,17 @@ export function Navbar() {
             className="bataa-mobile-btn-primary"
             onClick={() => setMobileMenuOpen(false)}
           >
-            Start learning for free
+            {isLoggedIn ? 'Open App' : 'Start learning for free'}
           </a>
-          <a
-            href="/web/register"
-            className="bataa-mobile-btn-secondary"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Log in
-          </a>
+          {!isLoggedIn && (
+            <a
+              href="/web/register"
+              className="bataa-mobile-btn-secondary"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Log in
+            </a>
+          )}
         </div>
       </div>
     </header>

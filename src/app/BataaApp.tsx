@@ -15,12 +15,14 @@ import {
   Lightbulb,
   LockKeyhole,
   Medal,
+  Moon,
   Play,
   RotateCcw,
   Settings,
   ShoppingBag,
   SlidersHorizontal,
   Sparkles,
+  Sun,
   Target,
   Trophy,
   UserRound,
@@ -240,43 +242,99 @@ function AppHeader({ title, onBack, right }: { title: string; onBack?: () => voi
   )
 }
 
-function HomeScreen({ progress, onOpen, onViewPath }: { progress: ProgressState; onOpen: (overlay: Overlay) => void; onViewPath: () => void }) {
+function HomeScreen({
+  progress,
+  onOpen,
+  onViewPath,
+  onTab,
+}: {
+  progress: ProgressState
+  onOpen: (overlay: Overlay) => void
+  onViewPath: () => void
+  onTab?: (tab: Tab) => void
+}) {
   const pct = Math.round((progress.completedSteps / FIRST_LESSON.steps.length) * 100)
   return (
     <div className="screen screen-home">
       <div className="home-topline">
         <div className="profile-greeting">
           <span className="home-wordmark" aria-label="Bataa">bataa</span>
-          <div><span className="eyebrow">GOOD MORNING</span><strong>{APP_COPY.home.greeting('Jaques')}</strong></div>
+          <div><span className="eyebrow">GOOD MORNING</span><strong>{APP_COPY.home.greeting('Learner')}</strong></div>
         </div>
         <div className="top-stats"><StatPill icon="gem" value={progress.gems} tone="gold" /><StatPill icon="fire" value={progress.streak} tone="coral" /></div>
       </div>
 
-      <section className="home-hero-card">
-        <div className="hero-copy"><span className="eyebrow accent-eyebrow">YOUR DAILY BUILD</span><h2>You are about to code <em>amazing</em> things.</h2><p>{APP_COPY.home.nextUp}</p></div>
-        <Mascot mood="happy" className="home-mascot" />
-        <div className="hero-orbit hero-orbit-one" /><div className="hero-orbit hero-orbit-two" />
-      </section>
+      <div className="desktop-home-grid">
+        <div className="desktop-home-main">
+          <section className="home-hero-card">
+            <div className="hero-copy"><span className="eyebrow accent-eyebrow">YOUR DAILY BUILD</span><h2>You are about to code <em>amazing</em> things.</h2><p>{APP_COPY.home.nextUp}</p></div>
+            <Mascot mood="happy" className="home-mascot" />
+            <div className="hero-orbit hero-orbit-one" /><div className="hero-orbit hero-orbit-two" />
+          </section>
 
-      <section className="today-card" aria-labelledby="today-heading">
-        <div className="section-row"><div><span className="eyebrow">{APP_COPY.labels.today}</span><h2 id="today-heading">{FIRST_LESSON.shortTitle}</h2></div><span className="time-chip"><ClockIcon /> {FIRST_LESSON.estimatedMinutes} min</span></div>
-        <p>{FIRST_LESSON.description}</p>
-        <div className="today-meta"><span><AppIcon name="code" size={16} /> {FIRST_LESSON.concepts[0]}</span><span>{progress.completedSteps}/{FIRST_LESSON.steps.length} steps</span></div>
-        <ProgressBar value={pct} />
-        <button className="primary-button" onClick={() => onOpen('task')}>{progress.completedSteps >= FIRST_LESSON.steps.length ? 'Review today’s task' : progress.completedSteps > 0 ? 'Continue today’s task' : APP_COPY.actions.startToday}<ChevronRight size={18} /></button>
-      </section>
+          <section className="today-card" aria-labelledby="today-heading">
+            <div className="section-row"><div><span className="eyebrow">{APP_COPY.labels.today}</span><h2 id="today-heading">{FIRST_LESSON.shortTitle}</h2></div><span className="time-chip"><ClockIcon /> {FIRST_LESSON.estimatedMinutes} min</span></div>
+            <p>{FIRST_LESSON.description}</p>
+            <div className="today-meta"><span><AppIcon name="code" size={16} /> {FIRST_LESSON.concepts[0]}</span><span>{progress.completedSteps}/{FIRST_LESSON.steps.length} steps</span></div>
+            <ProgressBar value={pct} />
+            <button className="primary-button" onClick={() => onOpen('task')}>{progress.completedSteps >= FIRST_LESSON.steps.length ? 'Review today’s task' : progress.completedSteps > 0 ? 'Continue today’s task' : APP_COPY.actions.startToday}<ChevronRight size={18} /></button>
+          </section>
 
-      <section className="path-preview">
-        <div className="section-row"><h2>{APP_COPY.labels.continuePath}</h2><button className="text-button" onClick={onViewPath}>View path <ChevronRight size={16} /></button></div>
-        <div className="path-list">
-          {FIRST_LESSON.steps.map((step, index) => {
-            const done = index < progress.completedSteps
-            const current = index === progress.completedSteps
-            const interactive = done || current
-            return <button className={`path-step ${done ? 'done' : ''} ${current ? 'current' : ''} ${!interactive ? 'locked' : ''}`} key={step.id} onClick={interactive ? () => onOpen('task') : undefined} disabled={!interactive} aria-disabled={!interactive} title={!interactive ? 'Finish the previous step to unlock this step' : undefined}><span className="path-node">{done ? <Check size={15} /> : current ? <Code2 size={15} /> : <LockKeyhole size={14} />}</span><span><small>STEP {index + 1}</small><strong>{step.title.replace('Create the HTML structure', 'Create the HTML')}</strong></span>{interactive && <ChevronRight size={16} className="path-chevron" />}</button>
-          })}
+          <section className="path-preview">
+            <div className="section-row"><h2>{APP_COPY.labels.continuePath}</h2><button className="text-button" onClick={onViewPath}>View path <ChevronRight size={16} /></button></div>
+            <div className="path-list">
+              {FIRST_LESSON.steps.map((step, index) => {
+                const done = index < progress.completedSteps
+                const current = index === progress.completedSteps
+                const interactive = done || current
+                return <button className={`path-step ${done ? 'done' : ''} ${current ? 'current' : ''} ${!interactive ? 'locked' : ''}`} key={step.id} onClick={interactive ? () => onOpen('task') : undefined} disabled={!interactive} aria-disabled={!interactive} title={!interactive ? 'Finish the previous step to unlock this step' : undefined}><span className="path-node">{done ? <Check size={15} /> : current ? <Code2 size={15} /> : <LockKeyhole size={14} />}</span><span><small>STEP {index + 1}</small><strong>{step.title.replace('Create the HTML structure', 'Create the HTML')}</strong></span>{interactive && <ChevronRight size={16} className="path-chevron" />}</button>
+              })}
+            </div>
+          </section>
         </div>
-      </section>
+
+        <aside className="desktop-home-companion">
+          <div className="desktop-companion-card" onClick={() => onOpen('streak')} style={{ cursor: 'pointer' }}>
+            <span className="eyebrow accent-eyebrow">DAILY STREAK</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '10px' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#ffe0d0', display: 'grid', placeItems: 'center', color: 'var(--app-coral)' }}>
+                <Flame size={24} fill="currentColor" />
+              </div>
+              <div>
+                <strong style={{ fontSize: '18px', display: 'block' }}>{progress.streak} Day Streak</strong>
+                <small style={{ color: 'var(--app-ink-soft)', fontSize: '11px' }}>Practice today to keep it active</small>
+              </div>
+            </div>
+          </div>
+
+          <div className="desktop-companion-card" onClick={() => onTab ? onTab('goals') : onOpen('progress')} style={{ cursor: 'pointer' }}>
+            <span className="eyebrow">DAILY GOAL</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
+              <div>
+                <strong style={{ fontSize: '16px', display: 'block' }}>Earn 50 XP</strong>
+                <small style={{ color: 'var(--app-ink-soft)', fontSize: '11px' }}>{Math.min(50, progress.xp % 50)} / 50 XP today</small>
+              </div>
+              <div style={{ width: '42px', height: '42px', borderRadius: '50%', border: '4px solid #ffd38f', borderLeftColor: 'var(--app-orange)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: '12px', color: 'var(--app-orange-dark)' }}>
+                <Zap size={16} fill="currentColor" />
+              </div>
+            </div>
+          </div>
+
+          <div className="desktop-companion-card" onClick={() => onOpen('leaderboard')} style={{ cursor: 'pointer' }}>
+            <span className="eyebrow">WEEKLY LEAGUE</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+              <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: '#fef3c7', display: 'grid', placeItems: 'center', color: '#b45309' }}>
+                <Trophy size={20} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <strong style={{ fontSize: '14px', display: 'block' }}>Ruby League</strong>
+                <small style={{ color: 'var(--app-ink-soft)', fontSize: '11px' }}>Rank #4 · Top 10 advance</small>
+              </div>
+              <ChevronRight size={16} color="#b99a78" />
+            </div>
+          </div>
+        </aside>
+      </div>
 
     </div>
   )
@@ -455,7 +513,238 @@ function LessonScreen({ progress, mode, drafts, onDraftChange, onClearDraft, onB
   const isChoice = Boolean(step.choices)
   const highlighted = feedback?.valid ? 'valid' : feedback ? 'invalid' : ''
   const progressValue = mode === 'review' ? (reviewedSteps.size / FIRST_LESSON.steps.length) * 100 : (progress.completedSteps / FIRST_LESSON.steps.length) * 100
-  return <div className="screen overlay-screen lesson-screen"><header className="lesson-header"><button className="icon-button" onClick={requestClose} aria-label={APP_COPY.lesson.closeLabel}><X size={20} /></button><div className="lesson-progress-wrap"><span className="eyebrow">{mode === 'review' ? 'REVIEW' : 'DAY 1'}</span><ProgressBar value={progressValue} /></div><StatPill icon="heart" value={progress.hearts} tone="heart" /></header><main className="lesson-content">{mode === 'review' && <div className="review-step-nav" aria-label="Review steps">{FIRST_LESSON.steps.map((reviewStep, index) => <button type="button" key={reviewStep.id} className={`${index === stepIndex ? 'selected ' : ''}${reviewedSteps.has(reviewStep.id) ? 'reviewed' : ''}`} onClick={() => { if (isChecking || completionQueuedRef.current) return; setReviewStepIndex(index); setFeedback(null) }} disabled={isChecking || completionQueuedRef.current} aria-label={`Review step ${index + 1}${reviewedSteps.has(reviewStep.id) ? ', completed' : ''}`}>{index + 1}</button>)}</div>}<div className="step-kicker"><span>{APP_COPY.lesson.progressLabel(step.stepNumber, FIRST_LESSON.steps.length)}</span><span className="lesson-xp"><Zap size={14} /> {mode === 'review' ? 'Practice' : `+${step.xp} XP`}</span></div><h1>{step.title}</h1><p className="lesson-goal">{step.goal}</p><section className="concept-card"><span className="concept-icon"><Lightbulb size={18} /></span><div><strong>Why this matters</strong><p>{step.explanation}</p></div></section>{isChoice && <section className={`choice-panel ${highlighted}`}><div className="panel-heading"><span>CHOOSE ONE</span><span className="editor-label"><Lightbulb size={14} /> No typing needed</span></div><p className="choice-help">Tap the answer that best matches the goal.</p><div className="choice-options" role="group" aria-label="Answer choices">{(step.choices ?? []).map((choice, index) => <button type="button" key={choice.id} className={`choice-option ${answer === choice.id ? 'selected' : ''}`} aria-pressed={answer === choice.id} onClick={() => { if (isChecking || completionQueuedRef.current) return; setAnswer(choice.id); persistDraft({ answer: choice.id }); if (feedback) setFeedback(null) }} disabled={isChecking || completionQueuedRef.current}><span className="choice-marker">{String.fromCharCode(65 + index)}</span><span><strong>{choice.label}</strong>{choice.description && <small>{choice.description}</small>}</span></button>)}</div>{feedback && !feedback.valid && <div className="editor-marker"><CircleHelp size={15} /> {feedback.message}</div>}</section>}{isPreview ? <section className="practice-panel preview-only"><div className="panel-heading"><span>{step.preview.label}</span><span className="preview-live"><span /> LIVE</span></div><div className="preview-stage"><button className={`demo-button ${previewTapped ? 'pressed' : ''}`} style={previewStyle} onClick={() => { if (completionQueuedRef.current) return; setPreviewTapped(true); persistDraft({ previewTapped: true }) }} disabled={isChecking || completionQueuedRef.current}>Click me</button>{previewTapped && <span className="preview-confirm"><Check size={15} /> Button responded</span>}</div></section> : <><section className={`practice-panel ${highlighted} ${isChoice ? 'choice-editor-hidden' : ''}`}><div className="panel-heading"><span>{step.language?.toUpperCase()} EDITOR</span><span className="editor-label"><Code2 size={14} /> {mode === 'review' ? 'Review practice' : 'Guided practice'}</span></div><textarea aria-label={`${step.language} code editor`} spellCheck={false} value={answer} disabled={isChecking || completionQueuedRef.current} onChange={(event) => { const nextAnswer = event.target.value; setAnswer(nextAnswer); persistDraft({ answer: nextAnswer }); if (feedback) setFeedback(null) }} />{feedback && !feedback.valid && <div className="editor-marker"><CircleHelp size={15} /> {feedback.message}</div>}</section><section className="preview-card"><div className="panel-heading"><span>{APP_COPY.labels.preview}</span><span className="preview-live"><span /> UPDATES LIVE</span></div><div className="preview-stage"><button className={`demo-button ${previewTapped ? 'pressed' : ''}`} style={previewStyle} onClick={() => { if (completionQueuedRef.current) return; setPreviewTapped(true); persistDraft({ previewTapped: true }) }} disabled={isChecking || completionQueuedRef.current} aria-label="Try the preview button">Click me</button>{previewTapped && <span className="preview-confirm"><Check size={15} /> Preview responded</span>}</div><p><EyeIcon /> {step.preview.observation}</p></section></>}{feedback?.valid && <div className="feedback feedback-success" role="status" aria-live="polite"><Check size={18} /><span>{feedback.message}</span></div>}{feedback && !feedback.valid && <div className="feedback feedback-error" role="alert" aria-live="polite"><CircleHelp size={18} /><span>{APP_COPY.lesson.wrongTitle}. {APP_COPY.lesson.wrongBody}</span></div>}<div className="lesson-actions"><button className={`primary-button check-button ${isChecking ? 'loading' : ''}`} onClick={check} disabled={isChecking || completionQueuedRef.current}>{isChecking ? APP_COPY.lesson.checking : mode === 'review' ? 'Check review' : isPreview ? 'Check my test' : APP_COPY.lesson.checkReady}<Check size={17} /></button><button className="hint-button" onClick={() => { const nextHintIndex = Math.min(hintIndex + 1, step.hints.length - 1); setHintIndex(nextHintIndex); persistDraft({ hintIndex: nextHintIndex }) }} disabled={isChecking || completionQueuedRef.current}><Lightbulb size={17} /> {hintIndex >= 0 ? step.hints[hintIndex].label : APP_COPY.actions.showHint}</button></div>{hintIndex >= 0 && <div className="hint-card"><span className="hint-bulb"><Lightbulb size={17} /></span><p>{step.hints[hintIndex].text}</p>{hintIndex < step.hints.length - 1 && <button onClick={() => { const nextHintIndex = hintIndex + 1; setHintIndex(nextHintIndex); persistDraft({ hintIndex: nextHintIndex }) }} disabled={isChecking || completionQueuedRef.current}>Another clue <ChevronRight size={15} /></button>}</div>}<div className="lesson-bottom-tools"><button onClick={() => { const nextAnswer = step.choices ? '' : (step.starterCode ?? ''); setAnswer(nextAnswer); setFeedback(null); setHintIndex(-1); setPreviewTapped(false); onClearDraft(step.id) }} disabled={isChecking || completionQueuedRef.current}><RotateCcw size={15} /> Reset step</button><button onClick={() => setShowWhy((value) => !value)} aria-expanded={showWhy}>{APP_COPY.actions.why} <CircleHelp size={15} /></button></div>{showWhy && <div className="why-panel" role="region" aria-label="Why this works"><strong>How this works</strong><p>{step.explanation}</p></div>}</main>{showCloseConfirm && <div className="close-confirm-backdrop" role="presentation"><section className="close-confirm" role="dialog" aria-modal="true" aria-labelledby="close-confirm-title"><span className="concept-icon"><CircleHelp size={18} /></span><h2 id="close-confirm-title">{APP_COPY.lesson.unsavedTitle}</h2><p>{APP_COPY.lesson.unsavedBody}</p><div className="close-confirm-actions"><button className="primary-button" onClick={keepDraftAndClose}>{APP_COPY.actions.keepDraft}</button><button className="secondary-button" onClick={leaveLesson}>{APP_COPY.actions.leaveLesson}</button><button className="text-button" onClick={() => setShowCloseConfirm(false)}>Stay</button></div></section></div>}</div>
+
+  return (
+    <div className="screen overlay-screen lesson-screen">
+      <header className="lesson-header">
+        <button className="icon-button" onClick={requestClose} aria-label={APP_COPY.lesson.closeLabel}>
+          <X size={20} />
+        </button>
+        <div className="lesson-progress-wrap">
+          <span className="eyebrow">{mode === 'review' ? 'REVIEW' : 'DAY 1'}</span>
+          <ProgressBar value={progressValue} />
+        </div>
+        <StatPill icon="heart" value={progress.hearts} tone="heart" />
+      </header>
+
+      <main className="lesson-content">
+        {mode === 'review' && (
+          <div className="review-step-nav" aria-label="Review steps">
+            {FIRST_LESSON.steps.map((reviewStep, index) => (
+              <button
+                type="button"
+                key={reviewStep.id}
+                className={`${index === stepIndex ? 'selected ' : ''}${reviewedSteps.has(reviewStep.id) ? 'reviewed' : ''}`}
+                onClick={() => {
+                  if (isChecking || completionQueuedRef.current) return
+                  setReviewStepIndex(index)
+                  setFeedback(null)
+                }}
+                disabled={isChecking || completionQueuedRef.current}
+                aria-label={`Review step ${index + 1}${reviewedSteps.has(reviewStep.id) ? ', completed' : ''}`}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="lesson-workspace-split">
+          {/* Left Column: Briefing + Code Editor / Choices */}
+          <div className="lesson-left-pane">
+            <div className="step-kicker">
+              <span>{APP_COPY.lesson.progressLabel(step.stepNumber, FIRST_LESSON.steps.length)}</span>
+              <span className="lesson-xp"><Zap size={14} /> {mode === 'review' ? 'Practice' : `+${step.xp} XP`}</span>
+            </div>
+            <h1>{step.title}</h1>
+            <p className="lesson-goal">{step.goal}</p>
+
+            <section className="concept-card">
+              <span className="concept-icon"><Lightbulb size={18} /></span>
+              <div>
+                <strong>Why this matters</strong>
+                <p>{step.explanation}</p>
+              </div>
+            </section>
+
+            {isChoice && (
+              <section className={`choice-panel ${highlighted}`}>
+                <div className="panel-heading">
+                  <span>CHOOSE ONE</span>
+                  <span className="editor-label"><Lightbulb size={14} /> No typing needed</span>
+                </div>
+                <p className="choice-help">Tap the answer that best matches the goal.</p>
+                <div className="choice-options" role="group" aria-label="Answer choices">
+                  {(step.choices ?? []).map((choice, index) => (
+                    <button
+                      type="button"
+                      key={choice.id}
+                      className={`choice-option ${answer === choice.id ? 'selected' : ''}`}
+                      aria-pressed={answer === choice.id}
+                      onClick={() => {
+                        if (isChecking || completionQueuedRef.current) return
+                        setAnswer(choice.id)
+                        persistDraft({ answer: choice.id })
+                        if (feedback) setFeedback(null)
+                      }}
+                      disabled={isChecking || completionQueuedRef.current}
+                    >
+                      <span className="choice-marker">{String.fromCharCode(65 + index)}</span>
+                      <span>
+                        <strong>{choice.label}</strong>
+                        {choice.description && <small>{choice.description}</small>}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                {feedback && !feedback.valid && <div className="editor-marker"><CircleHelp size={15} /> {feedback.message}</div>}
+              </section>
+            )}
+
+            {!isChoice && !isPreview && (
+              <section className={`practice-panel ${highlighted}`}>
+                <div className="panel-heading">
+                  <span>{step.language?.toUpperCase()} EDITOR</span>
+                  <span className="editor-label"><Code2 size={14} /> {mode === 'review' ? 'Review practice' : 'Guided practice'}</span>
+                </div>
+                <textarea
+                  aria-label={`${step.language} code editor`}
+                  spellCheck={false}
+                  value={answer}
+                  disabled={isChecking || completionQueuedRef.current}
+                  onChange={(event) => {
+                    const nextAnswer = event.target.value
+                    setAnswer(nextAnswer)
+                    persistDraft({ answer: nextAnswer })
+                    if (feedback) setFeedback(null)
+                  }}
+                />
+                {feedback && !feedback.valid && <div className="editor-marker"><CircleHelp size={15} /> {feedback.message}</div>}
+              </section>
+            )}
+          </div>
+
+          {/* Right Column: Live Interactive Preview & Tutor Feedback */}
+          <div className="lesson-right-pane">
+            {isPreview ? (
+              <section className="practice-panel preview-only">
+                <div className="panel-heading">
+                  <span>{step.preview.label}</span>
+                  <span className="preview-live"><span /> LIVE</span>
+                </div>
+                <div className="preview-stage">
+                  <button
+                    className={`demo-button ${previewTapped ? 'pressed' : ''}`}
+                    style={previewStyle}
+                    onClick={() => {
+                      if (completionQueuedRef.current) return
+                      setPreviewTapped(true)
+                      persistDraft({ previewTapped: true })
+                    }}
+                    disabled={isChecking || completionQueuedRef.current}
+                  >
+                    Click me
+                  </button>
+                  {previewTapped && <span className="preview-confirm"><Check size={15} /> Button responded</span>}
+                </div>
+              </section>
+            ) : (
+              <section className="preview-card">
+                <div className="panel-heading">
+                  <span>{APP_COPY.labels.preview}</span>
+                  <span className="preview-live"><span /> UPDATES LIVE</span>
+                </div>
+                <div className="preview-stage">
+                  <button
+                    className={`demo-button ${previewTapped ? 'pressed' : ''}`}
+                    style={previewStyle}
+                    onClick={() => {
+                      if (completionQueuedRef.current) return
+                      setPreviewTapped(true)
+                      persistDraft({ previewTapped: true })
+                    }}
+                    disabled={isChecking || completionQueuedRef.current}
+                    aria-label="Try the preview button"
+                  >
+                    Click me
+                  </button>
+                  {previewTapped && <span className="preview-confirm"><Check size={15} /> Preview responded</span>}
+                </div>
+                <p><EyeIcon /> {step.preview.observation}</p>
+              </section>
+            )}
+
+            {feedback?.valid && (
+              <div className="feedback feedback-success" role="status" aria-live="polite">
+                <Check size={18} />
+                <span>{feedback.message}</span>
+              </div>
+            )}
+            {feedback && !feedback.valid && (
+              <div className="feedback feedback-error" role="alert" aria-live="polite">
+                <CircleHelp size={18} />
+                <span>{APP_COPY.lesson.wrongTitle}. {APP_COPY.lesson.wrongBody}</span>
+              </div>
+            )}
+
+            {hintIndex >= 0 && (
+              <div className="hint-card">
+                <span className="hint-bulb"><Lightbulb size={17} /></span>
+                <p>{step.hints[hintIndex].text}</p>
+                {hintIndex < step.hints.length - 1 && (
+                  <button onClick={() => { const nextHintIndex = hintIndex + 1; setHintIndex(nextHintIndex); persistDraft({ hintIndex: nextHintIndex }) }} disabled={isChecking || completionQueuedRef.current}>
+                    Another clue <ChevronRight size={15} />
+                  </button>
+                )}
+              </div>
+            )}
+
+            {showWhy && (
+              <div className="why-panel" role="region" aria-label="Why this works">
+                <strong>How this works</strong>
+                <p>{step.explanation}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Action Controls */}
+        <div className="lesson-actions">
+          <button className={`primary-button check-button ${isChecking ? 'loading' : ''}`} onClick={check} disabled={isChecking || completionQueuedRef.current}>
+            {isChecking ? APP_COPY.lesson.checking : mode === 'review' ? 'Check review' : isPreview ? 'Check my test' : APP_COPY.lesson.checkReady}
+            <Check size={17} />
+          </button>
+          <button className="hint-button" onClick={() => { const nextHintIndex = Math.min(hintIndex + 1, step.hints.length - 1); setHintIndex(nextHintIndex); persistDraft({ hintIndex: nextHintIndex }) }} disabled={isChecking || completionQueuedRef.current}>
+            <Lightbulb size={17} /> {hintIndex >= 0 ? step.hints[hintIndex].label : APP_COPY.actions.showHint}
+          </button>
+        </div>
+
+        <div className="lesson-bottom-tools">
+          <button onClick={() => { const nextAnswer = step.choices ? '' : (step.starterCode ?? ''); setAnswer(nextAnswer); setFeedback(null); setHintIndex(-1); setPreviewTapped(false); onClearDraft(step.id) }} disabled={isChecking || completionQueuedRef.current}>
+            <RotateCcw size={15} /> Reset step
+          </button>
+          <button onClick={() => setShowWhy((value) => !value)} aria-expanded={showWhy}>
+            {APP_COPY.actions.why} <CircleHelp size={15} />
+          </button>
+        </div>
+      </main>
+
+      {showCloseConfirm && (
+        <div className="close-confirm-backdrop" role="presentation">
+          <section className="close-confirm" role="dialog" aria-modal="true" aria-labelledby="close-confirm-title">
+            <span className="concept-icon"><CircleHelp size={18} /></span>
+            <h2 id="close-confirm-title">{APP_COPY.lesson.unsavedTitle}</h2>
+            <p>{APP_COPY.lesson.unsavedBody}</p>
+            <div className="close-confirm-actions">
+              <button className="primary-button" onClick={keepDraftAndClose}>{APP_COPY.actions.keepDraft}</button>
+              <button className="secondary-button" onClick={leaveLesson}>{APP_COPY.actions.leaveLesson}</button>
+              <button className="text-button" onClick={() => setShowCloseConfirm(false)}>Stay</button>
+            </div>
+          </section>
+        </div>
+      )}
+    </div>
+  )
 }
 
 function EyeIcon() { return <span className="eye-mini" /> }
@@ -522,6 +811,178 @@ function AchievementsScreen({ progress, onBack }: { progress: ProgressState; onB
   return <div className="screen overlay-screen"><AppHeader title="Achievements" onBack={onBack} /><main className="achievements-content"><section className="achievement-summary"><span className="achievement-summary-icon"><Award size={24} /></span><div><span className="eyebrow accent-eyebrow">YOUR COLLECTION</span><h2>{earnedBadgeCount(progress)} of {badges.length} badges</h2><p>Every badge marks a real learning habit.</p></div></section><div className="achievement-list">{badges.map((badge) => <article className={`achievement-card ${badge.unlocked ? 'unlocked' : 'locked'}`} key={badge.title}><span className="achievement-icon">{badge.icon}</span><div><strong>{badge.title}</strong><p>{badge.detail}</p></div><span className="achievement-status">{badge.unlocked ? <Check size={16} /> : <LockKeyhole size={15} />}</span></article>)}</div><section className="learn-tip"><Sparkles size={20} /><div><strong>Keep building</strong><p>Short, consistent practice turns into skills you can use.</p></div></section></main></div>
 }
 
+function DesktopSidebar({
+  tab,
+  onTab,
+  onOpen,
+  settings,
+  onToggleTheme,
+}: {
+  tab: Tab
+  onTab: (tab: Tab) => void
+  onOpen: (overlay: Overlay) => void
+  settings: SettingsState
+  onToggleTheme: () => void
+}) {
+  return (
+    <aside className="desktop-sidebar" aria-label="Desktop application navigation">
+      <div className="desktop-sidebar-top">
+        <a href="/" className="desktop-sidebar-brand" title="Return to Bataa home">
+          <img src="/duck.svg" alt="" className="desktop-sidebar-logo" />
+          <span>bataa</span>
+        </a>
+      </div>
+
+      <nav className="desktop-nav-list">
+        <button
+          type="button"
+          className={`desktop-nav-item ${tab === 'home' ? 'active' : ''}`}
+          onClick={() => onTab('home')}
+        >
+          <Home size={20} strokeWidth={tab === 'home' ? 2.5 : 1.8} />
+          <span>Home</span>
+        </button>
+
+        <button
+          type="button"
+          className={`desktop-nav-item ${tab === 'learn' ? 'active' : ''}`}
+          onClick={() => onTab('learn')}
+        >
+          <BookOpen size={20} strokeWidth={tab === 'learn' ? 2.5 : 1.8} />
+          <span>Curriculum</span>
+        </button>
+
+        <button
+          type="button"
+          className={`desktop-nav-item ${tab === 'goals' ? 'active' : ''}`}
+          onClick={() => onTab('goals')}
+        >
+          <Trophy size={20} strokeWidth={tab === 'goals' ? 2.5 : 1.8} />
+          <span>Daily Goals</span>
+        </button>
+
+        <button
+          type="button"
+          className={`desktop-nav-item ${tab === 'profile' ? 'active' : ''}`}
+          onClick={() => onTab('profile')}
+        >
+          <UserRound size={20} strokeWidth={tab === 'profile' ? 2.5 : 1.8} />
+          <span>Profile</span>
+        </button>
+
+        <button
+          type="button"
+          className="desktop-nav-item"
+          onClick={() => onOpen('leaderboard')}
+        >
+          <Medal size={20} />
+          <span>Leaderboard</span>
+        </button>
+
+        <button
+          type="button"
+          className="desktop-nav-item"
+          onClick={() => onOpen('shop')}
+        >
+          <ShoppingBag size={20} />
+          <span>Boost Shop</span>
+        </button>
+
+        <button
+          type="button"
+          className="desktop-nav-item"
+          onClick={() => onOpen('settings')}
+        >
+          <Settings size={20} />
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <div className="desktop-sidebar-bottom">
+        <button
+          type="button"
+          className="desktop-theme-toggle"
+          onClick={onToggleTheme}
+          title="Toggle light/dark theme"
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {settings.darkMode ? <Moon size={16} /> : <Sun size={16} />}
+            {settings.darkMode ? 'Dark Theme' : 'Light Theme'}
+          </span>
+        </button>
+
+        <a href="/" className="desktop-back-home">
+          <ArrowLeft size={16} />
+          <span>← Back to bataa.app</span>
+        </a>
+      </div>
+    </aside>
+  )
+}
+
+function DesktopTopBar({
+  progress,
+  onOpen,
+}: {
+  progress: ProgressState
+  onOpen: (overlay: Overlay) => void
+}) {
+  return (
+    <header className="desktop-topbar">
+      <div className="desktop-topbar-left">
+        <span className="desktop-topbar-path-title">
+          <Code2 size={18} style={{ color: 'var(--app-orange)' }} />
+          <span>Web Development Path · Day 1</span>
+        </span>
+      </div>
+
+      <div className="desktop-topbar-stats">
+        <button
+          type="button"
+          className="desktop-stat-btn"
+          onClick={() => onOpen('streak')}
+          title="Daily streak"
+        >
+          <Flame size={17} style={{ color: 'var(--app-coral)' }} fill="currentColor" />
+          <strong>{progress.streak}</strong>
+          <span>days</span>
+        </button>
+
+        <button
+          type="button"
+          className="desktop-stat-btn"
+          onClick={() => onOpen('shop')}
+          title="Gems available"
+        >
+          <Gem size={17} style={{ color: 'var(--app-gold)' }} />
+          <strong>{progress.gems}</strong>
+        </button>
+
+        <button
+          type="button"
+          className="desktop-stat-btn"
+          onClick={() => onOpen('shop')}
+          title="Hearts focus"
+        >
+          <Heart size={17} style={{ color: '#d75346' }} fill="currentColor" />
+          <strong>{progress.hearts}</strong>
+        </button>
+
+        <button
+          type="button"
+          className="desktop-stat-btn"
+          onClick={() => onOpen('progress')}
+          title="Total XP earned"
+        >
+          <Zap size={17} style={{ color: 'var(--app-orange)' }} fill="currentColor" />
+          <strong>{progress.xp}</strong>
+          <span>XP</span>
+        </button>
+      </div>
+    </header>
+  )
+}
+
 export function BataaApp() {
   const [tab, setTab] = useState<Tab>('home')
   const [overlay, setOverlay] = useState<Overlay>(null)
@@ -586,12 +1047,43 @@ export function BataaApp() {
   }
   const handleTab = (next: Tab) => { setTab(next); setOverlay(null) }
 
-  const screen = tab === 'home' ? <HomeScreen progress={progress} onOpen={open} onViewPath={() => { setTab('learn'); setOverlay(null) }} /> : tab === 'learn' ? <LearnScreen progress={progress} onOpen={open} /> : tab === 'goals' ? <GoalsScreen progress={progress} onOpen={open} /> : <ProfileScreen progress={progress} onOpen={open} />
+  const screen = tab === 'home' ? <HomeScreen progress={progress} onOpen={open} onViewPath={() => { setTab('learn'); setOverlay(null) }} onTab={handleTab} /> : tab === 'learn' ? <LearnScreen progress={progress} onOpen={open} /> : tab === 'goals' ? <GoalsScreen progress={progress} onOpen={open} /> : <ProfileScreen progress={progress} onOpen={open} />
 
   const finishOnboarding = () => { setOnboarding(false); try { window.localStorage.setItem('bataa-onboarding-complete', '1') } catch { /* no-op */ } }
   if (onboarding) return <OnboardingScreen step={onboardingStep} answers={onboardingAnswers} onChange={(next) => setOnboardingAnswers((current) => ({ ...current, ...next }))} onNext={() => { if (onboardingStep >= 3) finishOnboarding(); else setOnboardingStep((value) => value + 1) }} onBack={() => setOnboardingStep((value) => Math.max(0, value - 1))} onSkip={finishOnboarding} />
 
-  return <div className="bataa-app-root" data-theme={settings.darkMode ? 'dark' : 'light'}><div className="app-device" data-theme={settings.darkMode ? 'dark' : 'light'}>{screen}{overlay === 'task' && <TaskScreen progress={progress} onBack={close} onStart={startLesson} onCalendar={() => setOverlay('streak')} />}{overlay === 'lesson' && <LessonScreen progress={progress} mode={lessonMode} drafts={drafts} onDraftChange={updateDraft} onClearDraft={clearDraft} onBack={close} onComplete={(step, reward, mode) => completeStep(step, reward, mode)} />}{overlay === 'success' && <SuccessScreen progress={progress} mode={successMode} onContinue={() => { if (successMode === 'learn' && progress.completedSteps < FIRST_LESSON.steps.length) { setLessonMode('learn'); setOverlay('lesson') } else { close(); setTab(successMode === 'learn' && progress.completedSteps >= FIRST_LESSON.steps.length ? 'learn' : 'home') } }} />}{overlay === 'progress' && <ProgressScreen progress={progress} onBack={close} />}{overlay === 'streak' && <StreakScreen progress={progress} onBack={close} />}{overlay === 'shop' && <ShopScreen progress={progress} onBack={close} onPurchase={(cost, title) => setProgress((current) => { const boostKey = title === 'Streak Freeze' || title === 'Double XP' || title === 'Hint Token' ? title : null; return { ...current, gems: Math.max(0, current.gems - cost), hearts: title === 'Heart Refill' ? 5 : current.hearts, boosts: boostKey ? { ...current.boosts, [boostKey]: current.boosts[boostKey] + 1 } : current.boosts } })} />}{overlay === 'leaderboard' && <LeaderboardScreen progress={progress} onBack={close} />}{overlay === 'achievements' && <AchievementsScreen progress={progress} onBack={close} />}{overlay === 'settings' && <SettingsScreen settings={settings} onChange={setSettings} onInfo={openInfo} onBack={close} />}{overlay === 'info' && <InfoScreen kind={infoKind} onBack={() => setOverlay('settings')} />}{overlay === null && <BottomNav tab={tab} onTab={handleTab} />}</div></div>
+  return (
+    <div className="bataa-app-root desktop-ready" data-theme={settings.darkMode ? 'dark' : 'light'}>
+      {/* Desktop Left Sidebar */}
+      <DesktopSidebar
+        tab={tab}
+        onTab={handleTab}
+        onOpen={open}
+        settings={settings}
+        onToggleTheme={() => setSettings((s) => ({ ...s, darkMode: !s.darkMode }))}
+      />
+
+      <div className="desktop-main-wrapper">
+        <DesktopTopBar progress={progress} onOpen={open} />
+
+        <div className="app-device" data-theme={settings.darkMode ? 'dark' : 'light'}>
+          {screen}
+          {overlay === 'task' && <TaskScreen progress={progress} onBack={close} onStart={startLesson} onCalendar={() => setOverlay('streak')} />}
+          {overlay === 'lesson' && <LessonScreen progress={progress} mode={lessonMode} drafts={drafts} onDraftChange={updateDraft} onClearDraft={clearDraft} onBack={close} onComplete={(step, reward, mode) => completeStep(step, reward, mode)} />}
+          {overlay === 'success' && <SuccessScreen progress={progress} mode={successMode} onContinue={() => { if (successMode === 'learn' && progress.completedSteps < FIRST_LESSON.steps.length) { setLessonMode('learn'); setOverlay('lesson') } else { close(); setTab(successMode === 'learn' && progress.completedSteps >= FIRST_LESSON.steps.length ? 'learn' : 'home') } }} />}
+          {overlay === 'progress' && <ProgressScreen progress={progress} onBack={close} />}
+          {overlay === 'streak' && <StreakScreen progress={progress} onBack={close} />}
+          {overlay === 'shop' && <ShopScreen progress={progress} onBack={close} onPurchase={(cost, title) => setProgress((current) => { const boostKey = title === 'Streak Freeze' || title === 'Double XP' || title === 'Hint Token' ? title : null; return { ...current, gems: Math.max(0, current.gems - cost), hearts: title === 'Heart Refill' ? 5 : current.hearts, boosts: boostKey ? { ...current.boosts, [boostKey]: current.boosts[boostKey] + 1 } : current.boosts } })} />}
+          {overlay === 'leaderboard' && <LeaderboardScreen progress={progress} onBack={close} />}
+          {overlay === 'achievements' && <AchievementsScreen progress={progress} onBack={close} />}
+          {overlay === 'settings' && <SettingsScreen settings={settings} onChange={setSettings} onInfo={openInfo} onBack={close} />}
+          {overlay === 'info' && <InfoScreen kind={infoKind} onBack={() => setOverlay('settings')} />}
+        </div>
+      </div>
+
+      {overlay === null && <BottomNav tab={tab} onTab={handleTab} />}
+    </div>
+  )
 }
 
 function OnboardingScreen({ step, answers, onChange, onNext, onBack, onSkip }: { step: number; answers: OnboardingAnswers; onChange: (next: Partial<OnboardingAnswers>) => void; onNext: () => void; onBack: () => void; onSkip: () => void }) {

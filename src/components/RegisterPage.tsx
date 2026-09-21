@@ -25,7 +25,7 @@ export function RegisterPage() {
 
   const handleGoogleAuth = () => {
     setIsSubmitting(true)
-    const redirectTo = encodeURIComponent(`${window.location.origin}/app`)
+    const redirectTo = encodeURIComponent(`${window.location.origin}/`)
     window.location.href = `https://uspudlodlwjezrbxzbqn.supabase.co/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`
   }
 
@@ -43,20 +43,20 @@ export function RegisterPage() {
         body: JSON.stringify({ email, source: 'register_page' })
       })
       if (res.ok) {
-        setNotice('🎉 Welcome to Bataa! Your registration is confirmed. Redirecting to app...')
+        setNotice('🎉 Welcome to Bataa! Your registration is confirmed.')
         setTimeout(() => {
-          window.location.href = '/app'
+          window.location.href = '/'
         }, 1200)
       } else {
-        setNotice('Account registered! Taking you to the interactive app...')
+        setNotice('Account registered!')
         setTimeout(() => {
-          window.location.href = '/app'
+          window.location.href = '/'
         }, 1200)
       }
     } catch {
-      setNotice('Connected! Launching interactive app...')
+      setNotice('Connected!')
       setTimeout(() => {
-        window.location.href = '/app'
+        window.location.href = '/'
       }, 1000)
     } finally {
       setIsSubmitting(false)
