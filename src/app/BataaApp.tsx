@@ -247,9 +247,15 @@ function BottomNav({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
 function AppHeader({ title, onBack, right }: { title: string; onBack?: () => void; right?: ReactNode }) {
   return (
     <header className="app-header">
-      {onBack ? <button className="icon-button header-back" onClick={onBack} aria-label="Go back"><ArrowLeft size={21} /></button> : <span className="header-placeholder" aria-hidden="true" />}
-      <h1>{title}</h1>
-      <div className="header-right">{right ?? <span className="header-spacer" />}</div>
+      <div className="app-header-left">
+        {onBack && (
+          <button className="icon-button header-back" onClick={onBack} aria-label="Go back">
+            <ArrowLeft size={20} />
+          </button>
+        )}
+        <h1>{title}</h1>
+      </div>
+      {right ? <div className="header-right">{right}</div> : <span className="header-spacer" aria-hidden="true" />}
     </header>
   )
 }
@@ -306,7 +312,14 @@ function HomeScreen({
         </div>
 
         <aside className="desktop-home-companion">
-          <div className="desktop-companion-card" onClick={() => onOpen('streak')} style={{ cursor: 'pointer' }}>
+          <div
+            className="desktop-companion-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => onOpen('streak')}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen('streak') } }}
+            style={{ cursor: 'pointer' }}
+          >
             <span className="eyebrow accent-eyebrow">DAILY STREAK</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '10px' }}>
               <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#ffe0d0', display: 'grid', placeItems: 'center', color: 'var(--app-coral)' }}>
@@ -319,7 +332,14 @@ function HomeScreen({
             </div>
           </div>
 
-          <div className="desktop-companion-card" onClick={() => onTab ? onTab('goals') : onOpen('progress')} style={{ cursor: 'pointer' }}>
+          <div
+            className="desktop-companion-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => onTab ? onTab('goals') : onOpen('progress')}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (onTab) onTab('goals'); else onOpen('progress') } }}
+            style={{ cursor: 'pointer' }}
+          >
             <span className="eyebrow">DAILY GOAL</span>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
               <div>
@@ -332,7 +352,14 @@ function HomeScreen({
             </div>
           </div>
 
-          <div className="desktop-companion-card" onClick={() => onOpen('leaderboard')} style={{ cursor: 'pointer' }}>
+          <div
+            className="desktop-companion-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => onOpen('leaderboard')}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen('leaderboard') } }}
+            style={{ cursor: 'pointer' }}
+          >
             <span className="eyebrow">WEEKLY LEAGUE</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
               <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: '#fef3c7', display: 'grid', placeItems: 'center', color: '#b45309' }}>
@@ -356,16 +383,91 @@ function ClockIcon() { return <span className="clock-icon"><span /></span> }
 
 function TaskScreen({ progress, onBack, onStart, onCalendar }: { progress: ProgressState; onBack: () => void; onStart: () => void; onCalendar: () => void }) {
   const completed = progress.completedSteps
-  return <div className="screen overlay-screen"><AppHeader title="Today’s Task" onBack={onBack} right={<button className="icon-button header-calendar" onClick={onCalendar} aria-label="Open streak calendar"><CalendarDays size={20} /></button>} />
-    <main className="task-content">
-      <section className="task-intro-card"><div className="task-intro-copy"><span className="day-label">DAY 1 <span className="dot-separator">•</span> {FIRST_LESSON.estimatedMinutes} MIN</span><h2>{FIRST_LESSON.shortTitle}</h2><p>{FIRST_LESSON.description}</p><div className="concept-row">{FIRST_LESSON.concepts.map((concept) => <span key={concept}>{concept}</span>)}</div></div><div className="task-code-orb"><Code2 size={30} /></div></section>
-      <div className="task-section-heading"><div><span className="eyebrow">YOUR PROGRESS</span><h2>Steps <span>({completed}/{FIRST_LESSON.steps.length})</span></h2></div><span className="task-percent">{Math.round((completed / FIRST_LESSON.steps.length) * 100)}%</span></div>
-      <ProgressBar value={(completed / FIRST_LESSON.steps.length) * 100} className="task-progress" />
-      <div className="step-list">{FIRST_LESSON.steps.map((step, index) => { const done = index < completed; const current = index === completed; return <div className={`task-step-row ${done ? 'done' : ''} ${current ? 'current' : ''}`} key={step.id}><span className="task-step-number">{done ? <Check size={16} /> : index + 1}</span><div><strong>{step.title}</strong><p>{step.goal}</p></div>{done ? <span className="done-label">Done</span> : current ? <span className="current-label">Next</span> : <LockKeyhole size={17} className="step-lock" />}</div> })}</div>
-      <div className="task-bottom-note"><CircleHelp size={18} /><span>Every step is a small, real piece of a web page.</span></div>
-      <button className="primary-button task-start-button" onClick={onStart}>{completed === FIRST_LESSON.steps.length ? 'Review lesson' : APP_COPY.actions.startLesson}<Play size={17} fill="currentColor" /></button>
-    </main>
-  </div>
+  const ctaLabel = completed >= FIRST_LESSON.steps.length
+    ? 'Review lesson'
+    : completed > 0
+      ? 'Continue lesson'
+      : APP_COPY.actions.startLesson
+
+  return (
+    <div className="screen overlay-screen">
+      <AppHeader
+        title="Today’s Task"
+        onBack={onBack}
+        right={
+          <button className="icon-button header-calendar" onClick={onCalendar} aria-label="Open streak calendar">
+            <CalendarDays size={20} />
+          </button>
+        }
+      />
+      <main className="task-content">
+        <section className="task-intro-card">
+          <div className="task-intro-copy">
+            <span className="day-label">DAY 1 <span className="dot-separator">•</span> {FIRST_LESSON.estimatedMinutes} MIN</span>
+            <h2>{FIRST_LESSON.shortTitle}</h2>
+            <p>{FIRST_LESSON.description}</p>
+            <div className="concept-row">
+              {FIRST_LESSON.concepts.map((concept) => (
+                <span key={concept}>{concept}</span>
+              ))}
+            </div>
+          </div>
+          <div className="task-code-orb"><Code2 size={30} /></div>
+        </section>
+
+        <div className="task-section-heading">
+          <div>
+            <span className="eyebrow">YOUR PROGRESS</span>
+            <h2>Steps <span>({completed}/{FIRST_LESSON.steps.length})</span></h2>
+          </div>
+          <span className="task-percent">{Math.round((completed / FIRST_LESSON.steps.length) * 100)}%</span>
+        </div>
+        <ProgressBar value={(completed / FIRST_LESSON.steps.length) * 100} className="task-progress" />
+
+        <div className="step-list">
+          {FIRST_LESSON.steps.map((step, index) => {
+            const done = index < completed
+            const current = index === completed
+            const interactive = done || current
+            return (
+              <div
+                role="button"
+                tabIndex={interactive ? 0 : -1}
+                className={`task-step-row ${done ? 'done' : ''} ${current ? 'current' : ''} ${!interactive ? 'locked' : 'clickable'}`}
+                key={step.id}
+                onClick={interactive ? onStart : undefined}
+                onKeyDown={interactive ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onStart() } } : undefined}
+                title={interactive ? 'Open step in workspace' : 'Finish previous step to unlock'}
+              >
+                <span className="task-step-number">{done ? <Check size={16} /> : index + 1}</span>
+                <div className="task-step-copy">
+                  <strong>{step.title}</strong>
+                  <p>{step.goal}</p>
+                </div>
+                {done ? (
+                  <span className="done-label">Done</span>
+                ) : current ? (
+                  <span className="current-label">Next <ChevronRight size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /></span>
+                ) : (
+                  <LockKeyhole size={17} className="step-lock" />
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        <div className="task-bottom-note">
+          <CircleHelp size={18} />
+          <span>Every step is a small, real piece of a web page.</span>
+        </div>
+
+        <button className="primary-button task-start-button" onClick={onStart}>
+          {ctaLabel}
+          <Play size={17} fill="currentColor" />
+        </button>
+      </main>
+    </div>
+  )
 }
 
 function LearnScreen({ progress, onOpen }: { progress: ProgressState; onOpen: (overlay: Overlay) => void }) {
@@ -409,7 +511,43 @@ function GoalCard({ icon, title, detail, value, complete, onClick }: { icon: Rea
 }
 
 function ProfileScreen({ progress, onOpen }: { progress: ProgressState; onOpen: (overlay: Overlay) => void }) {
-  return <div className="screen"><header className="profile-header"><button className="icon-button" aria-label="Open settings" onClick={() => onOpen('settings')}><Settings size={20} /></button></header><main className="profile-content"><Mascot mood="wave" className="profile-mascot" /><h1>Jaques</h1><p className="profile-tagline">Keep coding, keep growing.</p><span className="level-chip"><Medal size={15} /> Level 3 · Web Builder</span><div className="profile-stats"><StatItem icon={<Flame size={20} />} value={progress.streak} label="Day streak" /><StatItem icon={<StarIcon />} value={progress.xp} label="Total XP" /><StatItem icon={<Trophy size={20} />} value={earnedBadgeCount(progress)} label="Badges" /></div><section className="profile-menu"><button onClick={() => onOpen('achievements')}><span><Award size={19} /> Achievements</span><ChevronRight size={18} /></button><button onClick={() => onOpen('shop')}><span><ShoppingBag size={19} /> Shop</span><ChevronRight size={18} /></button><button onClick={() => onOpen('settings')}><span><Settings size={19} /> Settings</span><ChevronRight size={18} /></button></section></main></div>
+  return (
+    <div className="screen">
+      <AppHeader
+        title="Profile"
+        right={
+          <button className="icon-button" aria-label="Open settings" onClick={() => onOpen('settings')}>
+            <Settings size={20} />
+          </button>
+        }
+      />
+      <main className="profile-content">
+        <Mascot mood="wave" className="profile-mascot" />
+        <h1>Learner</h1>
+        <p className="profile-tagline">Keep coding, keep growing.</p>
+        <span className="level-chip"><Medal size={15} /> Level 3 · Web Builder</span>
+        <div className="profile-stats">
+          <StatItem icon={<Flame size={20} />} value={progress.streak} label="Day streak" />
+          <StatItem icon={<StarIcon />} value={progress.xp} label="Total XP" />
+          <StatItem icon={<Trophy size={20} />} value={earnedBadgeCount(progress)} label="Badges" />
+        </div>
+        <section className="profile-menu">
+          <button onClick={() => onOpen('achievements')}>
+            <span><Award size={19} /> Achievements</span>
+            <ChevronRight size={18} />
+          </button>
+          <button onClick={() => onOpen('shop')}>
+            <span><ShoppingBag size={19} /> Shop</span>
+            <ChevronRight size={18} />
+          </button>
+          <button onClick={() => onOpen('settings')}>
+            <span><Settings size={19} /> Settings</span>
+            <ChevronRight size={18} />
+          </button>
+        </section>
+      </main>
+    </div>
+  )
 }
 
 function StarIcon() { return <Sparkles size={20} /> }
@@ -790,7 +928,62 @@ function ShopScreen({ progress, onBack, onPurchase }: { progress: ProgressState;
     onPurchase(cost, title)
     setNotice(title === 'Heart Refill' ? 'Hearts refilled. Keep building.' : `${title} added to your learning boosts.`)
   }
-  return <div className="screen overlay-screen"><AppHeader title="Shop" onBack={onBack} right={<StatPill icon="gem" value={progress.gems} tone="gold" />} /><main className="shop-content"><div className="shop-tabs"><button className={section === 'boosts' ? 'selected' : ''} onClick={() => setSection('boosts')}>Boosts</button><button className={section === 'themes' ? 'selected' : ''} onClick={() => setSection('themes')}>Themes</button></div>{section === 'boosts' ? <><section className="shop-intro"><div><span className="eyebrow">OPTIONAL EXTRAS</span><h2>Support your learning.</h2><p>Spend gems on gentle boosts. The lessons are always yours.</p></div><ShoppingBag size={31} /></section><div className="shop-grid">{items.map((item) => { const owned = item.title in progress.boosts ? progress.boosts[item.title as keyof ProgressState['boosts']] : null; return <button className="shop-item" key={item.title} onClick={() => buy(item.price, item.title)}><span className={`shop-art ${item.tone}`}>{item.icon}</span><strong>{item.title}</strong><small>{item.detail}</small>{owned !== null && <span className="shop-owned">Owned: {owned}</span>}<span className="shop-price"><Gem size={16} /> {item.price}</span></button> })}</div></> : <section className="empty-state"><span className="empty-state-icon"><Sparkles size={25} /></span><span className="eyebrow accent-eyebrow">COSMETIC THEMES</span><h2>Make your learning space yours.</h2><p>Theme packs will unlock as you complete projects. Your lessons never require a purchase.</p><button className="secondary-button" onClick={() => setNotice('Finish your first project to unlock a theme.')}>How do I unlock themes? <CircleHelp size={17} /></button></section>}{notice && <div className="shop-notice" role="status" aria-live="polite"><Check size={16} /> {notice}</div>}</main></div>
+  return (
+    <div className="screen overlay-screen">
+      <AppHeader title="Shop" onBack={onBack} right={<StatPill icon="gem" value={progress.gems} tone="gold" />} />
+      <main className="shop-content">
+        <div className="shop-tabs">
+          <button className={section === 'boosts' ? 'selected' : ''} onClick={() => setSection('boosts')}>Boosts</button>
+          <button className={section === 'themes' ? 'selected' : ''} onClick={() => setSection('themes')}>Themes</button>
+        </div>
+        {section === 'boosts' ? (
+          <>
+            <section className="shop-intro">
+              <div>
+                <span className="eyebrow">OPTIONAL EXTRAS</span>
+                <h2>Support your learning.</h2>
+                <p>Spend gems on gentle boosts. The lessons are always yours.</p>
+              </div>
+              <ShoppingBag size={31} />
+            </section>
+            <div className="shop-grid">
+              {items.map((item) => {
+                const owned = item.title in progress.boosts ? progress.boosts[item.title as keyof ProgressState['boosts']] : null
+                return (
+                  <button className="shop-item" key={item.title} onClick={() => buy(item.price, item.title)}>
+                    <span className={`shop-art ${item.tone}`}>{item.icon}</span>
+                    <strong>{item.title}</strong>
+                    <small>{item.detail}</small>
+                    {owned !== null && <span className="shop-owned">Owned: {owned}</span>}
+                    <span className="shop-price"><Gem size={16} /> {item.price}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </>
+        ) : (
+          <section className="empty-state">
+            <span className="empty-state-icon"><Sparkles size={25} /></span>
+            <span className="eyebrow accent-eyebrow">COSMETIC THEMES</span>
+            <h2>Make your learning space yours.</h2>
+            <p>Theme packs will unlock as you complete projects. Your lessons never require a purchase.</p>
+            <button className="secondary-button" onClick={() => setNotice('Finish your first project to unlock a theme.')}>
+              How do I unlock themes? <CircleHelp size={17} />
+            </button>
+          </section>
+        )}
+        {notice && (
+          <div className="shop-notice" role="status" aria-live="polite">
+            <Check size={16} />
+            <span style={{ flex: 1 }}>{notice}</span>
+            <button type="button" className="shop-notice-dismiss" onClick={() => setNotice('')} aria-label="Dismiss notice">
+              <X size={14} />
+            </button>
+          </div>
+        )}
+      </main>
+    </div>
+  )
 }
 function ShieldIcon() { return <span className="shield-icon"><Check size={14} /></span> }
 
@@ -799,7 +992,40 @@ function LeaderboardScreen({ progress, onBack }: { progress: ProgressState; onBa
   const roster = section === 'friends' ? [{ name: 'Maya', xp: 950, tone: 'coral' }, { name: 'You', xp: progress.xp, tone: 'you' }, { name: 'Zain', xp: 280, tone: 'purple' }] : section === 'country' ? [{ name: 'Omar', xp: 780, tone: 'green' }, { name: 'You', xp: progress.xp, tone: 'you' }, { name: 'Zain', xp: 280, tone: 'purple' }] : [{ name: 'Alex', xp: 1250, tone: 'blue' }, { name: 'Maya', xp: 950, tone: 'coral' }, { name: 'Omar', xp: 780, tone: 'green' }, { name: 'You', xp: progress.xp, tone: 'you' }, { name: 'Zain', xp: 280, tone: 'purple' }]
   const people = [...roster].sort((a, b) => b.xp - a.xp).map((person, index) => ({ ...person, rank: index + 1 }))
   const tabs: Array<{ id: typeof section; label: string }> = [{ id: 'global', label: 'Global' }, { id: 'friends', label: 'Friends' }, { id: 'country', label: 'Country' }]
-  return <div className="screen overlay-screen"><AppHeader title="Leaderboard" onBack={onBack} /><main className="leaderboard-content"><div className="leaderboard-tabs">{tabs.map((tab) => <button key={tab.id} className={section === tab.id ? 'selected' : ''} onClick={() => setSection(tab.id)}>{tab.label}</button>)}</div><section className="leaderboard-intro"><Trophy size={30} /><div><strong>Weekly builders</strong><p>Learn together, one XP at a time.</p></div></section><div className="leader-list">{people.map((person) => <div className={`leader-row ${person.name === 'You' ? 'you' : ''}`} key={person.name}><span className={`rank rank-${person.rank}`}>{person.rank}</span><span className={`leader-avatar ${person.tone}`}>{person.name.slice(0, 1)}</span><strong>{person.name}</strong><span className="leader-xp">{person.xp} XP</span></div>)}</div><p className="leader-note"><Sparkles size={15} /> Your row is highlighted so you always know where you stand.</p></main></div>
+  return (
+    <div className="screen overlay-screen">
+      <AppHeader title="Leaderboard" onBack={onBack} />
+      <main className="leaderboard-content">
+        <div className="leaderboard-tabs">
+          {tabs.map((tab) => (
+            <button key={tab.id} className={section === tab.id ? 'selected' : ''} onClick={() => setSection(tab.id)}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <section className="leaderboard-intro">
+          <Trophy size={30} />
+          <div>
+            <strong>Weekly builders</strong>
+            <p>Learn together, one XP at a time.</p>
+          </div>
+        </section>
+        <div className="leader-list">
+          {people.map((person) => (
+            <div className={`leader-row ${person.name === 'You' ? 'you' : ''}`} key={person.name}>
+              <span className={`rank rank-${person.rank}`}>
+                {person.rank === 1 ? '🥇' : person.rank === 2 ? '🥈' : person.rank === 3 ? '🥉' : person.rank}
+              </span>
+              <span className={`leader-avatar ${person.tone}`}>{person.name.slice(0, 1)}</span>
+              <strong>{person.name}</strong>
+              <span className="leader-xp">{person.xp} XP</span>
+            </div>
+          ))}
+        </div>
+        <p className="leader-note"><Sparkles size={15} /> Your row is highlighted so you always know where you stand.</p>
+      </main>
+    </div>
+  )
 }
 
 function SettingsScreen({ settings, onChange, onInfo, onBack }: { settings: SettingsState; onChange: (next: SettingsState) => void; onInfo: (kind: InfoKind) => void; onBack: () => void }) {
