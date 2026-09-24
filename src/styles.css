@@ -2865,6 +2865,34 @@ body:has(.bataa-register-shell) {
   background: #c2410c;
 }
 
+.bataa-video-widget-socials {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 10;
+  opacity: 0.88;
+  transition: opacity 0.2s ease;
+}
+
+.bataa-video-widget:hover .bataa-video-widget-socials {
+  opacity: 1;
+}
+
+.bataa-video-widget-social-btn {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+.bataa-video-widget-social-btn:hover {
+  background: rgba(234, 88, 12, 0.95) !important;
+  border-color: #ea580c !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) scale(1.1) !important;
+}
+
 .bataa-video-widget-overlay-controls {
   position: absolute;
   bottom: 8px;
