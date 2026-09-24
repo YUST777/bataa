@@ -117,7 +117,6 @@ function SignupForm() {
         type="submit"
         disabled={isSubmitting}
         className="submit-button"
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', width: '100%' }}
       >
         {isSubmitting ? 'Connecting...' : 'Start learning for free'}
       </button>
