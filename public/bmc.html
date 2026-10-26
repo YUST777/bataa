@@ -69,7 +69,7 @@ li small{display:inline;color:var(--muted);font-size:13px}
 .rev span{color:var(--muted)}
 .note{margin-top:14px;color:var(--muted);font-size:13px}
 @media (min-width:1001px){
-  .wrap{max-width:1400px;aspect-ratio:297/210;display:flex;flex-direction:column;box-sizing:border-box;padding:28px 32px;border:1px solid var(--line)}
+  .wrap{max-width:1400px;box-sizing:border-box;padding:28px 32px;border:1px solid var(--line)}
   body{font-size:15.5px}
   ul{gap:7px}
   .lead{font-size:18px}
@@ -79,9 +79,12 @@ li small{display:inline;color:var(--muted);font-size:13px}
   .chips span{font-size:12px}
   .note{font-size:13px}
   .sub{font-size:15px}
-  .canvas{flex:1;min-height:0;grid-template-rows:1fr 1fr .95fr}
   header{margin-bottom:14px}
   h1{font-size:36px}
+}
+@media (min-width:1432px){
+  .wrap{aspect-ratio:297/210;display:flex;flex-direction:column}
+  .canvas{flex:1;min-height:0;grid-template-rows:1fr 1fr .95fr}
 }
 @media (max-width:1000px){
   .canvas{grid-template-columns:repeat(2,1fr)}
