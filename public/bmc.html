@@ -68,7 +68,13 @@ li small{display:inline;color:var(--muted);font-size:13px}
 .rev strong{font-weight:800}
 .rev span{color:var(--muted)}
 .note{margin-top:14px;color:var(--muted);font-size:13px}
-@media (min-width:1001px){
+
+
+
+
+</style>
+
+<style>body{margin:0}
   .wrap{max-width:1400px;box-sizing:border-box;padding:28px 32px;border:1px solid var(--line)}
   body{font-size:15.5px}
   ul{gap:7px}
@@ -81,20 +87,16 @@ li small{display:inline;color:var(--muted);font-size:13px}
   .sub{font-size:15px}
   header{margin-bottom:14px}
   h1{font-size:36px}
-}
-@media (min-width:1432px){
+
+
   .wrap{aspect-ratio:297/210;display:flex;flex-direction:column}
   .canvas{flex:1;min-height:0;grid-template-rows:1fr 1fr .95fr}
-}
-@media (max-width:1000px){
-  .canvas{grid-template-columns:repeat(2,1fr)}
-  .box,.partners,.activities,.value,.relations,.segments,.resources,.channels{grid-column:auto;grid-row:auto}
-  .value,.costs,.revenue{grid-column:1/-1}
-}
-@media (max-width:560px){.canvas{grid-template-columns:1fr}}
-</style>
 
-<style>body{margin:0}</style>
+/* Fixed-size sheet scaled to fit the window: always one screen, never scrolls */
+html,body{height:100%;overflow:hidden}
+body{padding:0!important;margin:0;background:#fff}
+.wrap{position:absolute;top:0;left:0;width:1400px;height:989.9px;max-width:none;transform-origin:0 0}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -209,5 +211,8 @@ li small{display:inline;color:var(--muted);font-size:13px}
 
   <p class="note">Students across faculties were excited, and the mobile app, website and APK are live. Pricing will be shaped with pilot learners.</p>
 </div>
+<script>
+(function(){var w=document.querySelector('.wrap');function fit(){var W=1400,H=989.9,s=Math.min(innerWidth/W,innerHeight/H);w.style.transform='translate('+((innerWidth-W*s)/2)+'px,'+((innerHeight-H*s)/2)+'px) scale('+s+')'}addEventListener('resize',fit);addEventListener('load',fit);fit()})();
+</script>
 </body>
 </html>
