@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MotionConfig, motion } from 'framer-motion'
-import { BookOpen, Dumbbell, UserRound } from 'lucide-react'
+import { Map, Repeat, UserRound } from 'lucide-react'
+import { spring } from '@/components/ui'
 import { ui, LangContext } from '@/i18n'
 import { Complete, type Result } from '@/lesson/Complete'
 import { LessonRunner } from '@/lesson/LessonRunner'
@@ -14,14 +15,14 @@ import type { Lesson, Task } from '@/types'
 
 type Tab = 'learn' | 'practice' | 'profile'
 const tabs = [
-  { id: 'learn', icon: BookOpen, label: ui.learn },
-  { id: 'practice', icon: Dumbbell, label: ui.practice },
+  { id: 'learn', icon: Map, label: ui.learn },
+  { id: 'practice', icon: Repeat, label: ui.practice },
   { id: 'profile', icon: UserRound, label: ui.profile },
 ] as const
 
 // Screens animate in only. Exit animations (AnimatePresence) around whole screens left them
 // mounted when a sheet inside was closing, so the next screen never appeared.
-const fade = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, ease: 'easeOut' } } as const
+const fade = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: spring } as const
 
 export default function App() {
   const { p, set, complete, reset } = useProgress()
@@ -78,7 +79,7 @@ export default function App() {
               </motion.div>
             )}
             {screen === 'tabs' && (
-              <motion.div key="tabs" {...fade} className="pb-[88px]">
+              <motion.div key="tabs" {...fade} className="pb-28">
                   <motion.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.16 }}>
                     {tab === 'learn' && <Learn p={p} onStart={(lesson) => setRun({ lesson, tasks: lesson.tasks })} />}
                     {tab === 'practice' && (
@@ -98,22 +99,22 @@ export default function App() {
           {screen === 'tabs' && (
             <nav
               aria-label="Bataa"
-              className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md border-t-2 border-line bg-surface px-2"
-              style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+              className="fixed inset-x-3 z-40 border border-line bg-white/95 backdrop-blur-md mx-auto flex max-w-[424px] rounded-[28px] p-1.5 shadow-float"
+              style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
             >
               {tabs.map(({ id, icon: Icon, label }) => (
                 <button
                   key={id}
                   type="button"
                   aria-current={tab === id ? 'page' : undefined}
-                  className={`relative grid h-16 flex-1 place-content-center justify-items-center gap-0.5 text-[12px] font-extrabold ${tab === id ? 'text-brandDeep' : 'text-ink2'}`}
+                  className={`relative grid h-14 flex-1 place-content-center justify-items-center gap-0.5 text-[11px] font-semibold transition-colors ${tab === id ? 'text-brandDeep' : 'text-ink2'}`}
                   onClick={() => {
                     sound.playClick()
                     setTab(id)
                   }}
                 >
-                  {tab === id && <motion.span layoutId="tab" className="absolute inset-x-3 inset-y-1.5 rounded-2xl bg-brandSoft" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
-                  <Icon className="relative h-6 w-6" strokeWidth={tab === id ? 2.6 : 2} />
+                  {tab === id && <motion.span layoutId="tab" className="absolute inset-0 rounded-[22px] bg-brandSoft" transition={spring} />}
+                  <Icon className="relative h-[22px] w-[22px]" strokeWidth={tab === id ? 2.5 : 2} />
                   <span className="relative">{p.lang === 'ar' ? label.ar : label.en}</span>
                 </button>
               ))}

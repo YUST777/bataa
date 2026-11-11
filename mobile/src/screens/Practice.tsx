@@ -1,7 +1,8 @@
-import { ChevronRight, Shuffle } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ChevronRight, Code2, Palette, Shuffle } from 'lucide-react'
 import { Duck } from '@/components/Duck'
-import { Bubble, Button } from '@/components/ui'
-import { lessons } from '@/data/course'
+import { Button, Sky, Tile, spring } from '@/components/ui'
+import { lessons, units } from '@/data/course'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import type { Progress } from '@/state/progress'
@@ -20,53 +21,65 @@ export function reviewTasks(done: string[]): Task[] {
 export function Practice({ p, onReview, onReplay, onGoLearn }: { p: Progress; onReview: () => void; onReplay: (lesson: Lesson) => void; onGoLearn: () => void }) {
   const { t } = useT()
   const finished = lessons.filter((l) => p.done.includes(l.id))
-
-  if (finished.length === 0)
-    return (
-      <div className="grid justify-items-center gap-5 px-5 pt-16 text-center">
-        <Duck mood="think" size={140} />
-        <p className="max-w-[280px] text-[18px] font-extrabold leading-snug">{t(ui.practiceEmpty)}</p>
-        <Button onClick={onGoLearn}>{t(ui.goLearn)}</Button>
-      </div>
-    )
+  const empty = finished.length === 0
 
   return (
-    <div className="grid gap-5 px-4 pb-6 pt-4">
-      <h1 className="px-1 text-[26px] font-black">{t(ui.practice)}</h1>
-
-      <section className="card grid gap-4 p-4">
-        <div className="flex items-end gap-2">
-          <Duck mood="talk" size={72} />
-          <Bubble>{t(ui.quickReviewBody)}</Bubble>
+    <div>
+      <Sky>
+        <div className="flex items-end gap-3 px-5 pt-6">
+          <div className="flex-1 pb-3">
+            <h1 className="text-[30px] font-extrabold tracking-tight">{t(ui.practice)}</h1>
+            <p className="mt-1 text-[15px] font-medium leading-snug text-ink2">{t(empty ? ui.practiceEmpty : ui.quickReviewBody)}</p>
+          </div>
+          <Duck mood={empty ? 'think' : 'talk'} size={104} className="-mb-3" />
         </div>
-        <Button onClick={onReview}>
-          <Shuffle className="h-5 w-5" />
-          {t(ui.quickReview)}
-        </Button>
-      </section>
+      </Sky>
 
-      <section className="grid gap-3">
-        <h2 className="px-1 text-[13px] font-extrabold uppercase tracking-wide text-ink2">{t(ui.replay)}</h2>
-        {finished.map((lesson) => (
-          <button
-            key={lesson.id}
-            type="button"
-            className="pick flex items-center gap-3"
-            onClick={() => {
-              sound.playClick()
-              onReplay(lesson)
-            }}
-          >
-            <span>
-              <span className="block text-[16px] font-extrabold">{t(lesson.title)}</span>
-              <span className="block text-[13px] font-semibold text-ink2">
-                {lesson.minutes} {t(ui.min)} · {lesson.tasks.length} {t(ui.steps)}
-              </span>
-            </span>
-            <ChevronRight className="ms-auto h-5 w-5 shrink-0 text-ink2 rtl:-scale-x-100" />
-          </button>
-        ))}
-      </section>
+      <div className="grid gap-6 px-4 pb-6 pt-3">
+        {empty ? (
+          <Button onClick={onGoLearn}>{t(ui.goLearn)}</Button>
+        ) : (
+          <>
+            <Button onClick={onReview}>
+              <Shuffle className="h-5 w-5" />
+              {t(ui.quickReview)}
+            </Button>
+
+            <section className="grid gap-3">
+              <h2 className="eyebrow px-1 text-ink2">{t(ui.replay)}</h2>
+              {finished.map((lesson, i) => {
+                const css = units[1].lessons.includes(lesson)
+                const Icon = css ? Palette : Code2
+                return (
+                  <motion.button
+                    key={lesson.id}
+                    type="button"
+                    className="pick flex items-center gap-3.5 p-3"
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ ...spring, delay: 0.05 * i }}
+                    onClick={() => {
+                      sound.playClick()
+                      onReplay(lesson)
+                    }}
+                  >
+                    <Tile tone={css ? 'blue' : 'orange'} size={44}>
+                      <Icon className="h-5 w-5" strokeWidth={2.4} />
+                    </Tile>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[16px] font-semibold">{t(lesson.title)}</span>
+                      <span className="block text-[13px] font-medium text-ink2">
+                        {lesson.minutes} {t(ui.min)} · {lesson.tasks.length} {t(ui.steps)}
+                      </span>
+                    </span>
+                    <ChevronRight className="h-5 w-5 shrink-0 text-ink3 rtl:-scale-x-100" />
+                  </motion.button>
+                )
+              })}
+            </section>
+          </>
+        )}
+      </div>
     </div>
   )
 }

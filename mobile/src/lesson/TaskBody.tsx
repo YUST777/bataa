@@ -14,7 +14,7 @@ interface Props<T extends Task> {
   locked: boolean
 }
 
-const Help = ({ children }: { children: string }) => <p className="text-[13px] font-bold text-ink2">{children}</p>
+const Help = ({ children }: { children: string }) => <p className="text-[13px] font-medium text-ink2">{children}</p>
 
 function Choice({ task, answer, onChange, locked }: Props<ChoiceTask>) {
   const { t } = useT()
@@ -35,7 +35,9 @@ function Choice({ task, answer, onChange, locked }: Props<ChoiceTask>) {
             }}
           >
             <span dir={isCode ? 'ltr' : undefined} className={isCode ? 'font-mono' : ''}>{t(o.text)}</span>
-            {answer === o.id && <Check className="ms-auto h-5 w-5 shrink-0 text-brand" strokeWidth={3} />}
+            <span className={`ms-auto grid h-6 w-6 shrink-0 place-items-center rounded-full border transition-colors ${answer === o.id ? 'border-brand bg-brand text-white' : 'border-lip'}`}>
+              {answer === o.id && <Check className="h-4 w-4" strokeWidth={3.2} />}
+            </span>
           </button>
         )
       })}
@@ -50,7 +52,7 @@ function Fill({ task, answer, onChange, locked }: Props<FillTask>) {
     <div className="grid gap-3">
       <Code>
         {before}
-        <span className={`chip mx-0.5 ${answer ? 'bg-brand text-white' : 'border-2 border-dashed border-sun text-sun'}`}>
+        <span className={`chip mx-0.5 ${answer ? 'bg-brand text-white' : 'border border-dashed border-sun text-sun'}`}>
           {(answer as string) || '?'}
         </span>
         {after}
@@ -109,13 +111,13 @@ function Order({ task, answer, onChange, locked }: Props<OrderTask>) {
         </Code>
       )}
       <Help>{t(ui.tapToBuild)}</Help>
-      <div dir="ltr" aria-label={t(ui.yourCode)} className="flex min-h-[68px] flex-wrap items-center gap-2 rounded-2xl border-2 border-dashed border-lip bg-warm p-3">
+      <div dir="ltr" aria-label={t(ui.yourCode)} className="flex min-h-[72px] flex-wrap items-center gap-2 rounded-[18px] border border-dashed border-lip bg-warm p-3">
         {picked.map((i) => token(i, () => onChange(picked.filter((p) => p !== i))))}
       </div>
       <div dir="ltr" className="flex flex-wrap justify-center gap-2">
         {task.bank.map((text, i) =>
           picked.includes(i) ? (
-            <span key={i} aria-hidden className="min-h-[44px] rounded-2xl bg-line px-3 py-2 font-mono text-[14px] text-transparent">
+            <span key={i} aria-hidden className="min-h-[44px] rounded-2xl bg-[#F4EFE9] px-3 py-2 font-mono text-[14px] text-transparent">
               {text}
             </span>
           ) : (
@@ -134,7 +136,7 @@ function Match({ task, answer, onChange, locked }: Props<MatchTask>) {
   // Meanings are shown rotated by one, so the correct pairing is never straight across.
   const meanings = task.pairs.map((_, i) => (i + 1) % task.pairs.length)
   const badge = (n: number) => (
-    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand text-[12px] font-black text-white">{n}</span>
+    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand text-[12px] font-bold text-white">{n}</span>
   )
   const without = (code: string) => Object.fromEntries(Object.entries(pairs).filter(([c]) => c !== code))
 
@@ -210,7 +212,7 @@ function Editor({ task, answer, onChange, locked }: Props<CodeTask>) {
     })
   }
   return (
-    <div className="overflow-hidden rounded-2xl bg-code">
+    <div className="overflow-hidden rounded-[18px] bg-code shadow-soft">
       <textarea
         ref={ref}
         dir="ltr"

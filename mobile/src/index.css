@@ -4,42 +4,66 @@
 
 @layer base {
   html { -webkit-tap-highlight-color: transparent; }
-  body { @apply bg-bg font-sans text-ink antialiased; overscroll-behavior-y: none; }
-  [dir='rtl'] body { @apply font-arabic; }
-  :focus-visible { outline: 3px solid #7a3e00; outline-offset: 3px; }
+  body { @apply bg-white font-sans text-ink antialiased; overscroll-behavior-y: none; letter-spacing: -0.005em; }
+  [dir='rtl'] body { @apply font-arabic; letter-spacing: 0; }
+  :focus-visible { outline: 2px solid #c25300; outline-offset: 3px; }
   button { touch-action: manipulation; }
 }
 
 @layer components {
-  /* Tactile button: a face plus a bottom lip that collapses on press. */
+  /* Glossy button: gradient face, inner highlight, coloured glow. Press settles it into the page. */
   .btn {
-    @apply inline-flex min-h-[52px] w-full select-none items-center justify-center gap-2 rounded-2xl px-6 text-[17px] font-extrabold;
-    transition: transform 80ms ease, box-shadow 80ms ease, background-color 160ms ease;
+    @apply inline-flex min-h-[54px] w-full select-none items-center justify-center gap-2 rounded-[18px] px-6 text-[17px] font-bold;
+    transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 160ms ease, background-color 160ms ease;
   }
-  .btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
-  .btn:disabled { @apply cursor-not-allowed bg-line text-lock; box-shadow: 0 4px 0 theme('colors.lip'); }
-  .btn-primary { @apply bg-brand text-white; box-shadow: 0 4px 0 theme('colors.brandDeep'); }
-  .btn-ok { @apply bg-ok text-white; box-shadow: 0 4px 0 theme('colors.okDeep'); }
-  .btn-bad { @apply bg-bad text-white; box-shadow: 0 4px 0 theme('colors.badDeep'); }
-  .btn-plain { @apply border-2 border-line bg-surface text-ink; box-shadow: 0 4px 0 theme('colors.lip'); }
-  .btn-text { @apply min-h-[44px] w-full rounded-xl text-[15px] font-bold text-ink2; }
+  .btn:active:not(:disabled) { transform: scale(0.97); }
+  .btn:disabled { @apply cursor-not-allowed bg-[#F4EFE9] text-ink3; }
+  .btn-primary:not(:disabled) {
+    @apply text-white;
+    background: linear-gradient(180deg, #f97c0c 0%, #e86100 100%);
+    text-shadow: 0 1px 0 rgba(120, 50, 0, 0.35);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 2px rgba(150, 60, 0, 0.35), 0 12px 24px -10px rgba(242, 107, 0, 0.7);
+  }
+  .btn-ok {
+    @apply text-white;
+    background: linear-gradient(180deg, #2fb26f 0%, #1c9456 100%);
+    text-shadow: 0 1px 0 rgba(0, 70, 30, 0.3);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 12px 24px -10px rgba(35, 161, 96, 0.7);
+  }
+  .btn-bad {
+    @apply text-white;
+    background: linear-gradient(180deg, #e65252 0%, #cf3a3a 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 12px 24px -10px rgba(217, 65, 65, 0.6);
+  }
+  .btn-plain { @apply border border-line bg-white text-ink shadow-soft; }
+  .btn-text { @apply min-h-[44px] w-full rounded-xl text-[15px] font-semibold text-ink2; }
 
-  .card { @apply rounded-[20px] border-2 border-line bg-surface; box-shadow: 0 3px 0 theme('colors.line'); }
+  .card { @apply rounded-[20px] border border-line bg-white shadow-soft; }
 
-  /* Selectable chip / answer card */
+  /* Selectable row or token */
   .pick {
-    @apply min-h-[48px] rounded-2xl border-2 border-line bg-surface px-4 py-3 text-start text-[15px] font-bold text-ink;
-    box-shadow: 0 3px 0 theme('colors.lip');
-    transition: transform 80ms ease, box-shadow 80ms ease, border-color 160ms ease, background-color 160ms ease;
+    @apply min-h-[52px] rounded-2xl border border-line bg-white px-4 py-3 text-start text-[15px] font-semibold text-ink shadow-soft;
+    transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
   }
-  .pick:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 transparent; }
-  .pick[aria-pressed='true'] { @apply border-brand bg-brandSoft; box-shadow: 0 3px 0 theme('colors.brand'); }
+  .pick:active:not(:disabled) { transform: scale(0.98); }
+  .pick[aria-pressed='true'] { @apply border-brand bg-brandSoft; box-shadow: 0 0 0 1px theme('colors.brand'); }
   .pick:disabled { @apply opacity-60; }
 
-  .codeblock { @apply overflow-x-auto whitespace-pre-wrap rounded-2xl bg-code p-4 font-mono text-[14px] leading-relaxed text-[#FCEBD7]; }
-  .chip { @apply inline-flex min-h-[32px] items-center rounded-lg px-3 py-1 font-mono text-[12px] font-bold; }
+  .codeblock { @apply overflow-x-auto whitespace-pre-wrap rounded-[18px] bg-code p-4 font-mono text-[14px] leading-relaxed text-[#FCEBD7]; }
+  .chip { @apply inline-flex min-h-[30px] items-center rounded-lg px-2.5 py-0.5 font-mono text-[13px] font-bold; }
+
+  /* Frosted pill used for header stats and round icon buttons */
+  .glass { @apply border border-white/70 bg-white/75 shadow-soft backdrop-blur-md; }
+  .eyebrow { @apply text-[12px] font-semibold uppercase tracking-[0.06em]; }
 }
+
+@keyframes halo {
+  0% { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+.halo { animation: halo 2s cubic-bezier(0.2, 0.6, 0.3, 1) infinite; }
 
 @media (prefers-reduced-motion: reduce) {
   .btn, .pick { transition: none; }
+  .halo { animation: none; opacity: 0; }
 }

@@ -1,177 +1,225 @@
-import { useState } from 'react'
+import { useState, type CSSProperties, type MouseEvent } from 'react'
 import { motion } from 'framer-motion'
-import { Check, Clock, Flame, ListChecks, Lock, Star, Zap } from 'lucide-react'
+import { Check, Clock, Code2, Flame, ListChecks, Lock, Palette, Play, Zap } from 'lucide-react'
 import { Duck } from '@/components/Duck'
-import { Button, Sheet } from '@/components/ui'
+import { Button, Sky, Tile, Tray, spring } from '@/components/ui'
 import { lessons, units } from '@/data/course'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
-import { isoDay, streak, unlocked, type Progress } from '@/state/progress'
+import { isoDay, reward, streak, unlocked, type Progress } from '@/state/progress'
 import type { Lesson } from '@/types'
 
-function Chip({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
+const unitLook = { html: { tone: 'orange', icon: Code2 }, css: { tone: 'blue', icon: Palette } } as const
+const lookOf = (unitId: string) => unitLook[unitId as keyof typeof unitLook] ?? unitLook.html
+
+/** Small progress ring with a value in the middle. */
+function Ring({ value, size = 44, stroke = 5, color = '#F26B00', children }: { value: number; size?: number; stroke?: number; color?: string; children: React.ReactNode }) {
+  const r = (size - stroke) / 2
   return (
-    <span aria-label={`${value} ${label}`} className="card flex h-10 items-center gap-1.5 rounded-full px-3 text-[15px] font-black tabular-nums">
-      {icon}
-      {value}
+    <span className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+      <svg viewBox={`0 0 ${size} ${size}`} className="absolute inset-0 -rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} stroke="rgba(31,22,17,.08)" />
+        <motion.circle
+          cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} strokeLinecap="round" stroke={color}
+          opacity={value > 0 ? 1 : 0}
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: Math.min(1, value) }}
+          transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
+        />
+      </svg>
+      <span className="relative text-[14px] font-bold tabular-nums">{children}</span>
     </span>
   )
 }
 
-/** Daily goal as a ring that fills with each finished lesson. */
-function GoalCard({ p }: { p: Progress }) {
-  const { t } = useT()
-  const today = p.daily[isoDay()] ?? 0
-  const hit = today >= p.goal
-  return (
-    <section className="card flex items-center gap-4 p-4">
-      <div className="relative grid h-16 w-16 shrink-0 place-items-center">
-        <svg viewBox="0 0 64 64" className="absolute inset-0 -rotate-90">
-          <circle cx="32" cy="32" r="27" fill="none" strokeWidth="7" className="stroke-line" />
-          <motion.circle
-            cx="32" cy="32" r="27" fill="none" strokeWidth="7" strokeLinecap="round"
-            className={hit ? 'stroke-ok' : 'stroke-brand'}
-            opacity={today ? 1 : 0}
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: Math.min(1, today / p.goal) }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-          />
-        </svg>
-        {hit ? <Check className="h-7 w-7 text-ok" strokeWidth={3.5} /> : <span className="text-[17px] font-black tabular-nums">{today}/{p.goal}</span>}
-      </div>
-      <div>
-        <h2 className="text-[16px] font-black">
-          {t(ui.today)}: {Math.min(today, p.goal)} {t(ui.goalOf)} {p.goal} {t(ui.lessonsWord)}
-        </h2>
-        <p className="text-[14px] font-semibold leading-snug text-ink2">{t(hit ? ui.goalHit : ui.goalNext)}</p>
-      </div>
-    </section>
-  )
-}
+const gloss = (a: string, b: string): CSSProperties => ({
+  background: `linear-gradient(180deg, ${a}, ${b})`,
+  boxShadow: `inset 0 2px 0 rgba(255,255,255,.45), inset 0 -3px 0 rgba(0,0,0,.1), 0 10px 20px -8px ${b}`,
+})
 
 /** The course path. The next lesson is the loudest thing on screen; every node carries a text label. */
 export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) => void }) {
-  const { t } = useT()
-  const [brief, setBrief] = useState<Lesson | null>(null)
-  const [shown, setShown] = useState<Lesson | null>(null)
+  const { t, lang } = useT()
+  // `shown` outlives `open` so the tray keeps its content while it shrinks away.
+  const [open, setOpen] = useState(false)
+  const [shown, setShown] = useState<{ lesson: Lesson; origin: { x: number; y: number } } | null>(null)
   const current = lessons.find((l) => !p.done.includes(l.id) && unlocked(p, l.id))
-  const open = (lesson: Lesson) => {
+  const today = p.daily[isoDay()] ?? 0
+  const hit = today >= p.goal
+  const flip = lang === 'ar' ? -1 : 1
+
+  const openBrief = (lesson: Lesson, e: MouseEvent<HTMLButtonElement>) => {
     sound.playClick()
-    setShown(lesson)
-    setBrief(lesson)
+    const r = e.currentTarget.getBoundingClientRect()
+    setShown({ lesson, origin: { x: r.left + r.width / 2, y: r.top + r.height / 2 } })
+    setOpen(true)
   }
-  // `shown` outlives `brief` so the sheet keeps its content while it slides away.
-  const isOpen = shown ? unlocked(p, shown.id) : false
+  const brief = shown?.lesson
+  const briefOpen = brief ? unlocked(p, brief.id) : false
+  const briefUnit = brief ? units.find((u) => u.lessons.includes(brief))! : units[0]
+  const BriefIcon = lookOf(briefUnit.id).icon
 
   return (
-    <div className="grid gap-5 px-4 pb-6 pt-4">
-      <header className="flex items-center gap-2">
-        <span className="me-auto px-1 text-[26px] font-black text-brand">bataa</span>
-        <Chip icon={<Flame className="h-5 w-5 fill-brand text-brand" />} value={streak(p.daily)} label={t(ui.streak)} />
-        <Chip icon={<Zap className="h-5 w-5 fill-sun text-brand" />} value={p.xp} label={t(ui.xp)} />
-      </header>
+    <div>
+      <Sky>
+        <header className="flex items-center gap-2 px-5 pt-5">
+          <span className="me-auto text-[26px] font-extrabold tracking-tight text-ink">bataa</span>
+          <span aria-label={`${streak(p.daily)} ${t(ui.streak)}`} className="glass flex h-10 items-center gap-1.5 rounded-full px-3 text-[15px] font-bold tabular-nums">
+            <Flame className="h-[18px] w-[18px] fill-brand text-brand" />
+            {streak(p.daily)}
+          </span>
+          <span aria-label={`${p.xp} ${t(ui.xp)}`} className="glass flex h-10 items-center gap-1.5 rounded-full px-3 text-[15px] font-bold tabular-nums">
+            <Zap className="h-[18px] w-[18px] fill-sun text-sun" />
+            {p.xp}
+          </span>
+        </header>
 
-      <GoalCard p={p} />
-      {!current && <p className="text-center text-[15px] font-bold text-ink2">{t(ui.allDone)}</p>}
+        <div className="flex items-center gap-4 px-5 pb-2 pt-6">
+          <div className="flex-1">
+            <p className="eyebrow text-brandDeep">{t(ui.todayGoal)}</p>
+            <h1 className="mt-1 text-[26px] font-bold leading-tight tracking-tight">
+              {Math.min(today, p.goal)} {t(ui.goalOf)} {p.goal} {t(ui.lessonsWord)}
+            </h1>
+            <p className="mt-1 text-[14px] font-medium leading-snug text-ink2">{t(!current ? ui.allDone : hit ? ui.goalHit : ui.goalNext)}</p>
+          </div>
+          <span className="glass rounded-full p-1.5">
+            <Ring value={today / p.goal} size={60} stroke={6} color={hit ? '#23A160' : '#F26B00'}>
+              {hit ? <Check className="h-6 w-6 text-ok" strokeWidth={3} /> : `${today}/${p.goal}`}
+            </Ring>
+          </span>
+        </div>
+      </Sky>
 
-      {units.map((unit, u) => {
-        const finished = unit.lessons.filter((l) => p.done.includes(l.id)).length
-        return (
-          <section key={unit.id} className="grid gap-6">
-            <header className="rounded-[20px] bg-brand p-4 text-white" style={{ boxShadow: '0 4px 0 #B94B00' }}>
-              <p className="text-[13px] font-extrabold opacity-90">
-                {u + 1} · {finished}/{unit.lessons.length}
-              </p>
-              <h2 className="text-[20px] font-black leading-tight">{t(unit.title)}</h2>
-              <p className="mt-0.5 text-[14px] font-semibold opacity-95">{t(unit.goal)}</p>
-            </header>
+      <div className="grid grid-cols-1 gap-8 px-4 pb-6 pt-2">
+        {units.map((unit, u) => {
+          const finished = unit.lessons.filter((l) => p.done.includes(l.id)).length
+          const look = lookOf(unit.id)
+          const Icon = look.icon
+          const hasCurrent = unit.lessons.some((l) => l.id === current?.id)
+          return (
+            <section key={unit.id} className="relative grid grid-cols-1 gap-7">
+              <span aria-hidden className="pointer-events-none absolute -end-44 top-24 h-[360px] w-[360px] rounded-full bg-brandSoft/60" />
+              <span aria-hidden className="pointer-events-none absolute -end-28 top-40 h-[232px] w-[232px] rounded-full bg-brandSoft" />
 
-            <ol className="grid gap-7 pb-2">
-              {unit.lessons.map((lesson, i) => {
-                const done = p.done.includes(lesson.id)
-                const isCurrent = lesson.id === current?.id
-                const locked = !unlocked(p, lesson.id)
-                const shift = [0, 52, 0, -52][i % 4]
-                return (
+              <header className="card relative flex items-center gap-3.5 p-3.5">
+                <Tile tone={look.tone}>
+                  <Icon className="h-6 w-6" strokeWidth={2.4} />
+                </Tile>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-[12px] font-semibold ${look.tone === 'blue' ? 'text-sky' : 'text-brand'}`}>
+                    {t(ui.unit)} {u + 1}
+                  </p>
+                  <h2 className="truncate text-[17px] font-bold leading-tight">{t(unit.title)}</h2>
+                  <p className="truncate text-[13px] font-medium text-ink2">{t(unit.goal)}</p>
+                </div>
+                <Ring value={finished / unit.lessons.length} color="#23A160">
+                  {finished}
+                </Ring>
+              </header>
+
+              <ol className="relative grid gap-6">
+                {hasCurrent && (
                   <motion.li
-                    key={lesson.id}
-                    className="grid justify-items-center gap-2"
-                    style={{ x: shift }}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 * i, duration: 0.3 }}
+                    aria-hidden
+                    className="card absolute start-0 top-[118px] z-10 flex w-[132px] flex-col gap-1.5 border-brand/25 bg-brandSoft/90 p-3"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ ...spring, delay: 0.35 }}
                   >
-                    <div className="relative">
-                      {isCurrent && (
-                        <Duck mood="wave" size={76} className={`pointer-events-none absolute -top-2 ${shift > 0 ? 'right-full me-2' : 'left-full ms-2'}`} />
-                      )}
-                      <button
-                        type="button"
-                        aria-label={`${t(lesson.title)}. ${t(done ? ui.done : locked ? ui.locked : ui.start)}`}
-                        onClick={() => open(lesson)}
-                        className={`grid h-[76px] w-[76px] place-items-center rounded-full border-b-[6px] transition-transform duration-75 active:translate-y-1 active:border-b-2 ${
-                          done ? 'border-okDeep bg-ok text-white' : locked ? 'border-lip bg-line text-lock' : 'border-brandDeep bg-brand text-white'
-                        } ${isCurrent ? 'ring-4 ring-sun ring-offset-4 ring-offset-bg' : ''}`}
-                      >
-                        {done ? <Check className="h-9 w-9" strokeWidth={3.5} /> : locked ? <Lock className="h-7 w-7" /> : <Star className="h-9 w-9 fill-white" />}
-                      </button>
-                    </div>
-                    <div className="max-w-[200px] text-center">
-                      <p className={`text-[15px] font-extrabold leading-tight ${locked ? 'text-lock' : ''}`}>{t(lesson.title)}</p>
-                      <p className="text-[13px] font-bold text-ink2">
-                        {isCurrent ? <span className="text-brandDeep">{t(ui.start)} · </span> : null}
-                        {lesson.minutes} {t(ui.min)}
-                      </p>
-                    </div>
+                    <Duck size={40} />
+                    <span className="text-[13px] font-medium leading-snug text-ink">{t(ui.tip)}</span>
                   </motion.li>
+                )}
+                {unit.lessons.map((lesson, i) => {
+                  const done = p.done.includes(lesson.id)
+                  const isCurrent = lesson.id === current?.id
+                  const locked = !unlocked(p, lesson.id)
+                  return (
+                    <motion.li
+                      key={lesson.id}
+                      className="grid justify-items-center gap-2"
+                      style={{ x: [0, 56, 0, -56][i % 4] * flip }}
+                      initial={{ opacity: 0, y: 18 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ ...spring, delay: 0.06 * i }}
+                    >
+                      <span className="relative grid place-items-center">
+                        {isCurrent && <span aria-hidden className="halo absolute inset-0 rounded-full border-2 border-brand" />}
+                        <motion.button
+                          type="button"
+                          aria-label={`${t(lesson.title)}. ${t(done ? ui.done : locked ? ui.locked : ui.start)}`}
+                          whileTap={{ scale: 0.9 }}
+                          transition={spring}
+                          onClick={(e) => openBrief(lesson, e)}
+                          className={`relative grid h-16 w-16 place-items-center rounded-full ${done || isCurrent ? 'text-white' : locked ? 'border border-line bg-white text-ink3 shadow-soft' : 'border border-brand/40 bg-white text-brand shadow-soft'}`}
+                          style={done ? gloss('#4CCB8A', '#1C9456') : isCurrent ? gloss('#FFA23A', '#E86100') : undefined}
+                        >
+                          {done ? <Check className="h-7 w-7" strokeWidth={3.2} /> : locked ? <Lock className="h-5 w-5" /> : <Play className="h-6 w-6 translate-x-px fill-current rtl:-scale-x-100" />}
+                        </motion.button>
+                      </span>
+                      <div className="max-w-[150px] text-center">
+                        <p className={`text-[14px] font-semibold leading-tight ${locked ? 'text-ink3' : ''}`}>{t(lesson.title)}</p>
+                        <p className="mt-0.5 text-[12px] font-medium text-ink2">
+                          {isCurrent && <span className="font-semibold text-brand">{t(ui.start)} · </span>}
+                          {lesson.minutes} {t(ui.min)}
+                        </p>
+                      </div>
+                    </motion.li>
+                  )
+                })}
+              </ol>
+            </section>
+          )
+        })}
+      </div>
+
+      <Tray open={open} onClose={() => setOpen(false)} label={brief ? t(brief.title) : ''} origin={shown?.origin}>
+        {brief && (
+          <div className="grid gap-4">
+            <div className="flex items-center gap-3.5">
+              <Tile tone={briefOpen ? lookOf(briefUnit.id).tone : 'grey'} size={56}>
+                {briefOpen ? <BriefIcon className="h-7 w-7" strokeWidth={2.4} /> : <Lock className="h-6 w-6" />}
+              </Tile>
+              <div>
+                <p className="text-[12px] font-semibold text-ink2">{t(briefUnit.title)}</p>
+                <h2 className="text-[21px] font-bold leading-tight tracking-tight">{t(brief.title)}</h2>
+              </div>
+            </div>
+            <p className="text-[15px] font-medium leading-snug text-ink2">
+              {briefOpen ? `${t(p.done.includes(brief.id) ? ui.youCan : ui.youWill)} ${t(brief.can)}.` : t(ui.lockedBody)}
+            </p>
+            <div className="flex flex-wrap gap-2 text-[13px] font-semibold text-ink">
+              {[
+                [Clock, `${brief.minutes} ${t(ui.min)}`],
+                [ListChecks, `${brief.tasks.length} ${t(ui.steps)}`],
+                [Zap, `+${reward(p, brief.id, false)} ${t(ui.xp)}`],
+              ].map(([I, text], i) => {
+                const MetaIcon = I as typeof Clock
+                return (
+                  <span key={i} className="flex items-center gap-1.5 rounded-full bg-warm px-3 py-1.5">
+                    <MetaIcon className="h-4 w-4 text-brand" /> {text as string}
+                  </span>
                 )
               })}
-            </ol>
-          </section>
-        )
-      })}
-
-      <Sheet open={brief !== null} onClose={() => setBrief(null)} label={shown ? t(shown.title) : ''}>
-        {shown && (
-          <div className="grid gap-4">
-            <div>
-              <h2 className="text-[22px] font-black leading-tight">{t(shown.title)}</h2>
-              <p className="mt-1 text-[15px] font-semibold text-ink2">
-                {isOpen ? (
-                  <>
-                    {t(p.done.includes(shown.id) ? ui.youCan : ui.youWill)} {t(shown.can)}.
-                  </>
-                ) : (
-                  t(ui.lockedBody)
-                )}
-              </p>
             </div>
-            <div className="flex gap-4 text-[14px] font-bold text-ink2">
-              <span className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4" /> {shown.minutes} {t(ui.min)}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <ListChecks className="h-4 w-4" /> {shown.tasks.length} {t(ui.steps)}
-              </span>
-            </div>
-            {isOpen ? (
+            {briefOpen ? (
               <Button
                 autoFocus
                 onClick={() => {
-                  setBrief(null)
-                  onStart(shown)
+                  setOpen(false)
+                  onStart(brief)
                 }}
               >
-                {t(p.done.includes(shown.id) ? ui.review : ui.start)}
+                {t(p.done.includes(brief.id) ? ui.review : ui.start)}
               </Button>
             ) : (
-              <Button tone="plain" autoFocus onClick={() => setBrief(null)}>
+              <Button tone="plain" autoFocus onClick={() => setOpen(false)}>
                 {t(ui.close)}
               </Button>
             )}
           </div>
         )}
-      </Sheet>
+      </Tray>
     </div>
   )
 }
