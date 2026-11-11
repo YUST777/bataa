@@ -1,79 +1,73 @@
 import { useEffect, useRef } from 'react'
-import { RuntimeLoader, useRive, useStateMachineInput } from '@rive-app/react-canvas'
-import riveWasm from '@rive-app/canvas/rive.wasm?url'
-
-// Serve the Rive runtime from the app bundle, not a CDN, so the duck works offline in the APK.
-RuntimeLoader.setWasmUrl(riveWasm)
 
 /** What the duck is doing, driven by app events. */
 export type Mood = 'idle' | 'wave' | 'talk' | 'think' | 'happy' | 'oops'
 
-const SM = 'Duck'
-const reducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-const clamp = (n: number) => Math.max(-100, Math.min(100, n))
-
 /**
- * Bataa the duck, rigged in Rive from mobile/design/mascot/duck.svg (see build_duck_scene.py there).
+ * Bataa the duck, animated frame by frame.
  *
- * The state machine runs six layers at once: Body, Blink, Face, Mouth, LookX and LookY. So the duck
- * breathes and blinks on its own, its eyes follow the pointer, and a mood adds a reaction on top.
- * Inputs: isCorrect / isWrong / wave (triggers), isThinking / isSpeaking (bools),
- * mouthShape (0 rest, 1-5 visemes, for lip sync once there is audio), lookX / lookY (-100..100).
+ * Each animation is a strip of 8 hand-drawn-style frames (public/mascot/<name>.webp), cut from the
+ * sheets in mobile/design/mascot/sheets by cut_frames.py. A clip below is the order those frames
+ * play in and how long each one holds, in ms. Holds are uneven on purpose: a long hold on the
+ * crouch or the top of a jump is what gives the motion weight.
  */
+type Clip = { sheet: string; frames: [frame: number, ms: number][]; loopFrom?: number }
+
+const BLINK: Clip['frames'] = [[4, 60], [5, 90], [4, 60]]
+const BREATH: Clip['frames'] = [[1, 260], [2, 420], [3, 260]]
+const CLIPS: Record<Mood, Clip> = {
+  // Breathe, blink, breathe, glance, head tilt, double blink.
+  idle: { sheet: 'idle', loopFrom: 0, frames: [[0, 420], ...BREATH, [0, 520], ...BLINK, [0, 640], ...BREATH, [6, 820], [0, 420], [7, 720], [0, 320], ...BLINK, [0, 110], ...BLINK] },
+  wave: { sheet: 'wave', frames: [[0, 80], [1, 100], [2, 80], [3, 120], [4, 110], [5, 120], [4, 110], [3, 110], [4, 110], [5, 140], [6, 90], [7, 140]] },
+  talk: { sheet: 'talk', frames: [[0, 70], [1, 70], [2, 120], [3, 100], [4, 110], [5, 90], [6, 110], [2, 100], [4, 100], [3, 100], [5, 90], [7, 140]] },
+  // The first three frames get into the pose once; the rest loop while the duck keeps thinking.
+  think: { sheet: 'think', loopFrom: 3, frames: [[0, 80], [1, 90], [2, 90], [3, 520], [4, 150], [3, 150], [4, 150], [5, 640], [6, 520], [7, 560]] },
+  happy: { sheet: 'happy', frames: [[0, 60], [1, 130], [2, 70], [3, 190], [4, 90], [5, 120], [6, 280], [7, 220]] },
+  oops: { sheet: 'sad', frames: [[0, 60], [1, 170], [2, 120], [3, 440], [4, 230], [5, 230], [4, 230], [3, 320], [6, 250], [7, 200]] },
+}
+
+const FRAMES = 8
+const src = (sheet: string) => `/mascot/${sheet}.webp`
+const reducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+// Fetch every strip up front so a mood change never shows an empty frame.
+if (typeof window !== 'undefined') new Set(Object.values(CLIPS).map((c) => c.sheet)).forEach((sheet) => (new Image().src = src(sheet)))
+
 export function Duck({ mood = 'idle', size = 96, className = '' }: { mood?: Mood; size?: number; className?: string }) {
-  const box = useRef<HTMLDivElement>(null)
-  const { rive, RiveComponent } = useRive({ src: '/mascot/duck.riv', stateMachines: SM, autoplay: !reducedMotion })
-  const isCorrect = useStateMachineInput(rive, SM, 'isCorrect')
-  const isWrong = useStateMachineInput(rive, SM, 'isWrong')
-  const wave = useStateMachineInput(rive, SM, 'wave')
-  const isThinking = useStateMachineInput(rive, SM, 'isThinking')
-  const isSpeaking = useStateMachineInput(rive, SM, 'isSpeaking')
-  const lookX = useStateMachineInput(rive, SM, 'lookX')
-  const lookY = useStateMachineInput(rive, SM, 'lookY')
+  const el = useRef<HTMLDivElement>(null)
 
+  // The player writes straight to the element's style: 10 frames a second should not re-render React.
   useEffect(() => {
-    if (reducedMotion || !isThinking || !isSpeaking) return
-    isThinking.value = mood === 'think'
-    isSpeaking.value = mood === 'talk'
-    if (mood === 'happy') isCorrect?.fire()
-    if (mood === 'oops') isWrong?.fire()
-    if (mood === 'wave') wave?.fire()
-    // No audio yet, so "talk" is a short burst of stand-in speech, not an endless loop.
-    const stop = mood === 'talk' ? window.setTimeout(() => (isSpeaking.value = false), 1700) : undefined
-    return () => clearTimeout(stop)
-  }, [mood, isCorrect, isWrong, wave, isThinking, isSpeaking])
+    const node = el.current
+    if (!node) return
+    let timer = 0
+    const show = (sheet: string, frame: number) => {
+      node.style.backgroundImage = `url(${src(sheet)})`
+      node.style.backgroundPosition = `${(frame / (FRAMES - 1)) * 100}% 0`
+    }
+    const play = (clip: Clip, index: number): void => {
+      if (index >= clip.frames.length) {
+        // A looping clip goes round again; a one-shot hands over to the idle loop.
+        return clip.loopFrom === undefined ? play(CLIPS.idle, 0) : play(clip, clip.loopFrom)
+      }
+      const [frame, ms] = clip.frames[index]
+      show(clip.sheet, frame)
+      timer = window.setTimeout(() => play(clip, index + 1), ms)
+    }
+    if (reducedMotion) show(CLIPS[mood].sheet, mood === 'think' ? 3 : 0)
+    else play(CLIPS[mood], 0)
+    return () => clearTimeout(timer)
+  }, [mood])
 
-  // Gaze: the eyes follow the pointer or the last touch. While thinking they look up and away instead.
-  useEffect(() => {
-    if (reducedMotion || !lookX || !lookY) return
-    if (mood === 'think') {
-      lookX.value = 45
-      lookY.value = -85
-      return
-    }
-    const follow = (e: PointerEvent) => {
-      const r = box.current?.getBoundingClientRect()
-      if (!r) return
-      // The duck's face sits in the upper part of its box. Full deflection at about 220px away.
-      lookX.value = clamp(((e.clientX - (r.left + r.width / 2)) / 220) * 100)
-      lookY.value = clamp(((e.clientY - (r.top + r.height * 0.35)) / 220) * 100)
-    }
-    lookX.value = 0
-    lookY.value = 0
-    window.addEventListener('pointermove', follow)
-    window.addEventListener('pointerdown', follow)
-    return () => {
-      window.removeEventListener('pointermove', follow)
-      window.removeEventListener('pointerdown', follow)
-    }
-  }, [mood, lookX, lookY])
-
-  // `size` is roughly the duck's own width. The 400x450 artboard is wider and taller than the duck:
-  // side room for the wing, top room for the hop.
+  // A frame is 320x400 with the duck's feet centred near the bottom. `size` is roughly the duck's width.
   const width = size * 1.3
   return (
-    <div ref={box} role="img" aria-label="Bataa" className={`pointer-events-none shrink-0 ${className}`} style={{ width, height: width * 1.125 }}>
-      <RiveComponent />
-    </div>
+    <div
+      ref={el}
+      role="img"
+      aria-label="Bataa"
+      className={`pointer-events-none shrink-0 bg-no-repeat ${className}`}
+      style={{ width, height: width * 1.25, backgroundSize: `${FRAMES * 100}% 100%`, backgroundImage: `url(${src('idle')})` }}
+    />
   )
 }
