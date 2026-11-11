@@ -1,6 +1,8 @@
 class SoundEngine {
   private ctx: AudioContext | null = null;
   private audioCache: { [key: string]: HTMLAudioElement } = {};
+  /** Mirrors the learner's sound setting. */
+  enabled = true;
 
   constructor() {
     // Preload audio files if available
@@ -28,6 +30,7 @@ class SoundEngine {
   }
 
   playClick(freq = 440) {
+    if (!this.enabled) return;
     try {
       this.init();
       if (!this.ctx) return;
@@ -52,6 +55,7 @@ class SoundEngine {
   }
 
   playAscendingCorrect(combo = 0) {
+    if (!this.enabled) return;
     try {
       const audio = this.audioCache['correct'];
       if (audio) {
@@ -100,6 +104,7 @@ class SoundEngine {
   }
 
   playMistake() {
+    if (!this.enabled) return;
     try {
       const audio = this.audioCache['incorrect'];
       if (audio) {
@@ -139,6 +144,7 @@ class SoundEngine {
   }
 
   playCelebrationFanfare() {
+    if (!this.enabled) return;
     try {
       const audio = this.audioCache['finish'];
       if (audio) {

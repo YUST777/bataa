@@ -7,6 +7,7 @@
     "dev": "vite --port 5174 --host",
     "build": "tsc && vite build",
     "preview": "vite preview --port 5174",
+    "test": "bun test",
     "cap:sync": "cap sync",
     "cap:android": "cap open android",
     "cap:ios": "cap open ios"

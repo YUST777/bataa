@@ -1,0 +1,108 @@
+import { createContext, useContext } from 'react'
+import type { L, Lang } from '@/types'
+
+export const LangContext = createContext<Lang>('en')
+
+/** Returns the active language and a translator. Plain strings (code) pass through. */
+export function useT() {
+  const lang = useContext(LangContext)
+  return { lang, t: (s: L | string) => (typeof s === 'string' ? s : s[lang]) }
+}
+
+export const ui = {
+  learn: { en: 'Learn', ar: 'تعلّم' },
+  practice: { en: 'Practice', ar: 'تدريب' },
+  profile: { en: 'Profile', ar: 'حسابي' },
+
+  start: { en: 'Start', ar: 'ابدأ' },
+  next: { en: 'Continue', ar: 'متابعة' },
+  back: { en: 'Back', ar: 'رجوع' },
+  check: { en: 'Check', ar: 'تحقّق' },
+  tryAgain: { en: 'Try again', ar: 'حاول مجددًا' },
+  showSolution: { en: 'Show me the answer', ar: 'أرني الإجابة' },
+  close: { en: 'Close', ar: 'إغلاق' },
+  preview: { en: 'Preview', ar: 'المعاينة' },
+  live: { en: 'Live', ar: 'مباشر' },
+  min: { en: 'min', ar: 'د' },
+  steps: { en: 'steps', ar: 'خطوات' },
+  xp: { en: 'XP', ar: 'نقطة' },
+
+  correct: { en: 'Correct!', ar: 'صحيح!' },
+  notYet: { en: 'Not quite yet', ar: 'ليس تمامًا بعد' },
+  yourCode: { en: 'Your code', ar: 'الكود الخاص بك' },
+  tapToBuild: { en: 'Tap the pieces in order', ar: 'اضغط على القطع بالترتيب' },
+  pickToken: { en: 'Pick the missing piece', ar: 'اختر القطعة الناقصة' },
+  matchHelp: { en: 'Tap a piece of code, then its meaning', ar: 'اضغط على جزء الكود ثم على معناه' },
+  typeHere: { en: 'Type your code here', ar: 'اكتب الكود هنا' },
+
+  leaveTitle: { en: 'Leave this lesson?', ar: 'هل تريد مغادرة الدرس؟' },
+  leaveBody: { en: 'Your progress in this lesson will not be saved.', ar: 'لن يُحفظ تقدمك في هذا الدرس.' },
+  keepGoing: { en: 'Keep learning', ar: 'واصل التعلم' },
+  leave: { en: 'Leave', ar: 'مغادرة' },
+
+  lessonDone: { en: 'Lesson complete!', ar: 'اكتمل الدرس!' },
+  reviewDone: { en: 'Practice complete!', ar: 'اكتمل التدريب!' },
+  youBuilt: { en: 'You built this', ar: 'أنت بنيت هذا' },
+  youCan: { en: 'You can now', ar: 'يمكنك الآن' },
+  youWill: { en: 'You will learn to', ar: 'ستتعلم' },
+  earned: { en: 'Earned', ar: 'ربحت' },
+  accuracy: { en: 'Accuracy', ar: 'الدقة' },
+  streak: { en: 'Day streak', ar: 'أيام متتالية' },
+
+  today: { en: 'Today', ar: 'اليوم' },
+  goalOf: { en: 'of', ar: 'من' },
+  lessonsWord: { en: 'lessons', ar: 'دروس' },
+  goalHit: { en: 'Daily goal reached. See you tomorrow!', ar: 'حققت هدف اليوم. نراك غدًا!' },
+  goalNext: { en: 'One short lesson keeps your streak going.', ar: 'درس قصير واحد يحافظ على سلسلتك.' },
+  locked: { en: 'Locked', ar: 'مقفل' },
+  lockedBody: { en: 'Finish the lesson before this one to open it.', ar: 'أنهِ الدرس السابق لفتح هذا الدرس.' },
+  review: { en: 'Practice again', ar: 'تدرّب مجددًا' },
+  done: { en: 'Done', ar: 'مكتمل' },
+  allDone: { en: 'You finished every lesson. Keep sharp with practice.', ar: 'أنهيت كل الدروس. حافظ على مهارتك بالتدريب.' },
+
+  quickReview: { en: 'Quick review', ar: 'مراجعة سريعة' },
+  quickReviewBody: { en: 'Five mixed questions from lessons you finished.', ar: 'خمسة أسئلة متنوعة من الدروس التي أنهيتها.' },
+  practiceEmpty: { en: 'Finish your first lesson and practice opens here.', ar: 'أنهِ درسك الأول وسيُفتح التدريب هنا.' },
+  replay: { en: 'Replay a lesson', ar: 'أعد درسًا' },
+  goLearn: { en: 'Go to lessons', ar: 'اذهب إلى الدروس' },
+
+  totalXp: { en: 'Total XP', ar: 'مجموع النقاط' },
+  lessonsDone: { en: 'Lessons', ar: 'الدروس' },
+  thisWeek: { en: 'Last 7 days', ar: 'آخر 7 أيام' },
+  skills: { en: 'What you can do', ar: 'ما يمكنك فعله' },
+  skillsEmpty: { en: 'Skills you earn show up here.', ar: 'المهارات التي تكتسبها تظهر هنا.' },
+  settings: { en: 'Settings', ar: 'الإعدادات' },
+  language: { en: 'Language', ar: 'اللغة' },
+  dailyGoal: { en: 'Daily goal', ar: 'الهدف اليومي' },
+  sounds: { en: 'Sounds', ar: 'الأصوات' },
+  on: { en: 'On', ar: 'تشغيل' },
+  off: { en: 'Off', ar: 'إيقاف' },
+  reset: { en: 'Reset progress', ar: 'إعادة ضبط التقدم' },
+  resetTitle: { en: 'Reset all progress?', ar: 'إعادة ضبط كل التقدم؟' },
+  resetBody: { en: 'This clears your lessons, XP and streak on this device. It cannot be undone.', ar: 'سيمسح هذا دروسك ونقاطك وسلسلتك على هذا الجهاز. لا يمكن التراجع.' },
+  cancel: { en: 'Cancel', ar: 'إلغاء' },
+
+  obWelcome: { en: 'Learn to code by building real things.', ar: 'تعلّم البرمجة ببناء أشياء حقيقية.' },
+  obWelcomeBody: { en: 'I’m Bataa. Five minutes a day, one small build at a time.', ar: 'أنا بطة. خمس دقائق يوميًا، وبناء صغير في كل مرة.' },
+  obStart: { en: 'Get started', ar: 'ابدأ الآن' },
+  obLevel: { en: 'Have you written code before?', ar: 'هل كتبت كودًا من قبل؟' },
+  obLevelBody: { en: 'This picks where your path begins.', ar: 'هذا يحدد من أين يبدأ مسارك.' },
+  obNew: { en: 'I’m brand new', ar: 'أنا مبتدئ تمامًا' },
+  obNewSub: { en: 'Start from the first button', ar: 'ابدأ من أول زر' },
+  obSome: { en: 'I tried a tutorial', ar: 'جربت درسًا تعليميًا' },
+  obSomeSub: { en: 'Start from the first button, move fast', ar: 'ابدأ من أول زر وتقدّم بسرعة' },
+  obBuilt: { en: 'I built a page before', ar: 'بنيت صفحة من قبل' },
+  obBuiltSub: { en: 'Every unit is open from day one', ar: 'كل الوحدات مفتوحة من اليوم الأول' },
+  obGoal: { en: 'How much each day?', ar: 'كم تريد أن تتعلم كل يوم؟' },
+  obGoalBody: { en: 'Small and steady wins. You can change this later.', ar: 'القليل الدائم يفوز. يمكنك تغيير هذا لاحقًا.' },
+  goal1: { en: '1 lesson', ar: 'درس واحد' },
+  goal2: { en: '2 lessons', ar: 'درسان' },
+  goal3: { en: '3 lessons', ar: '3 دروس' },
+  goal1Sub: { en: 'About 5 minutes · relaxed', ar: 'حوالي 5 دقائق · مريح' },
+  goal2Sub: { en: 'About 10 minutes · steady', ar: 'حوالي 10 دقائق · ثابت' },
+  goal3Sub: { en: 'About 15 minutes · serious', ar: 'حوالي 15 دقيقة · جاد' },
+  obTry: { en: 'Try it. Build a real button.', ar: 'جرّب. ابنِ زرًا حقيقيًا.' },
+  obReady: { en: 'You just wrote HTML.', ar: 'لقد كتبت HTML للتو.' },
+  obReadyBody: { en: 'Your path is ready. First up: build your first button from scratch.', ar: 'مسارك جاهز. البداية: ابنِ أول زر لك من الصفر.' },
+  obGo: { en: 'Start my path', ar: 'ابدأ مساري' },
+} satisfies Record<string, L>

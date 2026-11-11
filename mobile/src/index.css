@@ -2,30 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: 'Avenir Next', 'Nunito', 'Segoe UI', system-ui, sans-serif;
-  --cream: #fff6e9;
-  --brown: #2d180b;
-  --orange: #ff8500;
-  --orange-lip: #d45900;
+@layer base {
+  html { -webkit-tap-highlight-color: transparent; }
+  body { @apply bg-bg font-sans text-ink antialiased; overscroll-behavior-y: none; }
+  [dir='rtl'] body { @apply font-arabic; }
+  :focus-visible { outline: 3px solid #7a3e00; outline-offset: 3px; }
+  button { touch-action: manipulation; }
 }
 
-[dir="rtl"] {
-  font-family: 'IBM Plex Sans Arabic', 'Tajawal', system-ui, sans-serif;
+@layer components {
+  /* Tactile button: a face plus a bottom lip that collapses on press. */
+  .btn {
+    @apply inline-flex min-h-[52px] w-full select-none items-center justify-center gap-2 rounded-2xl px-6 text-[17px] font-extrabold;
+    transition: transform 80ms ease, box-shadow 80ms ease, background-color 160ms ease;
+  }
+  .btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+  .btn:disabled { @apply cursor-not-allowed bg-line text-lock; box-shadow: 0 4px 0 theme('colors.lip'); }
+  .btn-primary { @apply bg-brand text-white; box-shadow: 0 4px 0 theme('colors.brandDeep'); }
+  .btn-ok { @apply bg-ok text-white; box-shadow: 0 4px 0 theme('colors.okDeep'); }
+  .btn-bad { @apply bg-bad text-white; box-shadow: 0 4px 0 theme('colors.badDeep'); }
+  .btn-plain { @apply border-2 border-line bg-surface text-ink; box-shadow: 0 4px 0 theme('colors.lip'); }
+  .btn-text { @apply min-h-[44px] w-full rounded-xl text-[15px] font-bold text-ink2; }
+
+  .card { @apply rounded-[20px] border-2 border-line bg-surface; box-shadow: 0 3px 0 theme('colors.line'); }
+
+  /* Selectable chip / answer card */
+  .pick {
+    @apply min-h-[48px] rounded-2xl border-2 border-line bg-surface px-4 py-3 text-start text-[15px] font-bold text-ink;
+    box-shadow: 0 3px 0 theme('colors.lip');
+    transition: transform 80ms ease, box-shadow 80ms ease, border-color 160ms ease, background-color 160ms ease;
+  }
+  .pick:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 transparent; }
+  .pick[aria-pressed='true'] { @apply border-brand bg-brandSoft; box-shadow: 0 3px 0 theme('colors.brand'); }
+  .pick:disabled { @apply opacity-60; }
+
+  .codeblock { @apply overflow-x-auto whitespace-pre-wrap rounded-2xl bg-code p-4 font-mono text-[14px] leading-relaxed text-[#FCEBD7]; }
+  .chip { @apply inline-flex min-h-[32px] items-center rounded-lg px-3 py-1 font-mono text-[12px] font-bold; }
 }
 
-/* Custom Scrollbar for Phone Simulator */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(45, 24, 11, 0.15);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(45, 24, 11, 0.3);
+@media (prefers-reduced-motion: reduce) {
+  .btn, .pick { transition: none; }
 }
