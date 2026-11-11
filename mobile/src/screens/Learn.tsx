@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type MouseEvent } from 'react'
+import { useState, type MouseEvent } from 'react'
 import { motion } from 'framer-motion'
 import { Check, Clock, Code2, Flame, ListChecks, Lock, Palette, Play, Zap } from 'lucide-react'
 import { Button, Sky, Tile, Tray, spring } from '@/components/ui'
@@ -12,7 +12,7 @@ const unitLook = { html: { tone: 'orange', icon: Code2 }, css: { tone: 'blue', i
 const lookOf = (unitId: string) => unitLook[unitId as keyof typeof unitLook] ?? unitLook.html
 
 /** Small progress ring with a value in the middle. */
-function Ring({ value, size = 44, stroke = 5, color = '#F26B00', children }: { value: number; size?: number; stroke?: number; color?: string; children: React.ReactNode }) {
+function Ring({ value, size = 44, stroke = 5, color = '#FF8A1F', children }: { value: number; size?: number; stroke?: number; color?: string; children: React.ReactNode }) {
   const r = (size - stroke) / 2
   return (
     <span className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
@@ -26,15 +26,10 @@ function Ring({ value, size = 44, stroke = 5, color = '#F26B00', children }: { v
           transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
         />
       </svg>
-      <span className="relative text-[14px] font-bold tabular-nums">{children}</span>
+      <span className="relative text-[14px] font-semibold tabular-nums">{children}</span>
     </span>
   )
 }
-
-const gloss = (a: string, b: string): CSSProperties => ({
-  background: `linear-gradient(180deg, ${a}, ${b})`,
-  boxShadow: `inset 0 2px 0 rgba(255,255,255,.45), inset 0 -3px 0 rgba(0,0,0,.1), 0 10px 20px -8px ${b}`,
-})
 
 /** The course path. The next lesson is the loudest thing on screen; every node carries a text label. */
 export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) => void }) {
@@ -62,12 +57,12 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
     <div>
       <Sky>
         <header className="flex items-center gap-2 px-5 pt-5">
-          <span className="me-auto text-[26px] font-extrabold tracking-tight text-ink">bataa</span>
-          <span aria-label={`${streak(p.daily)} ${t(ui.streak)}`} className="glass flex h-10 items-center gap-1.5 rounded-full px-3 text-[15px] font-bold tabular-nums">
-            <Flame className="h-[18px] w-[18px] fill-brand text-brand" />
+          <span className="me-auto text-[26px] font-semibold tracking-tight text-ink">bataa</span>
+          <span aria-label={`${streak(p.daily)} ${t(ui.streak)}`} className="glass flex h-10 items-center gap-1.5 rounded-full px-3 text-[15px] font-semibold tabular-nums">
+            <Flame className="h-[18px] w-[18px] fill-accent text-accent" />
             {streak(p.daily)}
           </span>
-          <span aria-label={`${p.xp} ${t(ui.xp)}`} className="glass flex h-10 items-center gap-1.5 rounded-full px-3 text-[15px] font-bold tabular-nums">
+          <span aria-label={`${p.xp} ${t(ui.xp)}`} className="glass flex h-10 items-center gap-1.5 rounded-full px-3 text-[15px] font-semibold tabular-nums">
             <Zap className="h-[18px] w-[18px] fill-sun text-sun" />
             {p.xp}
           </span>
@@ -76,13 +71,13 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
         <div className="flex items-center gap-4 px-5 pb-2 pt-6">
           <div className="flex-1">
             <p className="eyebrow text-brandDeep">{t(ui.todayGoal)}</p>
-            <h1 className="mt-1 text-[26px] font-bold leading-tight tracking-tight">
+            <h1 className="mt-1 text-[26px] font-semibold leading-tight tracking-tight">
               {Math.min(today, p.goal)} {t(ui.goalOf)} {p.goal} {t(ui.lessonsWord)}
             </h1>
             <p className="mt-1 text-[14px] font-medium leading-snug text-ink2">{t(!current ? ui.allDone : hit ? ui.goalHit : ui.goalNext)}</p>
           </div>
           <span className="glass rounded-full p-1.5">
-            <Ring value={today / p.goal} size={60} stroke={6} color={hit ? '#23A160' : '#F26B00'}>
+            <Ring value={today / p.goal} size={60} stroke={6} color={hit ? '#157A45' : '#FF8A1F'}>
               {hit ? <Check className="h-6 w-6 text-ok" strokeWidth={3} /> : `${today}/${p.goal}`}
             </Ring>
           </span>
@@ -104,13 +99,13 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
                   <Icon className="h-6 w-6" strokeWidth={2.4} />
                 </Tile>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-[12px] font-semibold ${look.tone === 'blue' ? 'text-sky' : 'text-brand'}`}>
+                  <p className={`text-[12px] font-semibold ${look.tone === 'blue' ? 'text-[#1667B7]' : 'text-brand'}`}>
                     {t(ui.unit)} {u + 1}
                   </p>
-                  <h2 className="truncate text-[17px] font-bold leading-tight">{t(unit.title)}</h2>
+                  <h2 className="truncate text-[17px] font-semibold leading-tight">{t(unit.title)}</h2>
                   <p className="truncate text-[13px] font-medium text-ink2">{t(unit.goal)}</p>
                 </div>
-                <Ring value={finished / unit.lessons.length} color="#23A160">
+                <Ring value={finished / unit.lessons.length} color="#157A45">
                   {finished}
                 </Ring>
               </header>
@@ -130,15 +125,15 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
                       transition={{ ...spring, delay: 0.06 * i }}
                     >
                       <span className="relative grid place-items-center">
-                        {isCurrent && <span aria-hidden className="halo absolute inset-0 rounded-full border-2 border-brand" />}
                         <motion.button
                           type="button"
                           aria-label={`${t(lesson.title)}. ${t(done ? ui.done : locked ? ui.locked : ui.start)}`}
-                          whileTap={{ scale: 0.9 }}
+                          whileTap={{ scale: 0.95 }}
                           transition={spring}
                           onClick={(e) => openBrief(lesson, e)}
-                          className={`relative grid h-16 w-16 place-items-center rounded-full ${done || isCurrent ? 'text-white' : locked ? 'border border-line bg-white text-ink3 shadow-soft' : 'border border-brand/40 bg-white text-brand shadow-soft'}`}
-                          style={done ? gloss('#4CCB8A', '#1C9456') : isCurrent ? gloss('#FFA23A', '#E86100') : undefined}
+                          className={`relative grid h-16 w-16 place-items-center rounded-full ${
+                            done ? 'bg-okDeep text-white' : isCurrent ? 'bg-accent text-ink ring-2 ring-accent ring-offset-4 ring-offset-white' : locked ? 'border border-line bg-white text-ink3' : 'border border-brand/40 bg-white text-brand'
+                          }`}
                         >
                           {done ? <Check className="h-7 w-7" strokeWidth={3.2} /> : locked ? <Lock className="h-5 w-5" /> : <Play className="h-6 w-6 translate-x-px fill-current rtl:-scale-x-100" />}
                         </motion.button>
@@ -168,7 +163,7 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
               </Tile>
               <div>
                 <p className="text-[12px] font-semibold text-ink2">{t(briefUnit.title)}</p>
-                <h2 className="text-[21px] font-bold leading-tight tracking-tight">{t(brief.title)}</h2>
+                <h2 className="text-[21px] font-semibold leading-tight tracking-tight">{t(brief.title)}</h2>
               </div>
             </div>
             <p className="text-[15px] font-medium leading-snug text-ink2">

@@ -13,7 +13,7 @@ function Stat({ icon, value, label }: { icon: ReactNode; value: number; label: s
   return (
     <div className="grid flex-1 justify-items-center gap-0.5 px-2 py-4">
       {icon}
-      <strong className="mt-1 text-[22px] font-bold tabular-nums tracking-tight">{value}</strong>
+      <strong className="mt-1 text-[22px] font-semibold tabular-nums tracking-tight">{value}</strong>
       <span className="text-center text-[12px] font-medium text-ink2">{label}</span>
     </div>
   )
@@ -62,14 +62,14 @@ export function Profile({ p, set, reset }: { p: Progress; set: (patch: Partial<P
     <div>
       <Sky>
         <div className="grid justify-items-center px-5 pt-6">
-          <h1 className="text-[30px] font-extrabold tracking-tight">{t(ui.profile)}</h1>
+          <h1 className="text-[30px] font-semibold tracking-tight">{t(ui.profile)}</h1>
           <Duck mood="wave" size={132} className="-mb-3 mt-2" />
         </div>
       </Sky>
 
       <div className="grid gap-7 px-4 pb-6 pt-3">
         <section className="card flex divide-x divide-line rtl:divide-x-reverse">
-          <Stat icon={<Flame className="h-6 w-6 fill-brand text-brand" />} value={streak(p.daily)} label={t(ui.streak)} />
+          <Stat icon={<Flame className="h-6 w-6 fill-accent text-accent" />} value={streak(p.daily)} label={t(ui.streak)} />
           <Stat icon={<Zap className="h-6 w-6 fill-sun text-sun" />} value={p.xp} label={t(ui.totalXp)} />
           <Stat icon={<BookOpenCheck className="h-6 w-6 text-ok" />} value={p.done.length} label={t(ui.lessonsDone)} />
         </section>
@@ -81,8 +81,7 @@ export function Profile({ p, set, reset }: { p: Progress; set: (patch: Partial<P
               <li key={day.key} className="grid justify-items-center gap-2" aria-label={`${day.key}: ${t(day.active ? ui.done : ui.off)}`}>
                 <span className={`text-[12px] font-semibold ${day.today ? 'text-brand' : 'text-ink2'}`}>{day.name}</span>
                 <span
-                  className={`grid h-9 w-9 place-items-center rounded-full ${day.active ? 'text-white' : day.today ? 'border border-dashed border-brand/60' : 'bg-[#F4EFE9]'}`}
-                  style={day.active ? { background: 'linear-gradient(180deg,#FFA23A,#E86100)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.45), 0 6px 12px -6px #E86100' } : undefined}
+                  className={`grid h-9 w-9 place-items-center rounded-full ${day.active ? 'bg-accent text-ink' : day.today ? 'border border-dashed border-brand/60' : 'bg-[#F4EFE9]'}`}
                 >
                   {day.active && <Check className="h-[18px] w-[18px]" strokeWidth={3.2} />}
                 </span>
@@ -141,7 +140,7 @@ export function Profile({ p, set, reset }: { p: Progress; set: (patch: Partial<P
 
       <Tray open={confirm} onClose={() => setConfirm(false)} label={t(ui.resetTitle)}>
         <div className="grid gap-1 px-1 pb-5 pt-1">
-          <h2 className="text-[20px] font-bold tracking-tight">{t(ui.resetTitle)}</h2>
+          <h2 className="text-[20px] font-semibold tracking-tight">{t(ui.resetTitle)}</h2>
           <p className="text-[15px] font-medium leading-snug text-ink2">{t(ui.resetBody)}</p>
         </div>
         <div className="grid gap-1">

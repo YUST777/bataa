@@ -28,7 +28,7 @@ function Stat({ icon, label, children }: { icon: ReactNode; label: string; child
   return (
     <div className="grid flex-1 justify-items-center gap-0.5 px-2 py-4">
       {icon}
-      <strong className="mt-1 text-[20px] font-bold tabular-nums tracking-tight">{children}</strong>
+      <strong className="mt-1 text-[20px] font-semibold tabular-nums tracking-tight">{children}</strong>
       <span className="text-center text-[12px] font-medium text-ink2">{label}</span>
     </div>
   )
@@ -52,7 +52,7 @@ export function Complete({ result, onContinue }: { result: Result; onContinue: (
         <div className="relative grid justify-items-center pt-12">
           <Duck mood="happy" size={170} className="-mb-2" />
           {lesson && (
-            <motion.span className="absolute bottom-0 start-1/2 ms-10" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 8 }} transition={{ ...spring, bounce: 0.5, delay: 0.5 }}>
+            <motion.span className="absolute bottom-0 start-1/2 ms-10" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 8 }} transition={{ ...spring, delay: 0.5 }}>
               <Badge tone={units[0].lessons.includes(lesson) ? 'orange' : 'blue'} shape="hex" size={60}>
                 {lessons.indexOf(lesson) + 1}
               </Badge>
@@ -63,7 +63,7 @@ export function Complete({ result, onContinue }: { result: Result; onContinue: (
 
       <div className="grid flex-1 content-start gap-5 px-5 pt-3">
         <motion.div className="text-center" {...rise(0.1)}>
-          <h1 className="text-[30px] font-extrabold tracking-tight">{t(lesson ? ui.lessonDone : ui.reviewDone)}</h1>
+          <h1 className="text-[30px] font-semibold tracking-tight">{t(lesson ? ui.lessonDone : ui.reviewDone)}</h1>
           {lesson && (
             <p className="mt-1 text-[16px] font-medium text-ink2">
               {t(ui.youCan)} <span className="font-semibold text-ink">{t(lesson.can)}</span>.
@@ -78,7 +78,7 @@ export function Complete({ result, onContinue }: { result: Result; onContinue: (
           <Stat icon={<Target className="h-6 w-6 text-ok" />} label={t(ui.accuracy)}>
             <CountUp to={result.accuracy} />%
           </Stat>
-          <Stat icon={<Flame className="h-6 w-6 fill-brand text-brand" />} label={t(ui.streak)}>
+          <Stat icon={<Flame className="h-6 w-6 fill-accent text-accent" />} label={t(ui.streak)}>
             <CountUp to={result.streak} />
           </Stat>
         </motion.div>

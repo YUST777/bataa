@@ -106,12 +106,12 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
                 className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-white ${ok ? 'bg-ok' : 'bg-bad'}`}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ ...spring, bounce: 0.5, delay: 0.08 }}
+                transition={{ ...spring, delay: 0.08 }}
               >
                 {ok ? <Check className="h-5 w-5" strokeWidth={3.2} /> : <Lightbulb className="h-5 w-5" strokeWidth={2.4} />}
               </motion.span>
               <div>
-                <h2 className={`text-[17px] font-bold ${ok ? 'text-okDeep' : 'text-badDeep'}`}>{t(ok ? ui.correct : ui.notYet)}</h2>
+                <h2 className={`text-[17px] font-semibold ${ok ? 'text-okDeep' : 'text-badDeep'}`}>{t(ok ? ui.correct : ui.notYet)}</h2>
                 <p className="mt-0.5 text-[15px] font-medium leading-snug text-ink">{t(ok ? task.explain : why)}</p>
               </div>
             </div>
@@ -144,7 +144,7 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
       <Tray open={leaving} onClose={() => setLeaving(false)} label={t(ui.leaveTitle)}>
         <div className="grid justify-items-center gap-1 pb-4 pt-1 text-center">
           <Duck mood="oops" size={84} />
-          <h2 className="text-[20px] font-bold tracking-tight">{t(ui.leaveTitle)}</h2>
+          <h2 className="text-[20px] font-semibold tracking-tight">{t(ui.leaveTitle)}</h2>
           <p className="text-[15px] font-medium text-ink2">{t(ui.leaveBody)}</p>
         </div>
         <div className="grid gap-1">

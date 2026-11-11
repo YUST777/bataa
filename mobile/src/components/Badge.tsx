@@ -41,7 +41,7 @@ export function Badge({ tone, shape = 'scallop', earned = true, size = 64, child
         <circle cx="50" cy="50" r="31" fill="none" stroke="#fff" strokeOpacity=".5" strokeWidth="1.5" />
         <path d="M22 40q6-22 28-26 14 0 24 8-22-4-40 6-8 5-12 12z" fill="#fff" opacity=".45" />
       </svg>
-      <span className="relative text-[0.34em] font-extrabold leading-none text-white" style={{ fontSize: size * 0.3, textShadow: `0 1px 0 ${deep}` }}>
+      <span className="relative text-[0.34em] font-semibold leading-none text-white" style={{ fontSize: size * 0.3, textShadow: `0 1px 0 ${deep}` }}>
         {children}
       </span>
     </span>

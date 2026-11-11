@@ -98,7 +98,7 @@ export function Onboarding({ onToggleLang, onDone }: { onToggleLang: () => void;
       {hero ? (
         <Sky>
           <header className="flex items-center justify-between px-5 pt-5">
-            <span className="text-[26px] font-extrabold tracking-tight">bataa</span>
+            <span className="text-[26px] font-semibold tracking-tight">bataa</span>
             {langButton}
           </header>
           <motion.div key={step} className="grid justify-items-center pt-10" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
@@ -119,12 +119,12 @@ export function Onboarding({ onToggleLang, onDone }: { onToggleLang: () => void;
         <motion.div key={step} className="grid gap-5" initial={{ opacity: 0, x: slide }} animate={{ opacity: 1, x: 0 }} transition={spring}>
           {hero ? (
             <div className="grid justify-items-center gap-3 text-center">
-              <h1 className="max-w-[320px] text-[32px] font-extrabold leading-[1.1] tracking-tight">{t(title)}</h1>
+              <h1 className="max-w-[320px] text-[32px] font-semibold leading-[1.1] tracking-tight">{t(title)}</h1>
               <p className="max-w-[300px] text-[17px] font-medium leading-snug text-ink2">{t(line)}</p>
             </div>
           ) : (
             <>
-              <h1 className="text-[26px] font-bold leading-tight tracking-tight">{t(title)}</h1>
+              <h1 className="text-[26px] font-semibold leading-tight tracking-tight">{t(title)}</h1>
               <div className="flex items-end gap-2">
                 <Duck mood={mood} size={68} />
                 <Bubble>{t(line)}</Bubble>

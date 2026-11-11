@@ -4,8 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 
-/** The app's one spring: quick to settle, a touch of overshoot. */
-export const spring = { type: 'spring', duration: 0.5, bounce: 0.22 } as const
+/** The app's one motion curve: quick to settle, no overshoot. */
+export const spring = { type: 'spring', duration: 0.4, bounce: 0 } as const
 
 // Full class names, spelled out so Tailwind keeps them in the build.
 const TONES = { primary: 'btn btn-primary', ok: 'btn btn-ok', bad: 'btn btn-bad', plain: 'btn btn-plain', text: 'btn-text' }
@@ -47,8 +47,7 @@ export function ProgressBar({ value, label }: { value: number; label: string }) 
   return (
     <div role="progressbar" aria-label={label} aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} className="h-2.5 flex-1 overflow-hidden rounded-full bg-ink/10">
       <motion.div
-        className="h-full rounded-full"
-        style={{ background: 'linear-gradient(90deg, #FFB347, #F26B00)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.5)' }}
+        className="h-full rounded-full bg-accent"
         initial={false}
         animate={{ width: `${pct}%` }}
         transition={spring}
@@ -183,31 +182,14 @@ export function Sky({ children, className = '' }: { children: ReactNode; classNa
   )
 }
 
-const TILES = {
-  orange: ['#FFB347', '#F26B00'],
-  blue: ['#6CC4FF', '#1E86E5'],
-  green: ['#5AD79A', '#1C9456'],
-  gold: ['#FFE07A', '#F5A300'],
-  grey: ['#F4EFE9', '#E3D6C6'],
-} as const
+const TILES = { orange: 'bg-brandSoft text-brand', blue: 'bg-[#E8F3FE] text-[#1667B7]', grey: 'bg-[#F4EFE9] text-ink3' }
 export type Tone = keyof typeof TILES
 
-/** Glossy rounded-square icon tile. */
+/** Quiet icon tile: a soft tint with the icon in the matching ink. */
 export function Tile({ tone = 'orange', size = 48, children }: { tone?: Tone; size?: number; children: ReactNode }) {
-  const [a, b] = TILES[tone]
   return (
-    <span
-      className={`relative grid shrink-0 place-items-center overflow-hidden ${tone === 'grey' ? 'text-ink3' : 'text-white'}`}
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size * 0.3,
-        background: `linear-gradient(160deg, ${a}, ${b})`,
-        boxShadow: `inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.08), 0 6px 14px -6px ${b}`,
-      }}
-    >
-      <span aria-hidden className="absolute inset-x-0 top-0 h-1/2 rounded-b-[100%] bg-white/20" />
-      <span className="relative grid place-items-center">{children}</span>
+    <span className={`grid shrink-0 place-items-center ${TILES[tone]}`} style={{ width: size, height: size, borderRadius: size * 0.28 }}>
+      {children}
     </span>
   )
 }

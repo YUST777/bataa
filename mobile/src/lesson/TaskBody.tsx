@@ -136,7 +136,7 @@ function Match({ task, answer, onChange, locked }: Props<MatchTask>) {
   // Meanings are shown rotated by one, so the correct pairing is never straight across.
   const meanings = task.pairs.map((_, i) => (i + 1) % task.pairs.length)
   const badge = (n: number) => (
-    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand text-[12px] font-bold text-white">{n}</span>
+    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand text-[12px] font-semibold text-white">{n}</span>
   )
   const without = (code: string) => Object.fromEntries(Object.entries(pairs).filter(([c]) => c !== code))
 
@@ -235,7 +235,7 @@ function Editor({ task, answer, onChange, locked }: Props<CodeTask>) {
             type="button"
             aria-label={key}
             disabled={locked}
-            className="h-11 flex-1 rounded-xl bg-white/10 font-mono text-[17px] font-bold text-[#FCEBD7] active:bg-white/25 disabled:opacity-40"
+            className="h-11 flex-1 rounded-xl bg-white/10 font-mono text-[17px] font-semibold text-[#FCEBD7] active:bg-white/25 disabled:opacity-40"
             onClick={() => insert(key)}
           >
             {key}

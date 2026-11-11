@@ -27,7 +27,7 @@ export const ui = {
   steps: { en: 'steps', ar: 'خطوات' },
   xp: { en: 'XP', ar: 'نقطة' },
 
-  correct: { en: 'Correct!', ar: 'صحيح!' },
+  correct: { en: 'Correct', ar: 'صحيح' },
   notYet: { en: 'Not quite yet', ar: 'ليس تمامًا بعد' },
   yourCode: { en: 'Your code', ar: 'الكود الخاص بك' },
   tapToBuild: { en: 'Tap the pieces in order', ar: 'اضغط على القطع بالترتيب' },
@@ -40,8 +40,8 @@ export const ui = {
   keepGoing: { en: 'Keep learning', ar: 'واصل التعلم' },
   leave: { en: 'Leave', ar: 'مغادرة' },
 
-  lessonDone: { en: 'Lesson complete!', ar: 'اكتمل الدرس!' },
-  reviewDone: { en: 'Practice complete!', ar: 'اكتمل التدريب!' },
+  lessonDone: { en: 'Lesson complete', ar: 'اكتمل الدرس' },
+  reviewDone: { en: 'Practice complete', ar: 'اكتمل التدريب' },
   youBuilt: { en: 'You built this', ar: 'أنت بنيت هذا' },
   youCan: { en: 'You can now', ar: 'يمكنك الآن' },
   youWill: { en: 'You will learn to', ar: 'ستتعلم' },
@@ -56,7 +56,7 @@ export const ui = {
   newBadge: { en: 'New badge', ar: 'وسام جديد' },
   goalOf: { en: 'of', ar: 'من' },
   lessonsWord: { en: 'lessons', ar: 'دروس' },
-  goalHit: { en: 'Daily goal reached. See you tomorrow!', ar: 'حققت هدف اليوم. نراك غدًا!' },
+  goalHit: { en: 'Daily goal reached. See you tomorrow', ar: 'حققت هدف اليوم. نراك غدًا' },
   goalNext: { en: 'One short lesson keeps your streak going.', ar: 'درس قصير واحد يحافظ على سلسلتك.' },
   locked: { en: 'Locked', ar: 'مقفل' },
   lockedBody: { en: 'Finish the lesson before this one to open it.', ar: 'أنهِ الدرس السابق لفتح هذا الدرس.' },

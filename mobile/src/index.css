@@ -11,39 +11,26 @@
 }
 
 @layer components {
-  /* Glossy button: gradient face, inner highlight, coloured glow. Press settles it into the page. */
+  /* Flat button: one solid fill, ink label. Bright orange with dark text reads at 7:1 contrast. */
   .btn {
-    @apply inline-flex min-h-[54px] w-full select-none items-center justify-center gap-2 rounded-[18px] px-6 text-[17px] font-bold;
-    transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 160ms ease, background-color 160ms ease;
+    @apply inline-flex min-h-[52px] w-full select-none items-center justify-center gap-2 rounded-[14px] px-6 text-[16px] font-semibold;
+    transition: transform 120ms ease-out, background-color 120ms ease-out;
   }
-  .btn:active:not(:disabled) { transform: scale(0.97); }
+  .btn:active:not(:disabled) { transform: scale(0.98); }
   .btn:disabled { @apply cursor-not-allowed bg-[#F4EFE9] text-ink3; }
-  .btn-primary:not(:disabled) {
-    @apply text-white;
-    background: linear-gradient(180deg, #f97c0c 0%, #e86100 100%);
-    text-shadow: 0 1px 0 rgba(120, 50, 0, 0.35);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 2px rgba(150, 60, 0, 0.35), 0 12px 24px -10px rgba(242, 107, 0, 0.7);
-  }
-  .btn-ok {
-    @apply text-white;
-    background: linear-gradient(180deg, #2fb26f 0%, #1c9456 100%);
-    text-shadow: 0 1px 0 rgba(0, 70, 30, 0.3);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 12px 24px -10px rgba(35, 161, 96, 0.7);
-  }
-  .btn-bad {
-    @apply text-white;
-    background: linear-gradient(180deg, #e65252 0%, #cf3a3a 100%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 12px 24px -10px rgba(217, 65, 65, 0.6);
-  }
-  .btn-plain { @apply border border-line bg-white text-ink shadow-soft; }
-  .btn-text { @apply min-h-[44px] w-full rounded-xl text-[15px] font-semibold text-ink2; }
+  .btn-primary:not(:disabled) { @apply bg-accent text-ink; }
+  .btn-primary:active:not(:disabled) { @apply bg-[#F47A0C]; }
+  .btn-ok { @apply bg-okDeep text-white; }
+  .btn-bad { @apply bg-badFill text-white; }
+  .btn-plain { @apply border border-line bg-white text-ink; }
+  .btn-text { @apply min-h-[44px] w-full rounded-xl text-[15px] font-medium text-ink2; }
 
   .card { @apply rounded-[20px] border border-line bg-white shadow-soft; }
 
   /* Selectable row or token */
   .pick {
     @apply min-h-[52px] rounded-2xl border border-line bg-white px-4 py-3 text-start text-[15px] font-semibold text-ink shadow-soft;
-    transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+    transition: transform 120ms ease-out, border-color 120ms ease-out, background-color 120ms ease-out;
   }
   .pick:active:not(:disabled) { transform: scale(0.98); }
   .pick[aria-pressed='true'] { @apply border-brand bg-brandSoft; box-shadow: 0 0 0 1px theme('colors.brand'); }
@@ -54,16 +41,9 @@
 
   /* Frosted pill used for header stats and round icon buttons */
   .glass { @apply border border-white/70 bg-white/75 shadow-soft backdrop-blur-md; }
-  .eyebrow { @apply text-[12px] font-semibold uppercase tracking-[0.06em]; }
+  .eyebrow { @apply text-[13px] font-medium; }
 }
-
-@keyframes halo {
-  0% { transform: scale(1); opacity: 0.55; }
-  100% { transform: scale(1.7); opacity: 0; }
-}
-.halo { animation: halo 2s cubic-bezier(0.2, 0.6, 0.3, 1) infinite; }
 
 @media (prefers-reduced-motion: reduce) {
   .btn, .pick { transition: none; }
-  .halo { animation: none; opacity: 0; }
 }

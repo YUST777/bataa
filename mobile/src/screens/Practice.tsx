@@ -28,7 +28,7 @@ export function Practice({ p, onReview, onReplay, onGoLearn }: { p: Progress; on
       <Sky>
         <div className="flex items-end gap-3 px-5 pt-6">
           <div className="flex-1 pb-3">
-            <h1 className="text-[30px] font-extrabold tracking-tight">{t(ui.practice)}</h1>
+            <h1 className="text-[30px] font-semibold tracking-tight">{t(ui.practice)}</h1>
             <p className="mt-1 text-[15px] font-medium leading-snug text-ink2">{t(empty ? ui.practiceEmpty : ui.quickReviewBody)}</p>
           </div>
           <Duck mood={empty ? 'think' : 'talk'} size={104} className="-mb-3" />
