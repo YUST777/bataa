@@ -1,7 +1,6 @@
 import { useState, type CSSProperties, type MouseEvent } from 'react'
 import { motion } from 'framer-motion'
 import { Check, Clock, Code2, Flame, ListChecks, Lock, Palette, Play, Zap } from 'lucide-react'
-import { Duck } from '@/components/Duck'
 import { Button, Sky, Tile, Tray, spring } from '@/components/ui'
 import { lessons, units } from '@/data/course'
 import { ui, useT } from '@/i18n'
@@ -95,7 +94,6 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
           const finished = unit.lessons.filter((l) => p.done.includes(l.id)).length
           const look = lookOf(unit.id)
           const Icon = look.icon
-          const hasCurrent = unit.lessons.some((l) => l.id === current?.id)
           return (
             <section key={unit.id} className="relative grid grid-cols-1 gap-7">
               <span aria-hidden className="pointer-events-none absolute -end-44 top-24 h-[360px] w-[360px] rounded-full bg-brandSoft/60" />
@@ -118,18 +116,6 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
               </header>
 
               <ol className="relative grid gap-6">
-                {hasCurrent && (
-                  <motion.li
-                    aria-hidden
-                    className="card absolute start-0 top-[118px] z-10 flex w-[132px] flex-col gap-1.5 border-brand/25 bg-brandSoft/90 p-3"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ ...spring, delay: 0.35 }}
-                  >
-                    <Duck size={40} />
-                    <span className="text-[13px] font-medium leading-snug text-ink">{t(ui.tip)}</span>
-                  </motion.li>
-                )}
                 {unit.lessons.map((lesson, i) => {
                   const done = p.done.includes(lesson.id)
                   const isCurrent = lesson.id === current?.id

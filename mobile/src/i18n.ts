@@ -52,7 +52,6 @@ export const ui = {
   today: { en: 'Today', ar: 'اليوم' },
   todayGoal: { en: 'Today’s goal', ar: 'هدف اليوم' },
   unit: { en: 'Unit', ar: 'الوحدة' },
-  tip: { en: 'Each lesson builds on the last one.', ar: 'كل درس يُبنى على الدرس الذي قبله.' },
   badges: { en: 'Badges', ar: 'الأوسمة' },
   newBadge: { en: 'New badge', ar: 'وسام جديد' },
   goalOf: { en: 'of', ar: 'من' },
