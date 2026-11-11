@@ -50,7 +50,7 @@ export function Complete({ result, onContinue }: { result: Result; onContinue: (
     <div className="flex min-h-dvh flex-col">
       <Sky>
         <div className="relative grid justify-items-center pt-12">
-          <Duck mood="cheer" size={150} className="-mb-2" />
+          <Duck mood="happy" size={170} className="-mb-2" />
           {lesson && (
             <motion.span className="absolute bottom-0 start-1/2 ms-10" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 8 }} transition={{ ...spring, bounce: 0.5, delay: 0.5 }}>
               <Badge tone={units[0].lessons.includes(lesson) ? 'orange' : 'blue'} shape="hex" size={60}>

@@ -1,33 +1,41 @@
-import { motion } from 'framer-motion'
+import { useEffect } from 'react'
+import { RuntimeLoader, useRive, useStateMachineInput } from '@rive-app/react-canvas'
+import riveWasm from '@rive-app/canvas/rive.wasm?url'
 
-/** What the duck is doing, driven by app events. Each mood is one pose from the mascot sheet. */
-export type Mood = 'idle' | 'wave' | 'talk' | 'think' | 'happy' | 'oops' | 'point' | 'cheer'
+// Serve the Rive runtime from the app bundle, not a CDN, so the duck works offline in the APK.
+RuntimeLoader.setWasmUrl(riveWasm)
 
-const MOODS: Mood[] = ['idle', 'wave', 'talk', 'think', 'happy', 'oops', 'point', 'cheer']
-const src = (mood: Mood) => `/mascot/${mood}.webp`
+/** What the duck is doing, driven by app events. */
+export type Mood = 'idle' | 'wave' | 'talk' | 'think' | 'happy' | 'oops'
 
-// Fetch every pose up front so a mood change never shows an empty frame.
-if (typeof window !== 'undefined') MOODS.forEach((mood) => (new Image().src = src(mood)))
+const STATE_MACHINE = 'Duck'
+const reducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 /**
- * Bataa the duck. Art: mobile/design/mascot/pose-sheet-v1.png, cut into public/mascot.
- * shortcut: still poses that pop in on change; replace with a rigged Rive file for blinking and blended motion.
+ * Bataa the duck, rigged in Rive from mobile/design/mascot/duck.svg (see build_duck_scene.py there).
+ * The state machine idles on its own: it breathes, blinks and sways. A mood change fires one reaction.
  */
 export function Duck({ mood = 'idle', size = 96, className = '' }: { mood?: Mood; size?: number; className?: string }) {
-  const lively = mood === 'happy' || mood === 'cheer'
+  const { rive, RiveComponent } = useRive({ src: '/mascot/duck.riv', stateMachines: STATE_MACHINE, autoplay: !reducedMotion })
+  const wave = useStateMachineInput(rive, STATE_MACHINE, 'wave')
+  const talk = useStateMachineInput(rive, STATE_MACHINE, 'talk')
+  const happy = useStateMachineInput(rive, STATE_MACHINE, 'happy')
+  const oops = useStateMachineInput(rive, STATE_MACHINE, 'oops')
+  const thinking = useStateMachineInput(rive, STATE_MACHINE, 'thinking')
+
+  useEffect(() => {
+    if (reducedMotion) return
+    if (thinking) thinking.value = mood === 'think'
+    ;({ wave, talk, happy, oops })[mood as 'wave']?.fire()
+    // Inputs appear once the file has loaded, so this also plays the first mood.
+  }, [mood, wave, talk, happy, oops, thinking])
+
+  // `size` is roughly the duck's own width. The 400x450 artboard is wider and taller than the duck:
+  // side room for the wing, top room for the hop.
+  const width = size * 1.3
   return (
-    <motion.img
-      key={mood}
-      src={src(mood)}
-      alt="Bataa"
-      draggable={false}
-      width={size}
-      height={(size * 4) / 3}
-      className={`shrink-0 select-none ${className}`}
-      style={{ width: size, height: (size * 4) / 3, originY: 1 }}
-      initial={{ scale: 0.86, y: 0 }}
-      animate={{ scale: 1, y: lively ? [0, -14, 0, -6, 0] : 0 }}
-      transition={{ scale: { type: 'spring', duration: 0.45, bounce: 0.45 }, y: { duration: 0.7, ease: 'easeOut' } }}
-    />
+    <div role="img" aria-label="Bataa" className={`pointer-events-none shrink-0 ${className}`} style={{ width, height: width * 1.125 }}>
+      <RiveComponent />
+    </div>
   )
 }
