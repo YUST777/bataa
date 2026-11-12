@@ -1,6 +1,7 @@
-import { useEffect, useMemo, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { TextMorph } from 'torph/react'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 
@@ -15,8 +16,10 @@ export function Button({
   tone = 'primary',
   className = '',
   onClick,
+  children,
   ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: keyof typeof TONES }) {
+  const { lang } = useT()
   return (
     <button
       type="button"
@@ -26,7 +29,10 @@ export function Button({
         sound.playClick(tone === 'primary' ? 440 : 380)
         onClick?.(e)
       }}
-    />
+    >
+      {/* A label that changes morphs letter by letter. Arabic letters join, so they are never split. */}
+      {typeof children === 'string' && lang === 'en' ? <TextMorph>{children}</TextMorph> : children}
+    </button>
   )
 }
 
@@ -66,6 +72,18 @@ const Dots = () => (
 
 /** Read-only code in an editor frame. Code always reads left to right, even in Arabic. */
 export function Code({ children, name }: { children: ReactNode; name?: string }) {
+  // Plain snippets get syntax colours once the highlighter has loaded; snippets with blanks in them stay as they are.
+  const [html, setHtml] = useState<string | null>(null)
+  useEffect(() => {
+    setHtml(null)
+    if (typeof children !== 'string') return
+    let live = true
+    // Loaded on demand: the highlighter is bigger than the rest of the app's code.
+    import('@/lib/highlight').then((m) => m.highlight(children)).then((h) => live && setHtml(h), () => {})
+    return () => {
+      live = false
+    }
+  }, [children])
   return (
     <div dir="ltr" className="overflow-hidden rounded-[18px] bg-code shadow-soft">
       <div className="flex items-center gap-3 border-b border-white/10 px-4 py-2.5">
@@ -73,7 +91,7 @@ export function Code({ children, name }: { children: ReactNode; name?: string })
         {name && <span className="font-mono text-[12px] text-white/50">{name}</span>}
       </div>
       <pre className="codeblock rounded-none">
-        <code>{children}</code>
+        {html ? <code dangerouslySetInnerHTML={{ __html: html }} /> : <code>{children}</code>}
       </pre>
     </div>
   )

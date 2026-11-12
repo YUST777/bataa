@@ -1,3 +1,5 @@
+import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics'
+
 class SoundEngine {
   private ctx: AudioContext | null = null;
   private audioCache: { [key: string]: HTMLAudioElement } = {};
@@ -29,14 +31,15 @@ class SoundEngine {
     }
   }
 
-  /** A short vibration on devices that support it (Android browsers and WebViews). */
-  private buzz(pattern: number | number[]) {
-    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate(pattern);
+  /** A tap you can feel: the native engine inside the app, the vibration API in a browser. */
+  private buzz(kind: 'tap' | 'ok' | 'bad') {
+    const done = kind === 'tap' ? Haptics.impact({ style: ImpactStyle.Light }) : Haptics.notification({ type: kind === 'ok' ? NotificationType.Success : NotificationType.Error })
+    done.catch(() => {})
   }
 
   playClick(freq = 440) {
     if (!this.enabled) return;
-    this.buzz(8);
+    this.buzz('tap');
     try {
       this.init();
       if (!this.ctx) return;
@@ -62,7 +65,7 @@ class SoundEngine {
 
   playAscendingCorrect(combo = 0) {
     if (!this.enabled) return;
-    this.buzz([12, 50, 18]);
+    this.buzz('ok');
     try {
       const audio = this.audioCache['correct'];
       if (audio) {
@@ -112,7 +115,7 @@ class SoundEngine {
 
   playMistake() {
     if (!this.enabled) return;
-    this.buzz(40);
+    this.buzz('bad');
     try {
       const audio = this.audioCache['incorrect'];
       if (audio) {

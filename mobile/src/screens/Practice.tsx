@@ -65,7 +65,6 @@ export function Practice({ p, onReview, onReplay, onGoLearn }: { p: Progress; on
                       onReplay(lesson)
                     }}
                   >
-                    <img src="/map/coin-check.webp" alt="" className="w-11 shrink-0" />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[16px] font-semibold">{t(lesson.title)}</span>
                       <span className="block text-[13px] font-medium text-ink2">
