@@ -29,8 +29,14 @@ class SoundEngine {
     }
   }
 
+  /** A short vibration on devices that support it (Android browsers and WebViews). */
+  private buzz(pattern: number | number[]) {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate(pattern);
+  }
+
   playClick(freq = 440) {
     if (!this.enabled) return;
+    this.buzz(8);
     try {
       this.init();
       if (!this.ctx) return;
@@ -56,6 +62,7 @@ class SoundEngine {
 
   playAscendingCorrect(combo = 0) {
     if (!this.enabled) return;
+    this.buzz([12, 50, 18]);
     try {
       const audio = this.audioCache['correct'];
       if (audio) {
@@ -105,6 +112,7 @@ class SoundEngine {
 
   playMistake() {
     if (!this.enabled) return;
+    this.buzz(40);
     try {
       const audio = this.audioCache['incorrect'];
       if (audio) {

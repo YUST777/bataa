@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 /** What the duck is doing, driven by app events. */
-export type Mood = 'idle' | 'wave' | 'talk' | 'think' | 'happy' | 'oops'
+export type Mood = 'idle' | 'wave' | 'talk' | 'think' | 'happy' | 'oops' | 'peek' | 'walk'
 
 /**
  * Bataa the duck, animated frame by frame.
@@ -23,6 +23,10 @@ const CLIPS: Record<Mood, Clip> = {
   // The first three frames get into the pose once; the rest loop while the duck keeps thinking.
   think: { sheet: 'think', loopFrom: 3, frames: [[0, 80], [1, 90], [2, 90], [3, 520], [4, 150], [3, 150], [4, 150], [5, 640], [6, 520], [7, 560]] },
   happy: { sheet: 'happy', frames: [[0, 60], [1, 130], [2, 70], [3, 190], [4, 90], [5, 120], [6, 280], [7, 220]] },
+  // Pops up from behind whatever it stands on, then leans there: looks about, blinks, waves, rests its chin.
+  // The art is cut off flat at the bottom, so place this one on the top edge of a card.
+  peek: { sheet: 'peek', loopFrom: 3, frames: [[0, 260], [1, 110], [2, 900], [3, 700], [2, 500], [4, 760], [2, 600], [5, 90], [2, 900], [6, 150], [2, 120], [6, 150], [2, 700], [7, 1800], [2, 400], [5, 90]] },
+  walk: { sheet: 'walk', loopFrom: 0, frames: [[0, 85], [1, 85], [2, 85], [3, 85], [4, 85], [5, 85], [6, 85], [7, 85]] },
   oops: { sheet: 'sad', frames: [[0, 60], [1, 170], [2, 120], [3, 440], [4, 230], [5, 230], [4, 230], [3, 320], [6, 250], [7, 200]] },
 }
 
@@ -33,7 +37,7 @@ const reducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefe
 // Fetch every strip up front so a mood change never shows an empty frame.
 if (typeof window !== 'undefined') new Set(Object.values(CLIPS).map((c) => c.sheet)).forEach((sheet) => (new Image().src = src(sheet)))
 
-export function Duck({ mood = 'idle', size = 96, className = '' }: { mood?: Mood; size?: number; className?: string }) {
+export function Duck({ mood = 'idle', size = 96, className = '', flip = false }: { mood?: Mood; size?: number; className?: string; /** Mirror the art, which is drawn facing left. */ flip?: boolean }) {
   const el = useRef<HTMLDivElement>(null)
 
   // The player writes straight to the element's style: 10 frames a second should not re-render React.
@@ -67,7 +71,7 @@ export function Duck({ mood = 'idle', size = 96, className = '' }: { mood?: Mood
       role="img"
       aria-label="Bataa"
       className={`pointer-events-none shrink-0 bg-no-repeat ${className}`}
-      style={{ width, height: width * 1.25, backgroundSize: `${FRAMES * 100}% 100%`, backgroundImage: `url(${src('idle')})` }}
+      style={{ width, height: width * 1.25, backgroundSize: `${FRAMES * 100}% 100%`, backgroundImage: `url(${src('idle')})`, transform: flip ? 'scaleX(-1)' : undefined }}
     />
   )
 }

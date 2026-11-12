@@ -1,11 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { animate, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
+import NumberFlow from '@number-flow/react'
 import confetti from 'canvas-confetti'
 import { Flame, Target, Zap } from 'lucide-react'
 import { Badge } from '@/components/Badge'
 import { Duck } from '@/components/Duck'
 import { Button, Preview, Sky, spring } from '@/components/ui'
-import { lessons, units } from '@/data/course'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import type { Lesson } from '@/types'
@@ -19,9 +19,13 @@ export interface Result {
 }
 
 function CountUp({ to }: { to: number }) {
+  // Starts at 0 and is set after the cards have risen in, so the digits roll up to the result.
   const [n, setN] = useState(0)
-  useEffect(() => animate(0, to, { duration: 0.9, delay: 0.45, onUpdate: (v) => setN(Math.round(v)) }).stop, [to])
-  return <>{n}</>
+  useEffect(() => {
+    const t = window.setTimeout(() => setN(to), 450)
+    return () => clearTimeout(t)
+  }, [to])
+  return <NumberFlow value={n} />
 }
 
 function Stat({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
@@ -53,9 +57,7 @@ export function Complete({ result, onContinue }: { result: Result; onContinue: (
           <Duck mood="happy" size={170} className="-mb-2" />
           {lesson && (
             <motion.span className="absolute bottom-0 start-1/2 ms-10" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 8 }} transition={{ ...spring, delay: 0.5 }}>
-              <Badge tone={units[0].lessons.includes(lesson) ? 'orange' : 'blue'} shape="hex" size={60}>
-                {lessons.indexOf(lesson) + 1}
-              </Badge>
+              <Badge id={lesson.id} size={72} />
             </motion.span>
           )}
         </div>

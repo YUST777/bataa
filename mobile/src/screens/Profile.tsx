@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
+import NumberFlow from '@number-flow/react'
 import { BookOpenCheck, Check, Flame, Zap } from 'lucide-react'
 import { Badge, awards } from '@/components/Badge'
 import { Duck } from '@/components/Duck'
@@ -13,7 +14,9 @@ function Stat({ icon, value, label }: { icon: ReactNode; value: number; label: s
   return (
     <div className="grid flex-1 justify-items-center gap-0.5 px-2 py-4">
       {icon}
-      <strong className="mt-1 text-[22px] font-semibold tabular-nums tracking-tight">{value}</strong>
+      <strong className="mt-1 text-[22px] font-semibold tabular-nums tracking-tight">
+        <NumberFlow value={value} />
+      </strong>
       <span className="text-center text-[12px] font-medium text-ink2">{label}</span>
     </div>
   )
@@ -61,14 +64,13 @@ export function Profile({ p, set, reset }: { p: Progress; set: (patch: Partial<P
   return (
     <div>
       <Sky>
-        <div className="grid justify-items-center px-5 pt-6">
-          <h1 className="text-[30px] font-semibold tracking-tight">{t(ui.profile)}</h1>
-          <Duck mood="wave" size={132} className="-mb-3 mt-2" />
-        </div>
+        <h1 className="px-5 pb-24 pt-6 text-[30px] font-semibold tracking-tight">{t(ui.profile)}</h1>
       </Sky>
 
       <div className="grid gap-7 px-4 pb-6 pt-3">
-        <section className="card flex divide-x divide-line rtl:divide-x-reverse">
+        {/* The duck pops up from behind the stats card and leans on its top edge. */}
+        <section className="card relative flex divide-x divide-line rtl:divide-x-reverse">
+          <Duck mood="peek" size={128} className="absolute bottom-full end-4 -mb-0.5" />
           <Stat icon={<Flame className="h-6 w-6 fill-accent text-accent" />} value={streak(p.daily)} label={t(ui.streak)} />
           <Stat icon={<Zap className="h-6 w-6 fill-sun text-sun" />} value={p.xp} label={t(ui.totalXp)} />
           <Stat icon={<BookOpenCheck className="h-6 w-6 text-ok" />} value={p.done.length} label={t(ui.lessonsDone)} />
@@ -101,9 +103,7 @@ export function Profile({ p, set, reset }: { p: Progress; set: (patch: Partial<P
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ ...spring, delay: 0.03 * i }}
               >
-                <Badge tone={b.tone} shape={b.shape} earned={b.earned} size={56}>
-                  {b.mark}
-                </Badge>
+                <Badge id={b.id} earned={b.earned} size={64} />
                 <span className={`line-clamp-2 text-center text-[11px] font-medium leading-tight ${b.earned ? 'text-ink' : 'text-ink3'}`}>{t(b.label)}</span>
               </motion.li>
             ))}

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check, Lightbulb, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { Duck } from '@/components/Duck'
 import { Bubble, Button, Code, IconButton, Preview, ProgressBar, Tray, spring } from '@/components/ui'
 import { ui, useT } from '@/i18n'
@@ -101,15 +101,7 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
             animate={{ y: 0, opacity: 1, scale: 1 }}
             transition={spring}
           >
-            <div className="flex gap-3">
-              <motion.span
-                className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-white ${ok ? 'bg-ok' : 'bg-bad'}`}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ ...spring, delay: 0.08 }}
-              >
-                {ok ? <Check className="h-5 w-5" strokeWidth={3.2} /> : <Lightbulb className="h-5 w-5" strokeWidth={2.4} />}
-              </motion.span>
+            <div>
               <div>
                 <h2 className={`text-[17px] font-semibold ${ok ? 'text-okDeep' : 'text-badDeep'}`}>{t(ok ? ui.correct : ui.notYet)}</h2>
                 <p className="mt-0.5 text-[15px] font-medium leading-snug text-ink">{t(ok ? task.explain : why)}</p>

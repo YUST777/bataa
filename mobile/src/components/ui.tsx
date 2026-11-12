@@ -140,14 +140,20 @@ export function Tray({ open, onClose, label, origin, children }: { open: boolean
             role="dialog"
             aria-modal="true"
             aria-label={label}
-            className="w-full max-w-[424px] rounded-[32px] bg-white p-5 shadow-float"
+            className="w-full max-w-[424px] touch-none rounded-[32px] bg-white p-5 pt-3 shadow-float"
             style={{ transformOrigin }}
+            // Drag down to dismiss: it resists a little, and lets go past 90px or on a quick flick.
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.7 }}
+            onDragEnd={(_, info) => (info.offset.y > 90 || info.velocity.y > 500) && onClose()}
             initial={closed}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={closed}
             transition={spring}
             onClick={(e) => e.stopPropagation()}
           >
+            <div aria-hidden className="mx-auto mb-3 h-1 w-9 rounded-full bg-lip" />
             {children}
           </motion.div>
         </motion.div>
@@ -179,17 +185,5 @@ export function Sky({ children, className = '' }: { children: ReactNode; classNa
         <path fill="#fff" d="M0 34V20q16-14 36-5 14-17 40-7 20-15 44 0 16-12 38-2 20-15 46-2 22-13 44 2 18-11 40 0 16-9 34-1 14-8 29-1 12-5 24 2V34z" />
       </svg>
     </div>
-  )
-}
-
-const TILES = { orange: 'bg-brandSoft text-brand', blue: 'bg-[#E8F3FE] text-[#1667B7]', grey: 'bg-[#F4EFE9] text-ink3' }
-export type Tone = keyof typeof TILES
-
-/** Quiet icon tile: a soft tint with the icon in the matching ink. */
-export function Tile({ tone = 'orange', size = 48, children }: { tone?: Tone; size?: number; children: ReactNode }) {
-  return (
-    <span className={`grid shrink-0 place-items-center ${TILES[tone]}`} style={{ width: size, height: size, borderRadius: size * 0.28 }}>
-      {children}
-    </span>
   )
 }

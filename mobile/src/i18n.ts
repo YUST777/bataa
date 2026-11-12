@@ -50,6 +50,9 @@ export const ui = {
   streak: { en: 'Day streak', ar: 'أيام متتالية' },
 
   today: { en: 'Today', ar: 'اليوم' },
+  startHere: { en: 'Start here', ar: 'ابدأ هنا' },
+  chestLocked: { en: 'Finish every lesson in this unit to open the chest', ar: 'أنهِ كل دروس هذه الوحدة لفتح الصندوق' },
+  chestOpen: { en: 'Unit complete', ar: 'اكتملت الوحدة' },
   todayGoal: { en: 'Today’s goal', ar: 'هدف اليوم' },
   unit: { en: 'Unit', ar: 'الوحدة' },
   badges: { en: 'Badges', ar: 'الأوسمة' },
