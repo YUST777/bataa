@@ -11,7 +11,9 @@ build_dir="$project_dir/android/manual/build"
 res_dir="$build_dir/res"
 classes_dir="$build_dir/classes"
 dex_dir="$build_dir/dex"
-output_apk="$project_dir/Bataa.apk"
+# BATAA_WEB_DIR picks which web app goes inside the APK: the repo root by default, or mobile/.
+web_dir="$(cd "${BATAA_WEB_DIR:-$project_dir}" && pwd)"
+output_apk="${BATAA_APK:-$project_dir/Bataa.apk}"
 
 for required in "$tools_dir/aapt2" "$tools_dir/d8" "$tools_dir/zipalign" "$tools_dir/apksigner" "$android_jar"; do
   if [[ ! -e "$required" ]]; then
@@ -36,7 +38,7 @@ for spec in mdpi:48:108 hdpi:72:162 xhdpi:96:216 xxhdpi:144:324 xxxhdpi:192:432;
   convert "$project_dir/public/applogo.png" -filter Lanczos -resize "${foreground}x${foreground}" -strip "$target/ic_launcher_foreground.png"
 done
 
-cd "$project_dir"
+cd "$web_dir"
 npm run build
 
 "$tools_dir/aapt2" compile --dir "$res_dir" -o "$build_dir/resources.zip"
@@ -49,7 +51,7 @@ npm run build
   --version-code 1 \
   --version-name 1.0 \
   --auto-add-overlay \
-  -A "$project_dir/dist" \
+  -A "$web_dir/dist" \
   "$build_dir/resources.zip"
 
 javac \
