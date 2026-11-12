@@ -64,13 +64,13 @@ export function Profile({ p, set, reset }: { p: Progress; set: (patch: Partial<P
   return (
     <div>
       <Sky>
+        {/* The duck peeks up from behind the clouds at the foot of the sky. */}
+        <Duck mood="peek" size={112} className="absolute bottom-1 end-5" />
         <h1 className="px-5 pb-24 pt-6 text-[30px] font-semibold tracking-tight">{t(ui.profile)}</h1>
       </Sky>
 
       <div className="grid gap-7 px-4 pb-6 pt-3">
-        {/* The duck pops up from behind the stats card and leans on its top edge. */}
-        <section className="card relative flex divide-x divide-line rtl:divide-x-reverse">
-          <Duck mood="peek" size={128} className="absolute bottom-full end-4 -mb-0.5" />
+        <section className="card flex divide-x divide-line rtl:divide-x-reverse">
           <Stat icon={<Flame className="h-6 w-6 fill-accent text-accent" />} value={streak(p.daily)} label={t(ui.streak)} />
           <Stat icon={<Zap className="h-6 w-6 fill-sun text-sun" />} value={p.xp} label={t(ui.totalXp)} />
           <Stat icon={<BookOpenCheck className="h-6 w-6 text-ok" />} value={p.done.length} label={t(ui.lessonsDone)} />
