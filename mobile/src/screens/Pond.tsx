@@ -408,6 +408,8 @@ const TINT: Record<DayPart, string | null> = {
   night: 'linear-gradient(180deg, rgba(30,16,54,.8) 0%, rgba(58,24,72,.64) 45%, rgba(72,30,62,.55) 100%)',
 }
 /** The far shore line in the art, as a fraction of its height (y 18.9 of 80). */
+/** How often the held bread bag drops a crumb: CRUMBS of them pour in about three seconds. */
+const POUR_MS = 125
 const SHORE = 0.236
 const STARS = [
   [22, 5],
@@ -541,10 +543,11 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
     food.current = next
     setCrumbs(next)
   }
-  // The bread bag: pick it up and drag it over the water; it sprinkles a crumb every few pixels, like
-  // feeding pigeons, and the nearest free duck races for each one. Let go and the bag hops back home.
+  // The bread bag: pick it up and hold it over the water; it shakes out a crumb every POUR_MS (a whole bag
+  // pours for about three seconds), like feeding pigeons, and the nearest free duck races for each one.
+  // Let go and the bag hops back home.
   const bagEl = useRef<HTMLButtonElement>(null)
-  const grip = useRef<{ x: number; y: number; dx: number; dy: number; acc: number; done: boolean } | null>(null)
+  const grip = useRef<{ x: number; y: number; dx: number; dy: number; over: boolean; tick: number; timer: number; done: boolean } | null>(null)
   const crumb = (cx: number, cy: number) => {
     const now = Date.now()
     const fed = sprinkle(settle(live.current, now), now)
@@ -575,7 +578,8 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
     }
     const c: Crumb = { id: now + Math.random(), x, y, by, fx: x, fy: y - 30, sprinkled: true }
     setFood([...food.current, c])
-    sound.playClick(300)
+    // Each crumb a little higher in pitch, so a long pour builds up.
+    sound.playClick(280 + (CRUMBS - fed.bits) * 12)
     // Uneaten bread sinks after a while.
     window.setTimeout(() => food.current.some((k) => k.id === c.id) && setFood(food.current.filter((k) => k.id !== c.id)), 9000)
   }
@@ -588,14 +592,30 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
     }
     e.currentTarget.setPointerCapture(e.pointerId)
     bagEl.current?.style.removeProperty('transition')
-    grip.current = { x: e.clientX, y: e.clientY, dx: 0, dy: 0, acc: 20, done: false }
+    const g = { x: e.clientX, y: e.clientY, dx: 0, dy: 0, over: false, tick: 0, timer: 0, done: false }
+    g.timer = window.setInterval(() => pour.current(), POUR_MS)
+    grip.current = g
+  }
+  // One shake of the bag: a crumb lands under it while it is over the water. Read through a ref so the
+  // interval always sees this render's pond.
+  const pour = useRef(() => {})
+  useEffect(() => () => window.clearInterval(grip.current?.timer), [])
+  pour.current = () => {
+    const g = grip.current
+    const w = water.current
+    if (!g || !w || !bagEl.current) return
+    if (g.done) return bagUp()
+    if (!g.over) return
+    g.tick++
+    bagEl.current.style.transform = `translate(${g.dx}px, ${g.dy}px) rotate(${g.tick % 2 ? -44 : -28}deg) scale(1.12)`
+    const r = w.getBoundingClientRect()
+    crumb(g.x - r.left, g.y - r.top - area.top)
   }
   const bagMove = (e: RPointerEvent<HTMLButtonElement>) => {
     const g = grip.current
     const w = water.current
     if (!g || !w || !bagEl.current) return
     if (g.done) return bagUp()
-    g.acc += Math.hypot(e.clientX - g.x, e.clientY - g.y)
     g.x = e.clientX
     g.y = e.clientY
     g.dx += e.movementX
@@ -604,12 +624,13 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
     bagEl.current.style.transform = `translate(${g.dx}px, ${g.dy}px) rotate(${Math.max(-25, Math.min(25, e.movementX * 3)) - 35}deg) scale(1.12)`
     const r = w.getBoundingClientRect()
     const over = e.clientX > r.left && e.clientX < r.right && e.clientY > r.top + area.top && e.clientY < r.bottom
-    while (over && g.acc >= 22 && !g.done) {
-      g.acc -= 22
-      crumb(e.clientX - r.left, e.clientY - r.top - area.top)
-    }
+    // The first crumb falls the moment the bag reaches the water; the rest follow on the timer.
+    const entering = over && !g.over && !g.tick
+    g.over = over
+    if (entering) pour.current()
   }
   const bagUp = () => {
+    if (grip.current) window.clearInterval(grip.current.timer)
     grip.current = null
     const el = bagEl.current
     if (!el) return

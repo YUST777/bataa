@@ -1,12 +1,12 @@
 import { isValidElement, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { useChat } from '@ai-sdk/react'
 import type { UIMessage } from 'ai'
 import { Streamdown } from 'streamdown'
 import { toast } from 'sonner'
 import { ArrowLeft, BookOpenCheck, ListChecks, Shuffle, Target, Trash2, Zap } from '@/components/Icon'
 import { GoogleButton } from '@/components/GoogleButton'
-import { IconButton, Preview, spring } from '@/components/ui'
+import { IconButton, Preview } from '@/components/ui'
 import { lessons } from '@/data/course'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
@@ -27,6 +27,9 @@ export function reviewTasks(done: string[]): Task[] {
 
 /** Saved chats, newest first. `title` is the learner's first question. */
 type SavedChat = { id: string; title: string; at: number; messages: UIMessage[] }
+/** Every animation in Bataa AI eases in and out the same way: no springs, no bounce. */
+const smooth = { duration: 0.4, ease: [0.65, 0, 0.35, 1] } as const
+
 const KEY = 'bataa.chats'
 const valid = (v: unknown): UIMessage[] => (Array.isArray(v) ? v.filter((m) => m && (m.role === 'user' || m.role === 'assistant') && Array.isArray(m.parts)).slice(-40) : [])
 function loadChats(): SavedChat[] {
@@ -298,7 +301,7 @@ export function ChatBody({
         {messages.length === 0 ? (
           // Greeting, like the big mobile assistants: a hello, then a few things to start with.
           <div className="grid gap-6 pt-[8vh]">
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="grid gap-1 px-1">
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={smooth} className="grid gap-1 px-1">
               <h2 className="ai-gradient text-[34px] font-bold leading-[1.1] tracking-tight">
                 {step ? t(ui.askTitle) : t(ui.aiHello)}
                 {!step && p.name ? `, ${p.name}` : ''}
@@ -314,7 +317,7 @@ export function ChatBody({
                   onClick={() => send(t(c.ask))}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ ...spring, delay: 0.08 + i * 0.06 }}
+                  transition={{ ...smooth, delay: 0.08 + i * 0.06 }}
                   className="glass flex h-[132px] w-[148px] shrink-0 snap-start flex-col justify-between rounded-[24px] p-4 text-start active:scale-[.97] transition-transform disabled:opacity-60"
                 >
                   <span className="text-[15px] font-semibold leading-snug text-ink">
@@ -335,7 +338,7 @@ export function ChatBody({
               const live = busy && m === last && m.role === 'assistant'
               if (m.role === 'user')
                 return (
-                  <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="flex justify-end">
+                  <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={smooth} className="flex justify-end">
                     <p className="max-w-[82%] whitespace-pre-wrap rounded-[24px] rounded-ee-lg bg-white/90 px-4 py-2.5 text-[15px] font-medium leading-relaxed text-ink shadow-soft">
                       {text}
                     </p>
@@ -532,7 +535,7 @@ export function Practice({ p, signedIn, plan, onUpgrade, onReview }: { p: Progre
   const today = new Date().toDateString()
 
   return (
-    <>
+    <MotionConfig transition={smooth}>
       <ChatBody
         key={current}
         p={p}
@@ -546,18 +549,27 @@ export function Practice({ p, signedIn, plan, onUpgrade, onReview }: { p: Progre
       />
       <AnimatePresence>
         {drawer && (
-          <motion.div key="dim" className="fixed inset-0 z-50 bg-ink/30" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(false)} />
+          <motion.div
+            key="dim"
+            className="fixed inset-0 z-50 bg-ink/30"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={smooth}
+            onClick={() => setDrawer(false)}
+          />
         )}
         {drawer && (
           <motion.aside
             key="drawer"
             aria-label={t(ui.aiChats)}
-            className="fixed inset-y-0 start-0 z-50 flex w-[84%] max-w-[330px] flex-col rounded-e-[28px] bg-page/95 shadow-float backdrop-blur-xl"
+            // Solid, not frosted: a blur under a moving panel stutters on phones.
+            className="fixed inset-y-0 start-0 z-50 flex w-[84%] max-w-[330px] flex-col rounded-e-[28px] bg-page shadow-float"
             style={{ paddingTop: 'var(--sat, env(safe-area-inset-top, 0px))', paddingBottom: 'var(--sab, env(safe-area-inset-bottom, 0px))' }}
             initial={{ x: lang === 'ar' ? '100%' : '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: lang === 'ar' ? '100%' : '-100%' }}
-            transition={{ duration: 0.32, ease: [0.65, 0, 0.35, 1] }}
+            transition={smooth}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={lang === 'ar' ? { left: 0, right: 0.6 } : { left: 0.6, right: 0 }}
@@ -582,8 +594,14 @@ export function Practice({ p, signedIn, plan, onUpgrade, onReview }: { p: Progre
             <p className="px-5 pb-1 pt-5 text-[12px] font-semibold uppercase tracking-wide text-ink3">{t(ui.aiRecent)}</p>
             <ul className="flex-1 overflow-y-auto px-2 pb-4">
               {chats.length === 0 && <li className="px-3 py-2 text-[14px] font-medium text-ink3">{t(ui.aiNoChats)}</li>}
-              {chats.map((c) => (
-                <li key={c.id} className={`group flex items-center rounded-2xl ${c.id === current ? 'bg-white shadow-soft' : ''}`}>
+              {chats.map((c, i) => (
+                <motion.li
+                  key={c.id}
+                  initial={{ opacity: 0, x: lang === 'ar' ? 16 : -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ ...smooth, delay: 0.12 + Math.min(i, 8) * 0.035 }}
+                  className={`group flex items-center rounded-2xl ${c.id === current ? 'bg-white shadow-soft' : ''}`}
+                >
                   <button
                     type="button"
                     onClick={() => {
@@ -606,12 +624,12 @@ export function Practice({ p, signedIn, plan, onUpgrade, onReview }: { p: Progre
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </motion.aside>
         )}
       </AnimatePresence>
-    </>
+    </MotionConfig>
   )
 }
