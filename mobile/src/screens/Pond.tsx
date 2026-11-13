@@ -404,17 +404,25 @@ function Lantern({ size, lit }: { size: number; lit: boolean }) {
   return <Decor name="lantern" size={size} style={{ filter: lit ? 'drop-shadow(0 0 8px rgba(255,193,90,.75))' : 'saturate(.75) brightness(.95)' }} />
 }
 
-/** Light over the pond for each part of the day. Sunset is the art as drawn; the others tint it. Warm and purple only. */
-const TINT: Record<DayPart, string | null> = {
-  dawn: 'linear-gradient(180deg, rgba(214,130,190,.55) 0%, rgba(255,150,170,.38) 40%, rgba(255,175,175,.22) 100%)',
-  day: 'linear-gradient(180deg, rgba(255,250,228,.5) 0%, rgba(255,238,205,.22) 60%, rgba(255,238,205,.06) 100%)',
-  sunset: null,
-  night: 'linear-gradient(180deg, rgba(30,16,54,.8) 0%, rgba(58,24,72,.64) 45%, rgba(72,30,62,.55) 100%)',
+/**
+ * The pond's art for each part of the day (public/pond: day, sunset and night are drawn scenes; dawn is the day
+ * scene in a pink morning light). `w` is the art's width at 800 high, `shore` where its far shore line falls
+ * (a fraction of its height), `bg` the colour behind it while it loads.
+ */
+const SCENE: Record<DayPart, { src: string; w: number; shore: number; bg: string; tint: string | null }> = {
+  dawn: {
+    src: '/pond/day.svg',
+    w: 450,
+    shore: 0.25,
+    bg: '#8ED2F0',
+    tint: 'linear-gradient(180deg, rgba(255,160,190,.42) 0%, rgba(255,185,170,.22) 45%, rgba(255,200,170,.06) 100%)',
+  },
+  day: { src: '/pond/day.svg', w: 450, shore: 0.25, bg: '#8ED2F0', tint: null },
+  sunset: { src: '/pond/sunset.svg', w: 446, shore: 0.236, bg: '#F98427', tint: null },
+  night: { src: '/pond/night.svg', w: 452, shore: 0.272, bg: '#081751', tint: null },
 }
-/** The far shore line in the art, as a fraction of its height (y 18.9 of 80). */
 /** How often the held bread bag drops a crumb: CRUMBS of them pour in about three seconds. */
 const POUR_MS = 125
-const SHORE = 0.236
 const STARS = [
   [22, 5],
   [30, 11],
@@ -431,7 +439,7 @@ const STARS = [
 ]
 /** The phase from the clock; `?time=night` (or dawn, day, sunset) pins it, to preview. */
 const pinned = new URLSearchParams(window.location.search).get('time') as DayPart | null
-const nowPart = (): DayPart => (pinned && pinned in TINT ? pinned : dayPart(new Date().getHours()))
+const nowPart = (): DayPart => (pinned && pinned in SCENE ? pinned : dayPart(new Date().getHours()))
 
 /**
  * Duck Pond. The top is the pond, with every duck you own swimming in it; the bottom is the wooden deck
@@ -518,7 +526,7 @@ export function Pond({ pond, setPond, onExit, lessonsDone }: { pond: PondState; 
   }
   // The lake: from the far shore in the art down to the dock. Nothing on the water goes past the shore.
   // `top` is where the shore falls inside the water box; the art covers the screen from the top, so the
-  // shore is a fixed fraction (SHORE) of the art's drawn height.
+  // shore is a fixed fraction (SCENE[phase].shore) of the art's drawn height.
   const root = useRef<HTMLDivElement>(null)
   const water = useRef<HTMLDivElement>(null)
   const [area, setArea] = useState({ w: 0, h: 0, top: 0, sky: 0 })
@@ -529,15 +537,16 @@ export function Pond({ pond, setPond, onExit, lessonsDone }: { pond: PondState; 
     const measure = () => {
       const r = box.getBoundingClientRect()
       const w = node.getBoundingClientRect()
-      const artH = 800 * Math.max(r.width / 446, r.height / 800)
-      const top = Math.max(0, Math.round(artH * SHORE - (w.top - r.top)))
-      setArea({ w: w.width, h: Math.max(0, w.height - top), top, sky: artH * SHORE })
+      const { w: artW, shore } = SCENE[phase]
+      const artH = 800 * Math.max(r.width / artW, r.height / 800)
+      const top = Math.max(0, Math.round(artH * shore - (w.top - r.top)))
+      setArea({ w: w.width, h: Math.max(0, w.height - top), top, sky: artH * shore })
     }
     const ro = new ResizeObserver(measure)
     ro.observe(node)
     ro.observe(box)
     return () => ro.disconnect()
-  }, [])
+  }, [phase])
 
   // Coins tick up while the pond is open (and once on entry for the time away).
   useEffect(() => {
@@ -732,7 +741,7 @@ export function Pond({ pond, setPond, onExit, lessonsDone }: { pond: PondState; 
   }
 
   return (
-    // The whole screen is the sunset pond (public/pond/sunset.svg, from the art set). Ducks swim in the open
+    // The whole screen is the pond at this hour (SCENE: day, sunset or night art). Ducks swim in the open
     // water; the wooden dock floats on the water below them. Layers: water (z-10) < light of the hour (z-15)
     // < moon, stars, sky lanterns, fireflies (z-16) < ducks and bread (z-17) < dock (z-20) < header (z-30).
     <>
@@ -746,8 +755,8 @@ export function Pond({ pond, setPond, onExit, lessonsDone }: { pond: PondState; 
       </motion.div>
       <motion.div
         ref={root}
-        className="relative flex h-dvh touch-none flex-col overflow-hidden bg-[#F98427] bg-cover bg-top"
-        style={{ backgroundImage: 'url(/pond/sunset.svg)', x: dragX }}
+        className="relative flex h-dvh touch-none flex-col overflow-hidden bg-cover bg-top transition-[background-color] duration-700"
+        style={{ backgroundImage: `url(${SCENE[phase].src})`, backgroundColor: SCENE[phase].bg, x: dragX }}
         drag="x"
         dragListener={false}
         dragControls={swipeControls}
@@ -761,11 +770,11 @@ export function Pond({ pond, setPond, onExit, lessonsDone }: { pond: PondState; 
         onPointerDown={swipeStart}
       >
         <AnimatePresence>
-          {TINT[phase] && (
+          {SCENE[phase].tint && (
             <motion.div
               key={phase}
               className="pointer-events-none absolute inset-0 z-[15]"
-              style={{ background: TINT[phase]! }}
+              style={{ background: SCENE[phase].tint! }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -774,28 +783,11 @@ export function Pond({ pond, setPond, onExit, lessonsDone }: { pond: PondState; 
           )}
         </AnimatePresence>
         {night && (
-          // Same box as the background art (cover, top), so the moon sits where the sun was.
-          <svg viewBox="17.65 0 44.61 80" preserveAspectRatio="xMidYMin slice" className="pointer-events-none absolute inset-0 z-[16] h-full w-full" aria-hidden>
-            <defs>
-              <radialGradient id="moonGlow">
-                <stop offset="0" stopColor="#FFE9C4" stopOpacity=".55" />
-                <stop offset="1" stopColor="#FFE9C4" stopOpacity="0" />
-              </radialGradient>
-              {/* The ridge in front of the sun (y 18 of 80): the moon sits behind it, half risen, as the sun does. */}
-              <clipPath id="aboveRidge">
-                <rect x="17" y="0" width="46" height="18.05" />
-              </clipPath>
-            </defs>
+          // Twinkling stars over the night art (which draws its own moon). Same box as the art: cover, from the top.
+          <svg viewBox="17.39 0 45.22 80" preserveAspectRatio="xMidYMin slice" className="pointer-events-none absolute inset-0 z-[16] h-full w-full" aria-hidden>
             {STARS.map(([x, y], i) => (
               <circle key={i} className="pond-star" cx={x} cy={y} r={i % 3 ? 0.22 : 0.32} fill="#FFF3DC" style={{ animationDelay: `${-i * 0.63}s` }} />
             ))}
-            <circle cx="43.18" cy="18.02" r="9" fill="url(#moonGlow)" />
-            <g clipPath="url(#aboveRidge)">
-              <circle cx="43.18" cy="18.02" r="3.2" fill="#FFF1D6" />
-              <circle cx="42.1" cy="16.4" r=".55" fill="#F2DDB8" />
-              <circle cx="44.3" cy="15.9" r=".35" fill="#F2DDB8" />
-              <circle cx="44.6" cy="17.3" r=".45" fill="#F2DDB8" />
-            </g>
           </svg>
         )}
 

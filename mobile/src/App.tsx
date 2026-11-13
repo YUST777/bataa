@@ -66,6 +66,8 @@ export default function App() {
       // Art the other screens draw, so the pond and the plans page never paint before their pictures.
       for (const src of [
         '/pond/sunset.svg',
+        '/pond/day.svg',
+        '/pond/night.svg',
         '/pond/items.svg',
         '/pond/gadgets.svg',
         '/pond/decor.svg',
