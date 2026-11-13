@@ -1,6 +1,12 @@
 package com.bataa.app;
 
 import android.app.Activity;
+import java.io.File;
+import androidx.core.content.FileProvider;
+import android.webkit.WebChromeClient;
+import android.webkit.ValueCallback;
+import android.provider.MediaStore;
+import android.window.OnBackInvokedDispatcher;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
@@ -88,6 +94,7 @@ public final class MainActivity extends Activity {
         settings.setTextZoom(100);
 
         webView.setWebViewClient(new LocalContentClient());
+        webView.setWebChromeClient(new PhotoChooser());
         // Native Google sign-in for the web app (see GoogleSignIn below). Only app.local pages load in this
         // WebView; every other link opens in the browser, so no outside page can reach the bridge.
         webView.addJavascriptInterface(new NativeBridge(), "BataaNative");
@@ -105,6 +112,9 @@ public final class MainActivity extends Activity {
             return insets;
         });
 
+        if (Build.VERSION.SDK_INT >= 33) {
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::handleBack);
+        }
         String callback = authCallbackUrl(getIntent());
         if (callback != null) {
             webView.loadUrl(callback);
@@ -144,14 +154,26 @@ public final class MainActivity extends Activity {
         super.onSaveInstanceState(outState);
     }
 
+    /**
+     * Back (button or edge gesture) asks the web app first: window.__bataaBack() returns true when it handled
+     * it (the pond slides away). Otherwise the page goes back, or the app goes to the background.
+     */
+    private void handleBack() {
+        if (webView == null) {
+            moveTaskToBack(true);
+            return;
+        }
+        webView.evaluateJavascript("String(!!(window.__bataaBack && window.__bataaBack()))", value -> {
+            if ("\"true\"".equals(value)) return;
+            if (webView.canGoBack()) webView.goBack();
+            else moveTaskToBack(true);
+        });
+    }
+
     @Override
     @SuppressWarnings("deprecation")
     public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) {
-            webView.goBack();
-            return;
-        }
-        super.onBackPressed();
+        handleBack();
     }
 
     @Override
@@ -161,6 +183,66 @@ public final class MainActivity extends Activity {
             webView = null;
         }
         super.onDestroy();
+    }
+
+    /**
+     * Profile photos: a WebView ignores <input type="file"> unless the app answers it. An input with `capture`
+     * (the Camera button) opens the camera, which saves into our cache through the FileProvider; the other
+     * (Gallery) opens Android's photo picker. The picked picture goes back to the page, which crops it and
+     * uploads it to Supabase Storage.
+     */
+    private static final int PICK_PHOTO = 41;
+    private ValueCallback<Uri[]> photoCallback;
+    private Uri cameraPhoto;
+
+    private final class PhotoChooser extends WebChromeClient {
+        @Override
+        public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
+            if (photoCallback != null) photoCallback.onReceiveValue(null);
+            photoCallback = callback;
+            cameraPhoto = null;
+            Intent intent;
+            if (params.isCaptureEnabled()) {
+                try {
+                    File dir = new File(getCacheDir(), "camera");
+                    if (!dir.exists() && !dir.mkdirs()) throw new IOException("no camera folder");
+                    File file = File.createTempFile("photo", ".jpg", dir);
+                    cameraPhoto = FileProvider.getUriForFile(MainActivity.this, "com.bataa.app.files", file);
+                } catch (IOException e) {
+                    finishPhoto(null);
+                    return true;
+                }
+                intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    .putExtra(MediaStore.EXTRA_OUTPUT, cameraPhoto)
+                    .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } else if (Build.VERSION.SDK_INT >= 33) {
+                intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
+            } else {
+                intent = new Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*");
+            }
+            try {
+                startActivityForResult(intent, PICK_PHOTO);
+            } catch (ActivityNotFoundException e) {
+                finishPhoto(null);
+            }
+            return true;
+        }
+    }
+
+    private void finishPhoto(Uri[] result) {
+        if (photoCallback != null) photoCallback.onReceiveValue(result);
+        photoCallback = null;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != PICK_PHOTO) {
+            super.onActivityResult(requestCode, resultCode, data);
+            return;
+        }
+        Uri picked = resultCode != RESULT_OK ? null : cameraPhoto != null ? cameraPhoto : data != null ? data.getData() : null;
+        finishPhoto(picked == null ? null : new Uri[] { picked });
     }
 
     /** What the web app can ask of Android. */

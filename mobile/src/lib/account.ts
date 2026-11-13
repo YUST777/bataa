@@ -34,6 +34,8 @@ declare global {
   interface Window {
     BataaNative?: Bridge
     __bataaGoogle?: (token: string | null, error: string | null) => void
+    /** Android back (MainActivity): true when the page handled it. */
+    __bataaBack?: () => boolean
   }
 }
 
@@ -142,7 +144,9 @@ export function useCloudSync(session: Session | null, p: Progress, load: (next: 
       if (remote && score(remote) > score(live.current)) load({ ...remote, lang: live.current.lang, photo: live.current.photo })
       // Who they are, from Google, unless they already set it here.
       const meta = session!.user.user_metadata ?? {}
-      const name = String(meta.full_name ?? meta.name ?? '').trim().slice(0, 30)
+      const name = String(meta.full_name ?? meta.name ?? '')
+        .trim()
+        .slice(0, 30)
       const base = remote && score(remote) > score(live.current) ? remote : live.current
       if (!base.name && name) patch({ name })
       if (!live.current.photo && (meta.bataa_photo || meta.avatar_url || meta.picture)) {

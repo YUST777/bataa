@@ -488,6 +488,29 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
     el.style.transform = `translateY(-50%) scale(${0.6 + 0.4 * p})`
     el.dataset.armed = p >= 1 ? 'yes' : 'no'
   }
+  // Slides the pond off to the right, from `dx` px, then leaves. Also what Android's back gesture does
+  // (MainActivity asks window.__bataaBack first): edge swipes belong to the system there, not to the page.
+  const leaving = useRef(false)
+  const slideAway = (dx = 0) => {
+    const node = root.current
+    if (!node || leaving.current) return
+    leaving.current = true
+    sound.playClick(360)
+    node.animate([{ transform: `translateX(${dx}px)` }, { transform: 'translateX(105%)' }], {
+      duration: 260,
+      easing: 'cubic-bezier(.4,0,.2,1)',
+      fill: 'forwards',
+    }).onfinish = onExit
+  }
+  useEffect(() => {
+    window.__bataaBack = () => {
+      slideAway()
+      return true
+    }
+    return () => {
+      delete window.__bataaBack
+    }
+  })
   const swipeStart = (e: RPointerEvent<HTMLDivElement>) => {
     const edge = e.clientX < 40
     const blocked = (e.target as HTMLElement).closest(edge ? '[role=dialog]' : '[data-slot],[data-bag],button,[role=dialog]')
@@ -520,12 +543,7 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
     const node = root.current
     if (backHint.current) backHint.current.style.opacity = '0'
     if (dx > CLOSE_AT || (dx > 20 && s.v > 0.45)) {
-      sound.playClick(360)
-      node.animate([{ transform: `translateX(${dx}px)` }, { transform: 'translateX(105%)' }], {
-        duration: 260,
-        easing: 'cubic-bezier(.4,0,.2,1)',
-        fill: 'forwards',
-      }).onfinish = onExit
+      slideAway(dx)
     } else {
       node.style.transition = 'transform 300ms cubic-bezier(.65,0,.35,1)'
       node.style.transform = ''

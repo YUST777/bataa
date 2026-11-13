@@ -33,6 +33,7 @@ android {
 
 dependencies {
     // Native "Sign in with Google": Android's Credential Manager and Google's ID token credential.
+    implementation 'androidx.core:core:1.13.1'
     implementation 'androidx.credentials:credentials:1.6.0'
     implementation 'androidx.credentials:credentials-play-services-auth:1.6.0'
     implementation 'com.google.android.libraries.identity.googleid:googleid:1.2.1'

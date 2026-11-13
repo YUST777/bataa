@@ -143,17 +143,34 @@ function ImageMedal({ id, earned, size }: { id: string; earned: boolean; size: n
     <div ref={stage} className="grid cursor-grab place-items-center active:cursor-grabbing" style={{ width: size, height: size, perspective: size * 4 }}>
       <div ref={rotor} className="relative" style={{ width: art, height: art, transformStyle: 'preserve-3d' }}>
         {Array.from({ length: LAYERS + 1 }, (_, i) => {
-          const face = i === 0 || i === LAYERS
+          const z = `translateZ(${depth / 2 - (i / LAYERS) * depth}px)`
+          // The two faces are the picture; the layers between are a plain rim in the badge's own outline.
+          // (Drawing the picture on every layer showed the logo many times over while it turned.)
+          if (i === 0 || i === LAYERS)
+            return (
+              <img
+                key={i}
+                src={`/badges/${id}.webp`}
+                alt=""
+                draggable={false}
+                className="pointer-events-none absolute inset-0 h-full w-full select-none"
+                style={{ transform: z + (i === LAYERS ? ' rotateY(180deg)' : ''), filter: grey.trim() || undefined }}
+              />
+            )
           return (
-            <img
+            <div
               key={i}
-              src={`/badges/${id}.webp`}
-              alt=""
-              draggable={false}
-              className="pointer-events-none absolute inset-0 h-full w-full select-none"
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
               style={{
-                transform: `translateZ(${depth / 2 - (i / LAYERS) * depth}px)${i === LAYERS ? ' rotateY(180deg)' : ''}`,
-                filter: (face ? '' : 'brightness(.55) sepia(.35)') + grey || undefined,
+                transform: z,
+                background: earned ? '#8A5A1E' : '#8C8580',
+                WebkitMaskImage: `url(/badges/${id}.webp)`,
+                maskImage: `url(/badges/${id}.webp)`,
+                WebkitMaskSize: '100% 100%',
+                maskSize: '100% 100%',
+                // Shrunk a hair, so the rim never peeks out past the faces' soft edges.
+                scale: '0.985',
               }}
             />
           )
@@ -162,7 +179,13 @@ function ImageMedal({ id, earned, size }: { id: string; earned: boolean; size: n
         <div
           aria-hidden
           className="medal-shine pointer-events-none absolute inset-0"
-          style={{ transform: `translateZ(${depth / 2 + 0.5}px)`, WebkitMaskImage: `url(/badges/${id}.webp)`, maskImage: `url(/badges/${id}.webp)`, WebkitMaskSize: '100% 100%', maskSize: '100% 100%' }}
+          style={{
+            transform: `translateZ(${depth / 2 + 0.5}px)`,
+            WebkitMaskImage: `url(/badges/${id}.webp)`,
+            maskImage: `url(/badges/${id}.webp)`,
+            WebkitMaskSize: '100% 100%',
+            maskSize: '100% 100%',
+          }}
         />
       </div>
     </div>
@@ -172,7 +195,12 @@ function ImageMedal({ id, earned, size }: { id: string; earned: boolean; size: n
 /** Light rays and sparkles that burst behind an earned medal as it arrives, then settle into a soft glow. */
 function Burst({ size }: { size: number }) {
   const sparks = [
-    [-0.38, -0.3, 0.55], [0.4, -0.22, 0.7], [-0.42, 0.25, 0.85], [0.36, 0.34, 0.6], [0.05, -0.46, 0.95], [-0.08, 0.47, 0.75],
+    [-0.38, -0.3, 0.55],
+    [0.4, -0.22, 0.7],
+    [-0.42, 0.25, 0.85],
+    [0.36, 0.34, 0.6],
+    [0.05, -0.46, 0.95],
+    [-0.08, 0.47, 0.75],
   ]
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 grid place-items-center">
@@ -288,11 +316,7 @@ export function BadgeModel({ id, earned, hint, size = 220 }: { id: string; earne
     <>
       <div className="relative grid place-items-center">
         {earned && <Burst size={size} />}
-        {GLB.has(id) && !glbFailed ? (
-          <GlbMedal id={id} earned={earned} size={size} onFail={fail} />
-        ) : (
-          <ImageMedal id={id} earned={earned} size={size} />
-        )}
+        {GLB.has(id) && !glbFailed ? <GlbMedal id={id} earned={earned} size={size} onFail={fail} /> : <ImageMedal id={id} earned={earned} size={size} />}
       </div>
       {hint && <span className="text-[12px] font-medium text-ink3">{hint}</span>}
     </>

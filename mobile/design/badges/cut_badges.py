@@ -20,8 +20,8 @@ NAMES = [
     "streak-7", "xp-50", "xp-100", "course",
 ]
 ROW_PAD = 40
-NEAR_WHITE = 235
-THRESH = 30
+NEAR_WHITE = 244
+THRESH = 12
 CANVAS = 256
 FIT = 240
 MARKER = (0, 255, 0)
