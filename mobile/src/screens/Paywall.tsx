@@ -137,21 +137,37 @@ export function Paywall({
                         {on && (
                           <motion.span
                             className="block overflow-hidden"
+                            // The card grows with a soft spring, then each perk rises in after the other and its tick pops.
                             initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.28, ease: [0.65, 0, 0.35, 1] }}
+                            animate={{ height: 'auto', opacity: 1, transition: { height: { type: 'spring', duration: 0.45, bounce: 0.18 }, opacity: { duration: 0.15 } } }}
+                            exit={{ height: 0, opacity: 0, transition: { duration: 0.22, ease: [0.65, 0, 0.35, 1] } }}
                           >
-                            <span className="mt-2.5 grid gap-1.5 border-t border-line pt-2.5">
-                              {r.perks.map((perk) => (
-                                <span key={perk.en} className="flex items-start gap-2.5 text-[13.5px] font-medium leading-snug text-ink">
-                                  <span className="mt-px grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent/30 text-ink">
+                            <motion.span
+                              className="mt-2.5 grid gap-1.5 border-t border-line pt-2.5"
+                              initial={{ scaleX: 0.6, opacity: 0 }}
+                              animate={{ scaleX: 1, opacity: 1 }}
+                              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                            >
+                              {r.perks.map((perk, i) => (
+                                <motion.span
+                                  key={perk.en}
+                                  className="flex items-start gap-2.5 text-[13.5px] font-medium leading-snug text-ink"
+                                  initial={{ opacity: 0, y: 10, filter: 'blur(3px)' }}
+                                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                                  transition={{ duration: 0.32, delay: 0.08 + i * 0.07, ease: [0.22, 1, 0.36, 1] }}
+                                >
+                                  <motion.span
+                                    className="mt-px grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent/30 text-ink"
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ type: 'spring', duration: 0.4, bounce: 0.55, delay: 0.14 + i * 0.07 }}
+                                  >
                                     <Check className="h-2.5 w-2.5" />
-                                  </span>
+                                  </motion.span>
                                   {t(perk)}
-                                </span>
+                                </motion.span>
                               ))}
-                            </span>
+                            </motion.span>
                           </motion.span>
                         )}
                       </AnimatePresence>
