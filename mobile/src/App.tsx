@@ -6,6 +6,7 @@ import { spring } from '@/components/ui'
 import { ui, LangContext } from '@/i18n'
 import type { Result } from '@/lesson/Complete'
 import { reviewTasks } from '@/lesson/review'
+import { lessons } from '@/data/course'
 import { sound } from '@/lib/sound'
 import { Learn } from '@/screens/Learn'
 import { Onboarding } from '@/screens/Onboarding'
@@ -141,6 +142,8 @@ export default function App() {
                     set({ ...answers, onboarded: true, joined: p.joined || isoDay() })
                     setReplay(false)
                     window.history.replaceState(null, '', window.location.pathname)
+                    // New learners see the plans once, right after onboarding (not on a replay from settings).
+                    if (!p.onboarded) setPaywall(true)
                   }}
                 />
               </motion.div>
@@ -173,7 +176,7 @@ export default function App() {
                     // In a portal: the animated wrappers here use transforms, which would break `fixed`.
                     createPortal(
                       <div className="fixed inset-0 z-30">
-                        <Pond pond={p.pond} setPond={(pond) => set({ pond })} onExit={() => setTab('learn')} />
+                        <Pond pond={p.pond} setPond={(pond) => set({ pond })} onExit={() => setTab('learn')} lessonsDone={lessons.every((l) => p.done.includes(l.id))} />
                       </div>,
                       document.body,
                     )}

@@ -1,6 +1,9 @@
-import { expect, test } from 'bun:test'
+import { describe, expect, test } from 'bun:test'
 import {
   BREAD,
+  buyDuck,
+  duckPrice,
+  openMarket,
   DECK,
   buyBread,
   FULL_MS,
@@ -97,4 +100,29 @@ test('bread comes by the bag from the shop; old saves get a starter bag', () => 
   expect(parsePond({}).bread).toBe(2)
   expect(parsePond({ bread: 0 }).bread).toBe(0)
   expect(parsePond({ bread: -4 }).bread).toBe(0)
+})
+
+describe('daily duck market', () => {
+  const rich = (deck: number[]) => ({ ...freshPond(), coins: 100_000, deck: [...deck, ...Array(DECK - deck.length).fill(0)] })
+
+  test('opens four ducks a day around the best duck, once per day', () => {
+    const p = openMarket(rich([3, 1]), '2026-11-13')
+    expect(p.market.offers).toEqual([2, 2, 3, 4])
+    expect(openMarket(p, '2026-11-13')).toBe(p)
+    expect(openMarket(p, '2026-11-14').market.sold).toEqual([false, false, false, false])
+  })
+
+  test('a duck is sold once, costs coins and lands in the first empty slot', () => {
+    const p = openMarket(rich([1]), '2026-11-13')
+    const r = buyDuck(p, 3)!
+    expect(r.slot).toBe(1)
+    expect(r.pond.deck[1]).toBe(2)
+    expect(r.pond.coins).toBe(100_000 - duckPrice(2))
+    expect(buyDuck(r.pond, 3)).toBeNull()
+  })
+
+  test('no sale when the deck is full or coins are short', () => {
+    expect(buyDuck(openMarket({ ...rich([]), coins: 0 }, 'd'), 0)).toBeNull()
+    expect(buyDuck(openMarket(rich(Array(DECK).fill(1)), 'd'), 0)).toBeNull()
+  })
 })

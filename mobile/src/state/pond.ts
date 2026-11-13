@@ -3,7 +3,8 @@
  *
  * Finishing a lesson earns eggs. An egg hatches into a level-1 duck on the deck. Two ducks of the same
  * level merge into one of the next level. Every duck earns coins over time, more at higher levels.
- * Lessons are the only way to get eggs: the pond rewards learning, it never replaces it.
+ * Lessons are the only way to get eggs: the pond rewards learning, it never replaces it. Once every lesson
+ * is done, the shop also sells MARKET_SIZE ducks a day for coins (see market).
  *
  * Coins are for caring: ducks get hungry over a few hours, hungry ducks earn half. Bread, bought by the bag
  * in the shop and sprinkled on the water crumb by crumb (drag the bag over it), fills them up; a well-fed flock earns more. Coins
@@ -33,7 +34,19 @@ export interface Pond {
   bread: number
   /** Crumbs left in the handful that is open in the bag's hand (0 when none is open). */
   bits: number
+  /** Today's ducks for sale: set once per day (local date), each sold at most once. */
+  market: Market
 }
+
+export interface Market {
+  day: string
+  /** Levels on offer. */
+  offers: number[]
+  sold: boolean[]
+}
+export const MARKET_SIZE = 4
+/** A duck costs about half an hour of what it earns, so a bought duck pays for itself in a morning. */
+export const duckPrice = (level: number) => Math.round((duckRate(level) * 1800) / 10) * 10
 
 /** A full flock is hungry again after this long. */
 export const FULL_MS = 8 * 60 * 60 * 1000
@@ -52,7 +65,19 @@ export const DECOR = [
 export type DecorId = (typeof DECOR)[number]['id']
 
 /** New players start with two eggs, so the pond is playable before their first lesson ends. */
-export const freshPond = (): Pond => ({ eggs: 2, coins: 0, deck: Array(DECK).fill(0), at: 0, full: 0.6, fedAt: 0, decor: [], tour: false, bread: 2, bits: 0 })
+export const freshPond = (): Pond => ({
+  eggs: 2,
+  coins: 0,
+  deck: Array(DECK).fill(0),
+  at: 0,
+  full: 0.6,
+  fedAt: 0,
+  decor: [],
+  tour: false,
+  bread: 2,
+  bits: 0,
+  market: { day: '', offers: [], sold: [] },
+})
 
 const count = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? Math.floor(v) : 0)
 
@@ -74,7 +99,37 @@ export function parsePond(v: any): Pond {
     tour: v.tour === true,
     bread: v.bread === undefined ? 2 : count(v.bread),
     bits: Math.min(count(v.bits), CRUMBS - 1),
+    market: parseMarket(v.market),
   }
+}
+
+function parseMarket(v: any): Market {
+  const ok = v && typeof v.day === 'string' && Array.isArray(v.offers) && Array.isArray(v.sold) && v.offers.length === MARKET_SIZE && v.sold.length === MARKET_SIZE
+  if (!ok || !v.offers.every((l: unknown) => Number.isInteger(l) && (l as number) >= 1 && (l as number) < MAX_LEVEL)) return { day: '', offers: [], sold: [] }
+  return { day: v.day, offers: v.offers, sold: v.sold.map((s: unknown) => s === true) }
+}
+
+/**
+ * Today's market. A new day brings four new ducks, levelled around the learner's best one: two a level
+ * below it, one at it, one above (never level 12, which only merging makes).
+ */
+export function openMarket(p: Pond, day: string): Pond {
+  if (p.market.day === day) return p
+  const best = Math.max(1, ...p.deck)
+  const clamp = (l: number) => Math.max(1, Math.min(MAX_LEVEL - 1, l))
+  const offers = [best - 1, best - 1, best, best + 1].map(clamp)
+  return { ...p, market: { day, offers, sold: offers.map(() => false) } }
+}
+
+/** Buys today's offer `i` into the first empty deck slot. Null when sold, unaffordable or the deck is full. */
+export function buyDuck(p: Pond, i: number): { pond: Pond; slot: number } | null {
+  const level = p.market.offers[i]
+  const slot = p.deck.indexOf(0)
+  if (!level || p.market.sold[i] || slot < 0 || p.coins < duckPrice(level)) return null
+  const deck = [...p.deck]
+  deck[slot] = level
+  const sold = p.market.sold.map((s, k) => s || k === i)
+  return { pond: { ...p, coins: p.coins - duckPrice(level), deck, market: { ...p.market, sold } }, slot }
 }
 
 /** Coins per second a duck earns: doubles with every level (0.2/s at level 1, 6.4/s at level 6, 409.6/s at level 12). */

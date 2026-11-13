@@ -8,6 +8,7 @@ import { IconButton, Tray, spring } from '@/components/ui'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import { DUCK_PARTS } from '@/screens/pondDuckArt'
+import { isoDay } from '@/state/progress'
 import {
   BREAD,
   FULL_MS,
@@ -15,6 +16,9 @@ import {
   DECOR,
   buyBread,
   buyDecor,
+  buyDuck,
+  duckPrice,
+  openMarket,
   dayPart,
   drop,
   hasBread,
@@ -438,7 +442,7 @@ const nowPart = (): DayPart => (pinned && pinned in TINT ? pinned : dayPart(new 
  * water to toss bread (coins); the nearest duck hurries over and eats it. Coins also buy decorations. The
  * pond follows the real clock: dawn, day, sunset and night, when the ducks sleep and the lanterns glow.
  */
-export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: PondState) => void; onExit: () => void }) {
+export function Pond({ pond, setPond, onExit, lessonsDone }: { pond: PondState; setPond: (p: PondState) => void; onExit: () => void; lessonsDone: boolean }) {
   const { t } = useT()
   const live = useRef(pond)
   live.current = pond
@@ -448,6 +452,10 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
   const [crumbs, setCrumbs] = useState<Crumb[]>([])
   const food = useRef<Crumb[]>([])
   const spots = useRef<Record<number, Spot>>({})
+  // Each duck's own id, by deck slot. It travels with the duck when it is moved to another slot, so the duck
+  // swimming in the river keeps swimming instead of vanishing and reappearing somewhere else.
+  const ids = useRef<number[]>(pond.deck.map((_, i) => i + 1))
+  const nextId = useRef(pond.deck.length + 1)
   const [shop, setShop] = useState(false)
   const [shopInfo, setShopInfo] = useState(false)
   const [care, setCare] = useState(false)
@@ -564,7 +572,7 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
     setPond(fed)
     // That was the last crumb in this bag: it goes back home empty; the next drag opens a new one.
     if (!fed.bits && grip.current) grip.current.done = true
-    const owned = fed.deck.map((l, i) => (l ? i + 1 : 0)).filter(Boolean)
+    const owned = fed.deck.map((l, i) => (l ? ids.current[i] : 0)).filter(Boolean)
     const busy = new Set(food.current.map((c) => c.by))
     const x = Math.max(20, Math.min(area.w - 20, cx + (Math.random() - 0.5) * 18))
     const y = Math.max(40, Math.min(area.h - 10, cy + (Math.random() - 0.5) * 14))
@@ -670,6 +678,10 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
     const r = drop(live.current, from, to)
     if (r.pond === live.current) return
     setPond(r.pond)
+    // A move or swap carries both ducks' ids; a merge keeps the target's duck and leaves an empty slot.
+    const moved = ids.current
+    if (r.merged) moved[from] = nextId.current++
+    else [moved[from], moved[to]] = [moved[to], moved[from]]
     if (r.merged) {
       const key = Date.now()
       setMerged({ slot: to, key })
@@ -954,7 +966,20 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
               ))}
             </AnimatePresence>
             {pond.deck.map((l, i) =>
-              l ? <Swimmer key={i} level={l} seed={i + 1} ate={ate[i + 1] || null} area={area} asleep={night} peckish={starving} food={food} spots={spots} onEat={onEat} /> : null,
+              l ? (
+                <Swimmer
+                  key={ids.current[i]}
+                  level={l}
+                  seed={ids.current[i]}
+                  ate={ate[ids.current[i]] || null}
+                  area={area}
+                  asleep={night}
+                  peckish={starving}
+                  food={food}
+                  spots={spots}
+                  onEat={onEat}
+                />
+              ) : null,
             )}
           </div>
           {/* The bread bag: sits by the dock; pick it up and drag it over the water. */}
@@ -1014,7 +1039,7 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
                   )}
                   {hatching === i && (
                     <motion.div
-                      className="relative mb-3"
+                      className="absolute bottom-3"
                       initial={{ scale: 0.6 }}
                       animate={{
                         scale: [0.6, 1.1, 1],
@@ -1025,40 +1050,44 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
                       <Sprite name="eggCracked" size={38} />
                     </motion.div>
                   )}
+                  {/* The duck sits over its pad without taking up room, so a duck never stretches its row (the deck
+                      kept changing size on narrow phones as ducks moved between rows). */}
                   {level > 0 && (
-                    <motion.div
-                      key={level}
-                      className="relative z-10 mb-2 cursor-grab touch-none active:cursor-grabbing"
-                      drag
-                      dragSnapToOrigin
-                      dragElastic={1}
-                      // A small press-in before the lift (anticipation), then it rises to be carried.
-                      whileTap={{ scale: 0.92 }}
-                      whileDrag={{ scale: 1.15, zIndex: 50 }}
-                      onDragStart={() => sound.playClick(380)}
-                      onDragEnd={(e) => onDrop(i, e)}
-                      // A new duck (hatched or merged) drops onto its pad: stretched as it falls, squashed as it
-                      // lands, a little rebound, then still. Squash from the feet.
-                      style={{ originY: 1 }}
-                      initial={{ scaleX: 0.6, scaleY: 1.4, y: -18, opacity: 0 }}
-                      animate={{ scaleX: [0.6, 1.25, 0.95, 1], scaleY: [1.4, 0.75, 1.05, 1], y: [-18, 0, -2, 0], opacity: 1 }}
-                      transition={{ duration: 0.5, times: [0, 0.45, 0.75, 1], ease: 'easeOut', opacity: { duration: 0.1 } }}
-                    >
-                      <PondDuck level={level} size={62} seed={i + 0.5} asleep={night} />
-                      <span className="absolute -right-1 top-1 grid h-5 min-w-5 place-items-center rounded-full border-2 border-white bg-brand px-1 text-[11px] font-bold text-white">
-                        {level}
-                      </span>
-                      {merged?.slot === i && (
-                        <motion.div
-                          className="pointer-events-none absolute -inset-3"
-                          initial={{ opacity: 1, scale: 0.5 }}
-                          animate={{ opacity: 0, scale: 1.4 }}
-                          transition={{ duration: 0.8 }}
-                        >
-                          <Sprite name="sparkles" size={80} />
-                        </motion.div>
-                      )}
-                    </motion.div>
+                    <div className="pointer-events-none absolute inset-x-0 bottom-2 z-10 flex justify-center">
+                      <motion.div
+                        key={level}
+                        className="pointer-events-auto relative cursor-grab touch-none active:cursor-grabbing"
+                        drag
+                        dragSnapToOrigin
+                        dragElastic={1}
+                        // A small press-in before the lift (anticipation), then it rises to be carried.
+                        whileTap={{ scale: 0.92 }}
+                        whileDrag={{ scale: 1.15, zIndex: 50 }}
+                        onDragStart={() => sound.playClick(380)}
+                        onDragEnd={(e) => onDrop(i, e)}
+                        // A new duck (hatched or merged) drops onto its pad: stretched as it falls, squashed as it
+                        // lands, a little rebound, then still. Squash from the feet.
+                        style={{ originY: 1 }}
+                        initial={{ scaleX: 0.6, scaleY: 1.4, y: -18, opacity: 0 }}
+                        animate={{ scaleX: [0.6, 1.25, 0.95, 1], scaleY: [1.4, 0.75, 1.05, 1], y: [-18, 0, -2, 0], opacity: 1 }}
+                        transition={{ duration: 0.5, times: [0, 0.45, 0.75, 1], ease: 'easeOut', opacity: { duration: 0.1 } }}
+                      >
+                        <PondDuck level={level} size={62} seed={i + 0.5} asleep={night} />
+                        <span className="absolute -right-1 top-1 grid h-5 min-w-5 place-items-center rounded-full border-2 border-white bg-brand px-1 text-[11px] font-bold text-white">
+                          {level}
+                        </span>
+                        {merged?.slot === i && (
+                          <motion.div
+                            className="pointer-events-none absolute -inset-3"
+                            initial={{ opacity: 1, scale: 0.5 }}
+                            animate={{ opacity: 0, scale: 1.4 }}
+                            transition={{ duration: 0.8 }}
+                          >
+                            <Sprite name="sparkles" size={80} />
+                          </motion.div>
+                        )}
+                      </motion.div>
+                    </div>
                   )}
                 </div>
               ))}
@@ -1083,7 +1112,11 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
             <button
               type="button"
               aria-label={t(ui.pondShop)}
-              onClick={() => setShop(true)}
+              onClick={() => {
+                // Today's ducks are picked the first time the shop opens each day.
+                if (lessonsDone) setPond(openMarket(live.current, isoDay()))
+                setShop(true)
+              }}
               className="relative grid h-[52px] w-[52px] shrink-0 place-items-center rounded-[14px] bg-white/90 text-ink shadow-float backdrop-blur-sm active:scale-95"
             >
               <Store className="h-6 w-6" strokeWidth={2.2} />
@@ -1142,6 +1175,56 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
                 <Sprite name="coin" size={15} />
                 {BREAD.price}
               </button>
+            </li>
+            {/* Ducks for coins, four a day, once every lesson is done. */}
+            <li className="pt-1">
+              <span className="flex items-baseline justify-between px-1">
+                <span className="text-[13px] font-semibold text-ink/60">{t(ui.duckShop)}</span>
+                {lessonsDone && <span className="text-[12px] text-ink/45">{t(ui.duckShopTomorrow)}</span>}
+              </span>
+              {lessonsDone && pond.market.day === isoDay() ? (
+                <span className="mt-1.5 grid grid-cols-4 gap-2">
+                  {pond.market.offers.map((level, i) => {
+                    const sold = pond.market.sold[i]
+                    const price = duckPrice(level)
+                    return (
+                      <span key={i} className={`grid justify-items-center gap-1 rounded-2xl bg-ink/[.04] px-1 pb-2 pt-1.5 ${sold ? 'opacity-50' : ''}`}>
+                        <span className="relative">
+                          <PondDuck level={level} size={46} seed={i + 0.3} />
+                          <span className="absolute -right-1 top-0 grid h-5 min-w-5 place-items-center rounded-full border-2 border-white bg-brand px-1 text-[10px] font-bold text-white">
+                            {level}
+                          </span>
+                        </span>
+                        <button
+                          type="button"
+                          disabled={sold || pond.coins < price}
+                          onClick={() => {
+                            const r = buyDuck(live.current, i)
+                            if (!r) return void toast(t(live.current.deck.includes(0) ? ui.needCoins : ui.deckFull))
+                            setPond(r.pond)
+                            const key = Date.now()
+                            setMerged({ slot: r.slot, key })
+                            window.setTimeout(() => setMerged((m) => (m?.key === key ? null : m)), 900)
+                            sound.playAscendingCorrect(2)
+                          }}
+                          className="flex h-8 w-full items-center justify-center gap-0.5 rounded-full bg-brand text-[12px] font-semibold text-white active:scale-95 disabled:bg-ink/10 disabled:text-ink/50"
+                        >
+                          {sold ? (
+                            t(ui.sold)
+                          ) : (
+                            <>
+                              <Sprite name="coin" size={13} />
+                              {price >= 10_000 ? `${Math.round(price / 1000)}k` : price}
+                            </>
+                          )}
+                        </button>
+                      </span>
+                    )
+                  })}
+                </span>
+              ) : (
+                <span className="mt-1.5 block rounded-2xl bg-ink/[.04] p-3 text-[13px] text-ink/60">{t(ui.duckShopLocked)}</span>
+              )}
             </li>
             {DECOR.map(({ id, price }) => {
               const d = DECOR_INFO[id]
