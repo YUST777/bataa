@@ -11,6 +11,7 @@ import { lessons } from '@/data/course'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import { textOf, tutorTransport } from '@/lib/tutor'
+import { FREE_DAILY, aiUsedToday, type Plan } from '@/lib/plans'
 import { PondDuck } from '@/screens/Pond'
 import type { Progress } from '@/state/progress'
 import type { QuizTask, Task } from '@/types'
@@ -173,9 +174,13 @@ function ChatBody({
   onMenu,
   initial,
   onSave,
+  plan,
+  onUpgrade,
 }: {
   p: Progress
   signedIn: boolean
+  plan: Plan
+  onUpgrade: () => void
   onReview: () => void
   onMenu: () => void
   initial: UIMessage[]
@@ -191,6 +196,11 @@ function ChatBody({
   const list = useRef<HTMLDivElement>(null)
   const busy = status === 'submitted' || status === 'streaming'
   const finished = p.done.length > 0
+  // Free plan: messages left today, from the same count the tutor function keeps.
+  const [used, setUsed] = useState<number | null>(null)
+  useEffect(() => {
+    if (signedIn && plan === 'free' && status === 'ready') aiUsedToday().then(setUsed, () => {})
+  }, [signedIn, plan, status])
 
   useEffect(() => {
     // Only real changes: opening an old chat must not move it to the top of the list.
@@ -213,7 +223,8 @@ function ChatBody({
     sendMessage({ text: q })
   }
 
-  const errorText = error ? t(/sign_in/.test(error.message) ? ui.aiSignIn : ui.aiError) : null
+  const limited = !!error && /"limit"/.test(error.message)
+  const errorText = error ? t(limited ? ui.aiLimit : /sign_in/.test(error.message) ? ui.aiSignIn : ui.aiError) : null
   const last = messages[messages.length - 1]
   const cards = [
     { icon: Target, title: ui.aiCardQuizTitle, body: ui.aiCardQuizBody, ask: ui.aiChipQuiz },
@@ -359,10 +370,16 @@ function ChatBody({
             {errorText && (
               <div className="flex items-center gap-3 rounded-[20px] border border-bad/20 bg-badSoft/90 px-4 py-3">
                 <p className="flex-1 text-[14px] font-medium text-badDeep">{errorText}</p>
-                {signedIn && (
-                  <button type="button" onClick={() => regenerate()} className="rounded-full bg-white px-3 py-1.5 text-[13px] font-semibold text-ink shadow-soft">
-                    {t(ui.tryAgain)}
+                {limited ? (
+                  <button type="button" onClick={onUpgrade} className="rounded-full bg-accent px-3.5 py-1.5 text-[13px] font-semibold text-ink shadow-soft">
+                    {t(ui.upgrade)}
                   </button>
+                ) : (
+                  signedIn && (
+                    <button type="button" onClick={() => regenerate()} className="rounded-full bg-white px-3 py-1.5 text-[13px] font-semibold text-ink shadow-soft">
+                      {t(ui.tryAgain)}
+                    </button>
+                  )
                 )}
               </div>
             )}
@@ -433,8 +450,13 @@ function ChatBody({
             <div className="flex items-center gap-2 px-1 pt-1">
               <span className="flex items-center gap-1.5 rounded-full bg-white/70 px-2.5 py-1 text-[12px] font-semibold text-ink2">
                 <G d={Glyph.spark} fill className="h-3.5 w-3.5 text-brand" />
-                HTML · CSS
+                {plan === 'free' && used !== null ? `${Math.max(0, FREE_DAILY - used)} ${t(ui.aiLeft)}` : 'HTML · CSS'}
               </span>
+              {plan === 'free' && (
+                <button type="button" onClick={onUpgrade} className="rounded-full bg-gradient-to-b from-[#FFC533] to-[#F2A100] px-2.5 py-1 text-[11px] font-bold text-[#4A2A12]">
+                  PRO
+                </button>
+              )}
               <span className="me-auto" />
               {busy ? (
                 <button
@@ -472,7 +494,7 @@ function ChatBody({
  * Practice is a chat with Bataa AI. Chats are kept on the device; the menu button opens a side drawer with
  * a new chat and every earlier one (newest first), each deletable.
  */
-export function Practice({ p, signedIn, onReview }: { p: Progress; signedIn: boolean; onReview: () => void }) {
+export function Practice({ p, signedIn, plan, onUpgrade, onReview }: { p: Progress; signedIn: boolean; plan: Plan; onUpgrade: () => void; onReview: () => void }) {
   const { t, lang } = useT()
   const [chats, setChats] = useState<SavedChat[]>(loadChats)
   const [current, setCurrent] = useState<string>(() => crypto.randomUUID())
@@ -495,7 +517,17 @@ export function Practice({ p, signedIn, onReview }: { p: Progress; signedIn: boo
 
   return (
     <>
-      <ChatBody key={current} p={p} signedIn={signedIn} onReview={onReview} onMenu={() => setDrawer(true)} initial={open?.messages ?? []} onSave={save} />
+      <ChatBody
+        key={current}
+        p={p}
+        signedIn={signedIn}
+        plan={plan}
+        onUpgrade={onUpgrade}
+        onReview={onReview}
+        onMenu={() => setDrawer(true)}
+        initial={open?.messages ?? []}
+        onSave={save}
+      />
       <AnimatePresence>
         {drawer && (
           <motion.div key="dim" className="fixed inset-0 z-50 bg-ink/30" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(false)} />

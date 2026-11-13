@@ -25,7 +25,7 @@ export const supabase = url && key ? createClient(url, key, { auth: { flowType: 
  * Google's page in the browser, which comes back through the app link com.bataa.app://auth-callback.
  * On the web it is a plain redirect.
  */
-export const inApp = window.location.host === 'app.local'
+export const inApp = typeof window !== 'undefined' && window.location.host === 'app.local'
 const APP_CALLBACK = 'com.bataa.app://auth-callback'
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID as string | undefined
 

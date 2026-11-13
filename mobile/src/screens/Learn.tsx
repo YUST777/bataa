@@ -6,6 +6,7 @@ import { lessons, units } from '@/data/course'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import { isoDay, reward, streak, unlocked, type Progress } from '@/state/progress'
+import { proOnly, type Plan } from '@/lib/plans'
 import type { Lesson } from '@/types'
 
 /** Small progress ring with a value in the middle. */
@@ -35,7 +36,7 @@ function Ring({ value, size = 44, stroke = 5, color = '#FF8A1F', children }: { v
 }
 
 /** The course path. The next lesson is the loudest thing on screen; every node carries a text label. */
-export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) => void }) {
+export function Learn({ p, plan, onUpgrade, onStart }: { p: Progress; plan: Plan; onUpgrade: () => void; onStart: (lesson: Lesson) => void }) {
   const { t, lang } = useT()
   // `shown` outlives `open` so the tray keeps its content while it shrinks away.
   const [open, setOpen] = useState(false)
@@ -53,6 +54,7 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
   }
   const brief = shown?.lesson
   const briefOpen = brief ? unlocked(p, brief.id) : false
+  const briefPro = !!brief && proOnly(plan, brief.id)
   const briefUnit = brief ? units.find((u) => u.lessons.includes(brief))! : units[0]
 
   return (
@@ -115,6 +117,7 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
                     const done = p.done.includes(lesson.id)
                     const isCurrent = lesson.id === current?.id
                     const locked = !unlocked(p, lesson.id)
+                    const pro = proOnly(plan, lesson.id)
                     return (
                       <motion.li
                         key={lesson.id}
@@ -150,6 +153,11 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
                               <Play className="h-6 w-6 translate-x-px fill-current rtl:-scale-x-100" />
                             )}
                           </motion.button>
+                          {pro && (
+                            <span className="absolute -top-2 rounded-full bg-gradient-to-b from-[#FFC533] to-[#F2A100] px-2 py-0.5 text-[10px] font-bold text-[#4A2A12] shadow-soft">
+                              PRO
+                            </span>
+                          )}
                         </span>
                         <div className="max-w-[150px] text-center">
                           <p className={`text-[14px] font-semibold leading-tight ${locked ? 'text-ink2' : ''}`}>{t(lesson.title)}</p>
@@ -176,7 +184,7 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
               <h2 className="text-[21px] font-semibold leading-tight tracking-tight">{t(brief.title)}</h2>
             </div>
             <p className="text-[15px] font-medium leading-snug text-ink2">
-              {briefOpen ? `${t(p.done.includes(brief.id) ? ui.youCan : ui.youWill)} ${t(brief.can)}.` : t(ui.lockedBody)}
+              {briefPro ? t(ui.proLocked) : briefOpen ? `${t(p.done.includes(brief.id) ? ui.youCan : ui.youWill)} ${t(brief.can)}.` : t(ui.lockedBody)}
             </p>
             <div className="flex flex-wrap gap-2 text-[13px] font-semibold text-ink">
               {[
@@ -192,7 +200,17 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
                 )
               })}
             </div>
-            {briefOpen ? (
+            {briefPro ? (
+              <Button
+                autoFocus
+                onClick={() => {
+                  setOpen(false)
+                  onUpgrade()
+                }}
+              >
+                {t(ui.unlockPro)}
+              </Button>
+            ) : briefOpen ? (
               <Button
                 autoFocus
                 onClick={() => {

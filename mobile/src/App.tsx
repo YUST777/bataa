@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom'
 import { useEffect, useState } from 'react'
 import { MotionConfig, motion } from 'motion/react'
-import { Toaster } from 'sonner'
+import { Toaster, toast } from 'sonner'
 import { spring } from '@/components/ui'
 import { ui, LangContext } from '@/i18n'
 import { Complete, type Result } from '@/lesson/Complete'
@@ -16,6 +16,8 @@ import { awards } from '@/components/Badge'
 import { isoDay, newSerial, streak, useProgress } from '@/state/progress'
 import { useCloudSync, useSession } from '@/lib/account'
 import type { Lesson, Task } from '@/types'
+import { usePlan } from '@/lib/plans'
+import { Paywall } from '@/screens/Paywall'
 
 /** Questions in a run; learn cards are not graded. */
 const quizCount = (tasks: Task[]) => tasks.filter((t) => t.type !== 'learn').length
@@ -38,6 +40,9 @@ export default function App() {
   const { p, set, load, complete, reset } = useProgress()
   // Signed in with Google: progress is also kept in the cloud (lib/account.ts).
   const session = useSession()
+  const { plan } = usePlan(session)
+  const [paywall, setPaywall] = useState(false)
+  const upgrade = () => setPaywall(true)
   useCloudSync(session, p, load, set)
   const [tab, setTab] = useState<Tab>('learn')
   /** The running session: a lesson, or a mixed review when `lesson` is undefined. */
@@ -115,9 +120,9 @@ export default function App() {
             <motion.div key="tabs" {...fade} className={tab === 'practice' ? undefined : 'pb-28'}>
               <motion.div key={tab === 'pond' ? 'learn' : tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.16 }}>
                 {/* Learn also sits under the pond, so swiping the pond away shows where it goes back to. */}
-                {(tab === 'learn' || tab === 'pond') && <Learn p={p} onStart={(lesson) => setRun({ lesson, tasks: lesson.tasks })} />}
-                {tab === 'practice' && <Practice p={p} signedIn={!!session} onReview={() => setRun({ tasks: reviewTasks(p.done) })} />}
-                {tab === 'profile' && <Profile p={p} set={set} reset={reset} email={session?.user.email ?? null} />}
+                {(tab === 'learn' || tab === 'pond') && <Learn p={p} plan={plan} onUpgrade={upgrade} onStart={(lesson) => setRun({ lesson, tasks: lesson.tasks })} />}
+                {tab === 'practice' && <Practice p={p} signedIn={!!session} plan={plan} onUpgrade={upgrade} onReview={() => setRun({ tasks: reviewTasks(p.done) })} />}
+                {tab === 'profile' && <Profile p={p} set={set} reset={reset} email={session?.user.email ?? null} plan={plan} onUpgrade={upgrade} />}
                 {tab === 'pond' &&
                   // In a portal: the animated wrappers here use transforms, which would break `fixed`.
                   createPortal(
@@ -159,6 +164,16 @@ export default function App() {
         </div>
         {/* Short confirmations and errors, as a glass pill at the top. Swipe one up (or sideways) to dismiss it.
             On phones sonner reads mobileOffset, not offset, so both are set. */}
+        <Paywall
+          open={paywall}
+          current={plan}
+          onClose={() => setPaywall(false)}
+          onChoose={(choice) => {
+            if (choice === 'free') return setPaywall(false)
+            // shortcut: no payment provider is connected yet, so a paid choice only says so; wire checkout here.
+            toast((session ? ui.paySoon : ui.paySignIn)[p.lang])
+          }}
+        />
         <Toaster
           position="top-center"
           dir={p.lang === 'ar' ? 'rtl' : 'ltr'}

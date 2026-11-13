@@ -9,6 +9,8 @@ const MODEL = 'gpt-6.1-terra'
 const API = 'https://modelflare.dev/v1/chat/completions'
 const MAX_TURNS = 20
 const MAX_CHARS = 2000
+/** Bataa AI messages a day on the Free plan (Pro and Team have no limit). Keep in step with the app (src/lib/plans.ts). */
+const FREE_DAILY = 10
 
 const LESSONS: Record<string, string> = {
   button: 'buttons: <button>, opening and closing tags',
@@ -73,6 +75,15 @@ Deno.serve(async (req) => {
     .filter((m) => m.content.trim())
     .slice(-MAX_TURNS)
   if (!messages.length || messages[messages.length - 1].role !== 'user') return fail(400, 'no_question')
+
+  // Plans: Free learners get FREE_DAILY messages a day, counted in the database before the model runs.
+  // shortcut: a message is counted even if Modelflare then fails; refund it if that becomes common.
+  const { data: quota, error: quotaError } = await supabase.rpc('use_ai_message', { free_limit: FREE_DAILY })
+  if (quotaError) {
+    console.error('Quota check failed', quotaError.message)
+    return fail(500, 'tutor_unavailable')
+  }
+  if (!quota?.ok) return fail(402, 'limit')
   const lang = body.lang === 'ar' ? 'ar' : 'en'
   const done = Array.isArray(body.done) ? body.done.filter((d): d is string => typeof d === 'string').slice(0, 50) : []
   const name = typeof body.name === 'string' ? body.name.slice(0, 30) : ''

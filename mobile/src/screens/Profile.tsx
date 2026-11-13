@@ -11,6 +11,7 @@ import { Button, Sky, Tray, spring } from '@/components/ui'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import { saveAvatar, signOut } from '@/lib/account'
+import { PLANS, type Plan } from '@/lib/plans'
 import { GoogleButton } from '@/components/GoogleButton'
 import { NAME_MAX, isoDay, streak, type Progress } from '@/state/progress'
 
@@ -95,7 +96,21 @@ const keepDragInside = (el: HTMLElement | null) => el?.addEventListener('pointer
 
 const Heading = ({ children }: { children: string }) => <h2 className="eyebrow px-1 text-ink2">{children}</h2>
 
-export function Profile({ p, set, reset, email }: { p: Progress; set: (patch: Partial<Progress>) => void; reset: () => void; email: string | null }) {
+export function Profile({
+  p,
+  set,
+  reset,
+  email,
+  plan,
+  onUpgrade,
+}: {
+  p: Progress
+  set: (patch: Partial<Progress>) => void
+  reset: () => void
+  email: string | null
+  plan: Plan
+  onUpgrade: () => void
+}) {
   const { t, lang } = useT()
   const [confirm, setConfirm] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -173,6 +188,17 @@ export function Profile({ p, set, reset, email }: { p: Progress; set: (patch: Pa
       </Sky>
 
       <div className="grid gap-7 px-4 pb-6 pt-3">
+        {/* Plan: what the learner is on, and the way to the plans page. */}
+        <button type="button" onClick={onUpgrade} className="card flex items-center gap-3 p-3 text-start active:scale-[.99] transition-transform">
+          <img src={PLANS.find((x) => x.id === plan)!.art} alt="" className="h-12 w-12 shrink-0 object-contain" />
+          <span className="min-w-0 flex-1">
+            <span className="block text-[12px] font-semibold text-ink2">{t(ui.planLabel)}</span>
+            <span className="block text-[17px] font-semibold">{plan === 'free' ? t(PLANS[0].title) : `Bataa ${t(PLANS.find((x) => x.id === plan)!.title)}`}</span>
+          </span>
+          <span className={`rounded-full px-3.5 py-2 text-[13px] font-semibold ${plan === 'free' ? 'bg-accent text-ink' : 'bg-warm text-ink'}`}>
+            {t(plan === 'free' ? ui.upgrade : ui.managePlan)}
+          </span>
+        </button>
         <section className="card flex divide-x divide-line rtl:divide-x-reverse">
           <Stat icon={<Flame className="h-6 w-6 fill-accent text-accent" />} value={streak(p.daily)} label={t(ui.streak)} />
           <Stat icon={<Zap className="h-6 w-6 fill-sun text-sun" />} value={p.xp} label={t(ui.totalXp)} />
