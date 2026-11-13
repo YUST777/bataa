@@ -12,7 +12,17 @@ import { CURRENCY, PLAN_ART, PRICE, type Period, type Plan } from '@/lib/plans'
  * picked plan's art on its lily pad, monthly or yearly (20% off), Free and Pro as rows to tap (the picked
  * one opens to show what it gives), and one sticky button. `onChoose` gets the period when Pro is picked; picking Free just closes.
  */
-export function Paywall({ open, current, onClose, onChoose }: { open: boolean; current: Plan; onClose: () => void; onChoose: (period: Period) => void }) {
+export function Paywall({
+  open,
+  current,
+  onClose,
+  onChoose,
+}: {
+  open: boolean
+  current: Plan
+  onClose: () => void
+  onChoose: (plan: Exclude<Plan, 'free'>, period: Period) => void
+}) {
   const { t, lang } = useT()
   const [picked, setPicked] = useState<Plan>('pro')
   const [period, setPeriod] = useState<Period>('monthly')
@@ -23,11 +33,18 @@ export function Paywall({ open, current, onClose, onChoose }: { open: boolean; c
       id: 'pro' as const,
       title: ui.planPro,
       line: ui.payProLine,
-      price: money.format(period === 'monthly' ? PRICE.monthly : PRICE.yearly / 12),
+      price: money.format(period === 'monthly' ? PRICE.pro.monthly : PRICE.pro.yearly / 12),
       perks: [ui.perkProApps, ui.perkProAi, ui.perkProCourses],
     },
+    {
+      id: 'max' as const,
+      title: ui.planMax,
+      line: ui.payMaxLine,
+      price: money.format(period === 'monthly' ? PRICE.max.monthly : PRICE.max.yearly / 12),
+      perks: [ui.perkMaxPro, ui.perkMaxAi, ui.perkMaxEarly],
+    },
   ]
-  const cta = picked === current ? ui.payYourPlan : picked === 'free' ? ui.payStayFree : ui.payUpgradePro
+  const cta = picked === current ? ui.payYourPlan : picked === 'free' ? ui.payStayFree : picked === 'max' ? ui.payUpgradeMax : ui.payUpgradePro
 
   return createPortal(
     <AnimatePresence>
@@ -154,13 +171,13 @@ export function Paywall({ open, current, onClose, onChoose }: { open: boolean; c
               <button
                 type="button"
                 disabled={picked === current}
-                onClick={() => (picked === 'free' ? onClose() : onChoose(period))}
+                onClick={() => (picked === 'free' ? onClose() : onChoose(picked, period))}
                 className="h-14 w-full rounded-full bg-accent text-[17px] font-bold text-ink shadow-soft transition-transform active:scale-[.98] disabled:bg-lip disabled:text-ink3"
               >
                 {t(cta)}
               </button>
               <p className="text-center text-[12px] font-medium text-ink3">
-                {period === 'yearly' && picked === 'pro' ? `${money.format(PRICE.yearly)} ${t(ui.payBilledYearly)} · ` : ''}
+                {period === 'yearly' && picked !== 'free' ? `${money.format(PRICE[picked].yearly)} ${t(ui.payBilledYearly)} · ` : ''}
                 {t(ui.payCancel)}
               </p>
             </div>

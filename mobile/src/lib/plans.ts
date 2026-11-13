@@ -2,7 +2,8 @@
  * Plans: Free and Pro. The plan lives in Supabase (`subscriptions`, written only by the server) and is read
  * through the current_plan() function; signed out means Free. What each plan unlocks:
  * - Free: the first unit and FREE_DAILY Bataa AI messages a day (the tutor function enforces the limit).
- * - Pro (200 EGP a month): the desktop and mobile apps, every unit and Bataa AI.
+ * - Pro (199 EGP a month): the desktop and mobile apps, every unit and Bataa AI.
+ * - Max (499 EGP a month): everything in Pro with more Bataa AI.
  * See supabase/migrations/20261113120000_plans.sql.
  */
 import { useEffect, useState } from 'react'
@@ -10,7 +11,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/account'
 import { units } from '@/data/course'
 
-export type Plan = 'free' | 'pro'
+export type Plan = 'free' | 'pro' | 'max'
 export type Period = 'monthly' | 'yearly'
 
 /** Keep in step with FREE_DAILY in supabase/functions/tutor. */
@@ -18,12 +19,12 @@ export const FREE_DAILY = 10
 /** Units open on the Free plan. */
 export const FREE_UNITS = ['html']
 
-/** Pro prices in Egyptian pounds (assignments/market-research/bataa-tech-compass.html). Yearly is 20% off twelve months. */
+/** Paid plans' prices in Egyptian pounds. Yearly is about 20% off twelve months. */
 export const CURRENCY = 'EGP'
-export const PRICE: Record<Period, number> = { monthly: 200, yearly: 1920 }
+export const PRICE: Record<Exclude<Plan, 'free'>, Record<Period, number>> = { pro: { monthly: 199, yearly: 1910 }, max: { monthly: 499, yearly: 4790 } }
 
-/** Each plan's art: an egg on a lily pad for Free, the crowned duck for Pro. */
-export const PLAN_ART: Record<Plan, string> = { free: '/plans/free.webp', pro: '/plans/pro.webp' }
+/** Each plan's art: an egg on a lily pad for Free, the crowned duck for Pro, a clutch of eggs for Max. */
+export const PLAN_ART: Record<Plan, string> = { free: '/plans/free.webp', pro: '/plans/pro.webp', max: '/plans/team.webp' }
 
 /** True when a lesson's unit is closed on this plan. */
 export const proOnly = (plan: Plan, lessonId: string) => plan === 'free' && !units.some((u) => FREE_UNITS.includes(u.id) && u.lessons.some((l) => l.id === lessonId))
@@ -35,8 +36,8 @@ export function usePlan(session: Session | null) {
   useEffect(() => {
     if (!supabase || !session) return setPlan('free')
     let live = true
-    // The database also allows 'team'; the app sells Pro only, so any paid plan counts as Pro.
-    supabase.rpc('current_plan').then(({ data }) => live && setPlan(data === 'free' || !data ? 'free' : 'pro'))
+    // The database also allows 'team', which the app does not sell: it counts as Pro.
+    supabase.rpc('current_plan').then(({ data }) => live && setPlan(data === 'max' ? 'max' : data === 'free' || !data ? 'free' : 'pro'))
     return () => {
       live = false
     }

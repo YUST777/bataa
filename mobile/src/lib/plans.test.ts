@@ -10,5 +10,5 @@ test('Free opens the first unit only; Pro opens everything', () => {
 })
 
 test('yearly is about 20% off twelve months', () => {
-  expect(PRICE.yearly / (PRICE.monthly * 12)).toBeCloseTo(0.8, 1)
+  for (const p of Object.values(PRICE)) expect(p.yearly / (p.monthly * 12)).toBeCloseTo(0.8, 2)
 })
