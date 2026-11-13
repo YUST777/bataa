@@ -17,6 +17,9 @@ import { isoDay, newSerial, streak, useProgress } from '@/state/progress'
 import { useCloudSync, useSession } from '@/lib/account'
 import type { Lesson, Task } from '@/types'
 
+/** Questions in a run; learn cards are not graded. */
+const quizCount = (tasks: Task[]) => tasks.filter((t) => t.type !== 'learn').length
+
 type Tab = 'learn' | 'practice' | 'pond' | 'profile'
 /** Tab icons come from one art sheet (public/nav/icons.svg): `x` is the icon's center there. Each is a 16-unit
  * square, outlined on the top row, filled orange on the row below for the active tab. */
@@ -65,7 +68,7 @@ export default function App() {
     setResult({
       lesson: run.lesson,
       xp,
-      accuracy: Math.round(((run.tasks.length - missed) / run.tasks.length) * 100),
+      accuracy: Math.round(((quizCount(run.tasks) - missed) / Math.max(1, quizCount(run.tasks))) * 100),
       // `complete` has just marked today active, which this render cannot see yet.
       streak: streak({ ...p.daily, [isoDay()]: 1 }),
     })

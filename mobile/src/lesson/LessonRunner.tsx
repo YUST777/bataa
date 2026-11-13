@@ -19,7 +19,7 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
   const task = tasks[index]
   const [answer, setAnswer] = useState<Answer>(() => blank(task))
   const [state, setState] = useState<'idle' | 'ok' | 'bad'>('idle')
-  const [why, setWhy] = useState<L>(task.hint)
+  const [why, setWhy] = useState<L | null>(null)
   const [tries, setTries] = useState(0)
   const [leaving, setLeaving] = useState(false)
   const missed = useRef(new Set<string>())
@@ -31,6 +31,7 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
 
   const submit = () => {
     const result = check(task, answer)
+    if (task.type === 'learn') return next()
     if (result.ok) {
       sound.playAscendingCorrect(index)
       setState('ok')
@@ -38,7 +39,7 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
       sound.playMistake()
       missed.current.add(task.id)
       setTries((n) => n + 1)
-      setWhy(result.why ?? task.hint)
+      setWhy(result.why ?? null)
       setState('bad')
     }
   }
@@ -49,7 +50,9 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
     setAnswer(blank(tasks[index + 1]))
     setState('idle')
     setTries(0)
+    setWhy(null)
   }
+  const learn = task.type === 'learn'
 
   return (
     <div className="flex min-h-dvh flex-col bg-gradient-to-b from-warm to-page to-40%">
@@ -67,19 +70,29 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
         {/* Keyed so each task springs in from the reading direction. */}
         <motion.div key={task.id} className="grid gap-4" initial={{ opacity: 0, x: slide }} animate={{ opacity: 1, x: 0 }} transition={spring}>
           <div className="flex items-end gap-2">
-            <Duck size={68} mood={ok ? 'happy' : state === 'bad' ? 'oops' : touched ? 'idle' : 'talk'} />
+            <Duck size={68} mood={learn ? 'talk' : ok ? 'happy' : state === 'bad' ? 'oops' : touched ? 'idle' : 'talk'} />
             <Bubble>{t(task.prompt)}</Bubble>
           </div>
-          {task.show && <Code>{task.show}</Code>}
-          <TaskBody
-            task={task}
-            answer={answer}
-            locked={ok}
-            onChange={(a) => {
-              setAnswer(a)
-              if (state === 'bad') setState('idle')
-            }}
-          />
+          {task.type === 'learn' ? (
+            // Teaching step: the idea in words, then the code that does it.
+            <>
+              <p className="card px-4 py-3.5 text-[16px] font-medium leading-relaxed text-ink">{t(task.body)}</p>
+              <Code>{task.code}</Code>
+            </>
+          ) : (
+            <>
+              {task.show && <Code>{task.show}</Code>}
+              <TaskBody
+                task={task}
+                answer={answer}
+                locked={ok}
+                onChange={(a) => {
+                  setAnswer(a)
+                  if (state === 'bad') setState('idle')
+                }}
+              />
+            </>
+          )}
           {doc && <Preview html={doc.html} css={doc.css} />}
         </motion.div>
       </main>
@@ -88,7 +101,7 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
         {state === 'idle' ? (
           <div className="bg-gradient-to-t from-page from-70% to-page/0 p-4 pt-6">
             <Button disabled={!ready(task, answer)} onClick={submit}>
-              {t(ui.check)}
+              {t(learn ? ui.gotIt : ui.check)}
             </Button>
           </div>
         ) : (
@@ -102,12 +115,16 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
             style={{ originY: 1 }}
             initial={{ y: 48, opacity: 0 }}
             animate={ok ? { y: [48, 0, -4, 0], scaleY: [0.92, 1.04, 0.98, 1], scaleX: [1.02, 0.98, 1.01, 1], opacity: 1 } : { y: 0, x: [0, -9, 8, -5, 3, 0], opacity: 1 }}
-            transition={ok ? { duration: 0.42, times: [0, 0.5, 0.75, 1], ease: 'easeOut', opacity: { duration: 0.12 } } : { y: spring, x: { duration: 0.36, delay: 0.1 }, opacity: { duration: 0.12 } }}
+            transition={
+              ok
+                ? { duration: 0.42, times: [0, 0.5, 0.75, 1], ease: 'easeOut', opacity: { duration: 0.12 } }
+                : { y: spring, x: { duration: 0.36, delay: 0.1 }, opacity: { duration: 0.12 } }
+            }
           >
             <div>
               <div>
                 <h2 className={`text-[17px] font-semibold ${ok ? 'text-okDeep' : 'text-badDeep'}`}>{t(ok ? ui.correct : ui.notYet)}</h2>
-                <p className="mt-0.5 text-[15px] font-medium leading-snug text-ink">{t(ok ? task.explain : why)}</p>
+                {task.type !== 'learn' && <p className="mt-0.5 text-[15px] font-medium leading-snug text-ink">{t(ok ? task.explain : (why ?? task.hint))}</p>}
               </div>
             </div>
             {ok ? (

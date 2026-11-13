@@ -18,6 +18,17 @@ export const units: Unit[] = [
         artifact: { html: BTN, css: '' },
         tasks: [
           {
+            id: 'button-learn-1',
+            type: 'learn',
+            lang: 'html',
+            prompt: { en: 'Meet the button.', ar: 'تعرّف على الزر.' },
+            body: {
+              en: 'Web pages are made of elements, and each one is written as a tag in angle brackets. A button is written <button>. The words after it are the label people see and tap.',
+              ar: 'صفحات الويب مكوّنة من عناصر، وكل عنصر يُكتب كوسم بين قوسين زاويين. الزر يُكتب <button>. والكلمات بعده هي النص الذي يراه الناس وينقرون عليه.',
+            },
+            code: BTN,
+          },
+          {
             id: 'button-1',
             type: 'choice',
             lang: 'html',
@@ -28,8 +39,22 @@ export const units: Unit[] = [
               { id: 'h1', text: '<h1>', value: '<h1>Start learning</h1>' },
             ],
             answer: 'button',
-            explain: { en: 'A <button> is made for actions. It works with a tap, a click and the keyboard.', ar: 'عنصر <button> مصنوع للأفعال، ويعمل باللمس والنقر ولوحة المفاتيح.' },
+            explain: {
+              en: 'A <button> is made for actions. It works with a tap, a click and the keyboard.',
+              ar: 'عنصر <button> مصنوع للأفعال، ويعمل باللمس والنقر ولوحة المفاتيح.',
+            },
             hint: { en: 'Look at the preview. Only one of these looks and behaves like a control.', ar: 'انظر إلى المعاينة. واحد فقط يبدو ويتصرف كعنصر تحكم.' },
+          },
+          {
+            id: 'button-learn-2',
+            type: 'learn',
+            lang: 'html',
+            prompt: { en: 'Open, label, close.', ar: 'افتح، اكتب النص، أغلق.' },
+            body: {
+              en: 'Most elements come in pairs: an opening tag <button>, then the content, then a closing tag </button>. The closing tag is the same name with a slash in front.',
+              ar: 'معظم العناصر تأتي في أزواج: وسم فتح <button>، ثم المحتوى، ثم وسم إغلاق </button>. وسم الإغلاق هو الاسم نفسه وقبله شرطة مائلة.',
+            },
+            code: '<button>\n  Start learning\n</button>',
           },
           {
             id: 'button-2',
@@ -102,6 +127,17 @@ export const units: Unit[] = [
         artifact: { html: '<h1>My page</h1>\n<p>I am learning to code.</p>', css: '' },
         tasks: [
           {
+            id: 'text-learn-1',
+            type: 'learn',
+            lang: 'html',
+            prompt: { en: 'Titles and text.', ar: 'العناوين والنصوص.' },
+            body: {
+              en: '<h1> is the main title of a page: big and bold, used once. <h2> titles a section under it. <p> holds a paragraph of normal text. Each one opens and closes like the button.',
+              ar: '<h1> هو العنوان الرئيسي للصفحة: كبير وعريض ويُستخدم مرة واحدة. <h2> عنوان قسم تحته. <p> يحمل فقرة من النص العادي. وكلها تُفتح وتُغلق مثل الزر.',
+            },
+            code: '<h1>My page</h1>\n<h2>About me</h2>\n<p>I am learning to code.</p>',
+          },
+          {
             id: 'text-1',
             type: 'choice',
             lang: 'html',
@@ -172,6 +208,17 @@ export const units: Unit[] = [
         artifact: { html: '<a href="https://bataa.app">Visit Bataa</a>', css: '' },
         tasks: [
           {
+            id: 'links-learn-1',
+            type: 'learn',
+            lang: 'html',
+            prompt: { en: 'Links take you places.', ar: 'الروابط تنقلك إلى أماكن.' },
+            body: {
+              en: '<a> makes a link. The address it opens goes in href, inside the opening tag. Extra details written inside a tag like this are called attributes: name="value".',
+              ar: '<a> يصنع رابطًا. والعنوان الذي يفتحه يوضع في href داخل وسم الفتح. التفاصيل الإضافية المكتوبة داخل الوسم هكذا تُسمّى خصائص: name="value".',
+            },
+            code: '<a href="https://bataa.app">Visit Bataa</a>',
+          },
+          {
             id: 'links-1',
             type: 'choice',
             lang: 'html',
@@ -197,6 +244,17 @@ export const units: Unit[] = [
             hint: { en: 'It is short for “hypertext reference”.', ar: 'هو اختصار لـ “hypertext reference”.' },
           },
           {
+            id: 'links-learn-2',
+            type: 'learn',
+            lang: 'html',
+            prompt: { en: 'Pictures need two details.', ar: 'الصور تحتاج إلى تفصيلين.' },
+            body: {
+              en: '<img> shows a picture. src is the image file to load. alt describes the picture in words, for screen readers and for when the file cannot load. <img> has no closing tag.',
+              ar: '<img> يعرض صورة. src هو ملف الصورة الذي يُحمَّل. alt يصف الصورة بالكلمات لقارئات الشاشة ولحين يتعذّر تحميل الملف. ووسم <img> ليس له وسم إغلاق.',
+            },
+            code: '<img src="duck.png" alt="A duck">',
+          },
+          {
             id: 'links-3',
             type: 'fill',
             prompt: { en: 'Tell the image which file to show.', ar: 'أخبر الصورة أي ملف تعرض.' },
@@ -217,7 +275,10 @@ export const units: Unit[] = [
               { id: 'speed', text: { en: 'It makes the image load faster', ar: 'يجعل الصورة تُحمَّل أسرع' } },
             ],
             answer: 'describe',
-            explain: { en: 'Screen readers read alt text aloud, and it shows when an image fails to load.', ar: 'قارئات الشاشة تقرأ النص البديل بصوت عالٍ، ويظهر أيضًا عند فشل تحميل الصورة.' },
+            explain: {
+              en: 'Screen readers read alt text aloud, and it shows when an image fails to load.',
+              ar: 'قارئات الشاشة تقرأ النص البديل بصوت عالٍ، ويظهر أيضًا عند فشل تحميل الصورة.',
+            },
             hint: { en: 'Think about someone using the page without seeing it.', ar: 'فكّر في شخص يستخدم الصفحة دون أن يراها.' },
           },
           {
@@ -241,7 +302,11 @@ export const units: Unit[] = [
             solution: '<a href="https://bataa.app">Visit Bataa</a>',
             rules: [
               { tag: 'a', fail: { en: 'Keep the <a> element and its label.', ar: 'أبقِ عنصر <a> ونصه.' } },
-              { tag: 'a', attr: 'href', fail: { en: 'Add href="…" inside the opening <a> tag, with an address in the quotes.', ar: 'أضف href="…" داخل وسم الفتح <a> وضع عنوانًا بين علامتي الاقتباس.' } },
+              {
+                tag: 'a',
+                attr: 'href',
+                fail: { en: 'Add href="…" inside the opening <a> tag, with an address in the quotes.', ar: 'أضف href="…" داخل وسم الفتح <a> وضع عنوانًا بين علامتي الاقتباس.' },
+              },
             ],
             explain: { en: 'Now the link has somewhere to go.', ar: 'الآن أصبح للرابط وجهة.' },
             hint: { en: 'It looks like this: <a href="https://bataa.app">', ar: 'يبدو هكذا: <a href="https://bataa.app">' },
@@ -262,6 +327,18 @@ export const units: Unit[] = [
         minutes: 5,
         artifact: { html: BTN, css: `button {\n  ${ORANGE}\n}` },
         tasks: [
+          {
+            id: 'color-learn-1',
+            type: 'learn',
+            lang: 'css',
+            fixture: BTN,
+            prompt: { en: 'CSS makes it look good.', ar: 'CSS يجعلها جميلة.' },
+            body: {
+              en: 'HTML says what is on the page; CSS says how it looks. A rule names an element, then lists property: value; pairs inside { }. background fills behind the text, color colors the text itself.',
+              ar: 'HTML يحدد ما في الصفحة، وCSS يحدد مظهرها. القاعدة تذكر اسم العنصر، ثم أزواج خاصية: قيمة; بين { }. background يملأ ما خلف النص، وcolor يلوّن النص نفسه.',
+            },
+            code: `button {\n  ${ORANGE}\n}`,
+          },
           {
             id: 'color-1',
             type: 'choice',
@@ -335,8 +412,16 @@ export const units: Unit[] = [
             starter: 'button {\n  \n}',
             solution: `button {\n  ${ORANGE}\n}`,
             rules: [
-              { selector: 'button', prop: 'background', fail: { en: 'Inside the braces, add a background, like background: #f26b00;', ar: 'داخل القوسين أضف خلفية، مثل background: #f26b00;' } },
-              { selector: 'button', prop: 'color', fail: { en: 'Good background. Now add a text color, like color: white;', ar: 'خلفية جيدة. الآن أضف لون النص، مثل color: white;' } },
+              {
+                selector: 'button',
+                prop: 'background',
+                fail: { en: 'Inside the braces, add a background, like background: #f26b00;', ar: 'داخل القوسين أضف خلفية، مثل background: #f26b00;' },
+              },
+              {
+                selector: 'button',
+                prop: 'color',
+                fail: { en: 'Good background. Now add a text color, like color: white;', ar: 'خلفية جيدة. الآن أضف لون النص، مثل color: white;' },
+              },
             ],
             explain: { en: 'Any colors you like work here. The rule is what matters.', ar: 'أي ألوان تحبها تصلح هنا. المهم هو القاعدة.' },
             hint: { en: 'Each line is a property, a colon, a value and a semicolon.', ar: 'كل سطر هو خاصية ثم نقطتان ثم قيمة ثم فاصلة منقوطة.' },
@@ -350,6 +435,18 @@ export const units: Unit[] = [
         minutes: 6,
         artifact: { html: BTN, css: `button {\n  ${SHAPED}\n}` },
         tasks: [
+          {
+            id: 'shape-learn-1',
+            type: 'learn',
+            lang: 'css',
+            fixture: BTN,
+            prompt: { en: 'Space and shape.', ar: 'المسافة والشكل.' },
+            body: {
+              en: 'padding adds space inside the edge, around the label: 12px 24px means 12 pixels top and bottom, 24 on the sides. border-radius rounds the corners. border: none removes the plain outline.',
+              ar: 'padding يضيف مسافة داخل الحافة حول النص: 12px 24px تعني 12 بكسل من الأعلى والأسفل و24 من الجانبين. border-radius يدوّر الزوايا. وborder: none يزيل الإطار العادي.',
+            },
+            code: `button {\n  ${SHAPED}\n}`,
+          },
           {
             id: 'shape-1',
             type: 'choice',
@@ -420,8 +517,16 @@ export const units: Unit[] = [
             starter: `button {\n  ${ORANGE}\n  border: none;\n  \n}`,
             solution: `button {\n  ${SHAPED}\n}`,
             rules: [
-              { selector: 'button', prop: 'padding', fail: { en: 'Add padding inside the braces, like padding: 12px 24px;', ar: 'أضف الحشوة داخل القوسين، مثل padding: 12px 24px;' } },
-              { selector: 'button', prop: 'border-radius', fail: { en: 'Nice spacing. Now round the corners with border-radius: 12px;', ar: 'مسافة جميلة. الآن دوّر الزوايا بـ border-radius: 12px;' } },
+              {
+                selector: 'button',
+                prop: 'padding',
+                fail: { en: 'Add padding inside the braces, like padding: 12px 24px;', ar: 'أضف الحشوة داخل القوسين، مثل padding: 12px 24px;' },
+              },
+              {
+                selector: 'button',
+                prop: 'border-radius',
+                fail: { en: 'Nice spacing. Now round the corners with border-radius: 12px;', ar: 'مسافة جميلة. الآن دوّر الزوايا بـ border-radius: 12px;' },
+              },
             ],
             explain: { en: 'That looks like a button people want to press.', ar: 'هذا يبدو زرًا يرغب الناس في الضغط عليه.' },
             hint: { en: 'Add two new lines before the closing brace.', ar: 'أضف سطرين جديدين قبل قوس الإغلاق.' },
@@ -435,6 +540,18 @@ export const units: Unit[] = [
         minutes: 6,
         artifact: { html: BTN, css: `button {\n  ${SHAPED}\n}\nbutton:hover {\n  background: #b94b00;\n}` },
         tasks: [
+          {
+            id: 'hover-learn-1',
+            type: 'learn',
+            lang: 'css',
+            fixture: BTN,
+            prompt: { en: 'Make it react.', ar: 'اجعله يتفاعل.' },
+            body: {
+              en: 'button:hover is a state. Its styles switch on only while the pointer is over the button, so it can darken when touched. Join the element and the state with a colon and no space.',
+              ar: 'button:hover حالة. تنسيقاتها تعمل فقط والمؤشر فوق الزر، فيمكن أن يصبح أغمق عند لمسه. اربط العنصر بالحالة بنقطتين ودون مسافة.',
+            },
+            code: `button {\n  ${SHAPED}\n}\nbutton:hover {\n  background: #b94b00;\n}`,
+          },
           {
             id: 'hover-1',
             type: 'choice',
@@ -496,7 +613,11 @@ export const units: Unit[] = [
             solution: `button {\n  ${SHAPED}\n}\nbutton:hover {\n  background: #b94b00;\n}`,
             rules: [
               { selector: 'button', prop: 'background', fail: { en: 'Keep the first button rule as it is.', ar: 'أبقِ قاعدة الزر الأولى كما هي.' } },
-              { selector: 'button:hover', prop: 'background', fail: { en: 'Under the first rule, add button:hover { } with a background inside.', ar: 'تحت القاعدة الأولى أضف button:hover { } وبداخلها خلفية.' } },
+              {
+                selector: 'button:hover',
+                prop: 'background',
+                fail: { en: 'Under the first rule, add button:hover { } with a background inside.', ar: 'تحت القاعدة الأولى أضف button:hover { } وبداخلها خلفية.' },
+              },
             ],
             explain: { en: 'You built a complete button: structure, style and a state.', ar: 'بنيت زرًا كاملًا: هيكل وتنسيق وحالة.' },
             hint: { en: 'Start a new rule: button:hover { background: #b94b00; }', ar: 'ابدأ قاعدة جديدة: button:hover { background: #b94b00; }' },

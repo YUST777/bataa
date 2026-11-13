@@ -10,10 +10,15 @@ const task = (id: string) => tasks.find((t) => t.id === id)!
 test('every task: blank answer fails, its own solution passes', () => {
   expect(new Set(tasks.map((t) => t.id)).size).toBe(tasks.length)
   for (const t of tasks) {
-    expect(check(t, blank(t)).ok).toBe(false)
+    if (t.type !== 'learn') expect(check(t, blank(t)).ok).toBe(false)
     expect(ready(t, solution(t))).toBe(true)
     expect(check(t, solution(t))).toEqual({ ok: true })
   }
+})
+
+test('every lesson teaches before it asks: it opens with a learn card that shows working code', () => {
+  for (const l of lessons) expect(l.tasks[0].type).toBe('learn')
+  for (const t of tasks) if (t.type === 'learn') expect(previewDoc(t, blank(t))).not.toBeNull()
 })
 
 test('code checks accept equivalent answers and explain the first failure', () => {

@@ -6,11 +6,11 @@ import { lessons } from '@/data/course'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import type { Progress } from '@/state/progress'
-import type { Lesson, Task } from '@/types'
+import type { Lesson, Task, QuizTask } from '@/types'
 
 /** Up to five random tasks from finished lessons. */
 export function reviewTasks(done: string[]): Task[] {
-  const pool = lessons.filter((l) => done.includes(l.id)).flatMap((l) => l.tasks)
+  const pool = lessons.filter((l) => done.includes(l.id)).flatMap((l) => l.tasks.filter((t): t is QuizTask => t.type !== 'learn'))
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[pool[i], pool[j]] = [pool[j], pool[i]]
@@ -48,7 +48,6 @@ export function Practice({ p, onReview, onReplay, onGoLearn }: { p: Progress; on
         </div>
         {!empty && (
           <>
-
             <section className="grid gap-3">
               <h2 className="eyebrow px-1 text-ink2">{t(ui.replay)}</h2>
               {finished.map((lesson, i) => {

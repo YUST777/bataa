@@ -2,6 +2,7 @@ import type { Answer, L, Rule, Task } from '@/types'
 
 /** The empty answer a task starts with. */
 export function blank(task: Task): Answer {
+  if (task.type === 'learn') return ''
   if (task.type === 'order') return []
   if (task.type === 'match') return {}
   return task.type === 'code' ? task.starter : ''
@@ -9,6 +10,7 @@ export function blank(task: Task): Answer {
 
 /** True when there is enough input to make checking worthwhile. */
 export function ready(task: Task, answer: Answer): boolean {
+  if (task.type === 'learn') return true
   if (task.type === 'order') return (answer as number[]).length > 0
   if (task.type === 'match') return Object.keys(answer as object).length === task.pairs.length
   return (answer as string).trim().length > 0
@@ -22,6 +24,8 @@ export function solution(task: Task): Answer {
       return task.answer
     case 'code':
       return task.solution
+    case 'learn':
+      return ''
     case 'match':
       return Object.fromEntries(task.pairs.map((p, i) => [p.code, i]))
     case 'order': {
@@ -49,6 +53,8 @@ export function compose(task: Task, answer: Answer): string | null {
     }
     case 'code':
       return answer as string
+    case 'learn':
+      return task.code
     case 'match':
       return null
   }
@@ -59,9 +65,7 @@ export function previewDoc(task: Task, answer: Answer): { html: string; css: str
   if (!task.lang) return null
   const code = compose(task, answer)
   if (code === null) return null
-  return task.lang === 'html'
-    ? { html: code, css: task.fixture ?? '' }
-    : { html: task.fixture ?? '', css: code }
+  return task.lang === 'html' ? { html: code, css: task.fixture ?? '' } : { html: task.fixture ?? '', css: code }
 }
 
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -76,13 +80,18 @@ function passes(code: string, rule: Rule): boolean {
   const m = new RegExp(`<${rule.tag}\\b([^>]*)>([\\s\\S]*?)</${rule.tag}\\s*>`, 'i').exec(code)
   if (!m) return false
   if (rule.attr && !new RegExp(`\\b${esc(rule.attr)}\\s*=\\s*["'][^"']+["']`, 'i').test(m[1])) return false
-  const inner = m[2].replace(/<[^>]*>/g, '').trim().toLowerCase()
+  const inner = m[2]
+    .replace(/<[^>]*>/g, '')
+    .trim()
+    .toLowerCase()
   return rule.text ? inner.includes(rule.text.toLowerCase()) : inner.length > 0
 }
 
 /** Checks an answer. `why` carries the specific correction when there is one. */
 export function check(task: Task, answer: Answer): { ok: boolean; why?: L } {
   switch (task.type) {
+    case 'learn':
+      return { ok: true }
     case 'choice':
     case 'fill':
       return { ok: answer === task.answer }

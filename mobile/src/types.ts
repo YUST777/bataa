@@ -47,10 +47,7 @@ export interface MatchTask extends TaskBase {
   pairs: { code: string; means: L }[]
 }
 
-export type Rule = (
-  | { tag: string; text?: string; attr?: string }
-  | { selector: string; prop: string }
-) & { fail: L }
+export type Rule = ({ tag: string; text?: string; attr?: string } | { selector: string; prop: string }) & { fail: L }
 
 export interface CodeTask extends TaskBase {
   type: 'code'
@@ -60,7 +57,26 @@ export interface CodeTask extends TaskBase {
   rules: Rule[]
 }
 
-export type Task = ChoiceTask | FillTask | OrderTask | MatchTask | CodeTask
+/**
+ * A teaching step, not a question: the duck introduces one idea, shows a working example and its live
+ * preview, and the learner taps "Got it". Placed before the questions that use the idea.
+ */
+export interface LearnTask {
+  type: 'learn'
+  id: string
+  /** The duck's line: names the idea. */
+  prompt: L
+  /** The explanation, two or three short sentences. */
+  body: L
+  /** A working example, shown with syntax colours and rendered in the preview when `lang` is set. */
+  code: string
+  lang?: CodeLang
+  fixture?: string
+}
+
+/** Steps that ask something and are checked. */
+export type QuizTask = ChoiceTask | FillTask | OrderTask | MatchTask | CodeTask
+export type Task = QuizTask | LearnTask
 
 /** choice/fill/code: string. order: picked bank indexes. match: code -> index of its meaning. */
 export type Answer = string | number[] | Record<string, number>
