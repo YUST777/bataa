@@ -7,23 +7,11 @@ import { toast } from 'sonner'
 import { ArrowLeft, BookOpenCheck, ListChecks, Shuffle, Target, Trash2, Zap } from '@/components/Icon'
 import { GoogleButton } from '@/components/GoogleButton'
 import { IconButton, Preview } from '@/components/ui'
-import { lessons } from '@/data/course'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import { textOf, tutorTransport, type TutorContext } from '@/lib/tutor'
-import { FREE_DAILY, aiUsedToday, type Plan } from '@/lib/plans'
+import { DAILY, aiUsedToday, type Plan } from '@/lib/plans'
 import type { Progress } from '@/state/progress'
-import type { QuizTask, Task } from '@/types'
-
-/** Up to five random questions from finished lessons (learn cards are not questions). */
-export function reviewTasks(done: string[]): Task[] {
-  const pool = lessons.filter((l) => done.includes(l.id)).flatMap((l) => l.tasks.filter((t): t is QuizTask => t.type !== 'learn'))
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[pool[i], pool[j]] = [pool[j], pool[i]]
-  }
-  return pool.slice(0, 5)
-}
 
 /** Saved chats, newest first. `title` is the learner's first question. */
 type SavedChat = { id: string; title: string; at: number; messages: UIMessage[] }
@@ -201,10 +189,10 @@ export function ChatBody({
   const list = useRef<HTMLDivElement>(null)
   const busy = status === 'submitted' || status === 'streaming'
   const finished = p.done.length > 0 && !!onReview
-  // Free plan: messages left today, from the same count the tutor function keeps.
+  // Messages left today on this plan, from the same count the tutor function keeps.
   const [used, setUsed] = useState<number | null>(null)
   useEffect(() => {
-    if (signedIn && plan === 'free' && status === 'ready') aiUsedToday().then(setUsed, () => {})
+    if (signedIn && status === 'ready') aiUsedToday().then(setUsed, () => {})
   }, [signedIn, plan, status])
 
   useEffect(() => {
@@ -469,7 +457,7 @@ export function ChatBody({
             <div className="flex items-center gap-2 px-1 pt-1">
               <span className="flex items-center gap-1.5 rounded-full bg-white/70 px-2.5 py-1 text-[12px] font-semibold text-ink2">
                 <G d={Glyph.spark} fill className="h-3.5 w-3.5 text-brand" />
-                {plan === 'free' && used !== null ? `${Math.max(0, FREE_DAILY - used)} ${t(ui.aiLeft)}` : 'HTML · CSS'}
+                {used !== null ? `${Math.max(0, DAILY[plan] - used)}/${DAILY[plan]} ${t(ui.aiLeft)}` : 'HTML · CSS'}
               </span>
               {plan === 'free' && (
                 <button type="button" onClick={onUpgrade} className="rounded-full bg-gradient-to-b from-[#FFC533] to-[#F2A100] px-2.5 py-1 text-[11px] font-bold text-[#4A2A12]">

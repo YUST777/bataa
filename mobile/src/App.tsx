@@ -1,23 +1,39 @@
 import { createPortal } from 'react-dom'
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { MotionConfig, motion } from 'motion/react'
 import { Toaster, toast } from 'sonner'
 import { spring } from '@/components/ui'
 import { ui, LangContext } from '@/i18n'
-import { Complete, type Result } from '@/lesson/Complete'
-import { LessonRunner } from '@/lesson/LessonRunner'
+import type { Result } from '@/lesson/Complete'
+import { reviewTasks } from '@/lesson/review'
 import { sound } from '@/lib/sound'
 import { Learn } from '@/screens/Learn'
 import { Onboarding } from '@/screens/Onboarding'
-import { Practice, reviewTasks } from '@/screens/Practice'
-import { Pond } from '@/screens/Pond'
-import { Profile } from '@/screens/Profile'
+
 import { awards } from '@/components/Badge'
 import { isoDay, newSerial, streak, useProgress } from '@/state/progress'
 import { useCloudSync, useSession } from '@/lib/account'
 import type { Lesson, Task } from '@/types'
 import { usePlan } from '@/lib/plans'
-import { Paywall } from '@/screens/Paywall'
+
+// Learn and Onboarding are the first screens and ship in the main bundle. Every other screen is its own chunk (the chat's
+// markdown, the 3D medals, the pond), fetched in the background once the app is idle, so a tab still opens
+// at once but the first load stays small.
+const screens = {
+  lesson: () => import('@/lesson/LessonRunner'),
+  complete: () => import('@/lesson/Complete'),
+  practice: () => import('@/screens/Practice'),
+  pond: () => import('@/screens/Pond'),
+  duck: () => import('@/components/DuckRig'),
+  profile: () => import('@/screens/Profile'),
+  paywall: () => import('@/screens/Paywall'),
+}
+const LessonRunner = lazy(() => screens.lesson().then((m) => ({ default: m.LessonRunner })))
+const Complete = lazy(() => screens.complete().then((m) => ({ default: m.Complete })))
+const Practice = lazy(() => screens.practice().then((m) => ({ default: m.Practice })))
+const Pond = lazy(() => screens.pond().then((m) => ({ default: m.Pond })))
+const Profile = lazy(() => screens.profile().then((m) => ({ default: m.Profile })))
+const Paywall = lazy(() => screens.paywall().then((m) => ({ default: m.Paywall })))
 
 /** Questions in a run; learn cards are not graded. */
 const quizCount = (tasks: Task[]) => tasks.filter((t) => t.type !== 'learn').length
@@ -37,6 +53,14 @@ const tabs = [
 const fade = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: spring } as const
 
 export default function App() {
+  // Fetch the other screens while the learner looks at the first one.
+  useEffect(() => {
+    const warm = () => Object.values(screens).forEach((load) => load().catch(() => {}))
+    // Safari has no requestIdleCallback: a short timer does the same job there.
+    const idle = typeof requestIdleCallback === 'function'
+    const id = idle ? requestIdleCallback(warm, { timeout: 2500 }) : window.setTimeout(warm, 1200)
+    return () => (idle ? cancelIdleCallback(id) : window.clearTimeout(id))
+  }, [])
   const { p, set, load, complete, reset } = useProgress()
   // Signed in with Google: progress is also kept in the cloud (lib/account.ts).
   const session = useSession()
@@ -86,103 +110,105 @@ export default function App() {
     <LangContext.Provider value={p.lang}>
       {/* reducedMotion="user": people who ask their device for less motion get fades instead of movement. */}
       <MotionConfig reducedMotion="user">
-        {/* No top padding here: each screen's own header reaches under the status bar and pads itself. */}
-        <div className="mx-auto min-h-dvh max-w-md overflow-x-clip">
-          {screen === 'onboarding' && (
-            <motion.div key="onboarding" {...fade}>
-              <Onboarding
-                onToggleLang={() => set({ lang: p.lang === 'en' ? 'ar' : 'en' })}
-                onDone={(answers) => {
-                  set({ ...answers, onboarded: true, joined: p.joined || isoDay() })
-                  setReplay(false)
-                  window.history.replaceState(null, '', window.location.pathname)
-                }}
-              />
-            </motion.div>
-          )}
-          {screen === 'lesson' && run && (
-            <motion.div key="lesson" {...fade}>
-              <LessonRunner tasks={run.tasks} onExit={() => setRun(null)} onFinish={finish} p={p} signedIn={!!session} plan={plan} onUpgrade={upgrade} />
-            </motion.div>
-          )}
-          {screen === 'done' && result && (
-            <motion.div key="done" {...fade}>
-              <Complete
-                result={result}
-                onContinue={() => {
-                  setResult(null)
-                  setTab('learn')
-                }}
-              />
-            </motion.div>
-          )}
-          {screen === 'tabs' && (
-            <motion.div key="tabs" {...fade} className={tab === 'practice' ? undefined : 'pb-28'}>
-              <motion.div key={tab === 'pond' ? 'learn' : tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.16 }}>
-                {/* Learn also sits under the pond, so swiping the pond away shows where it goes back to. */}
-                {(tab === 'learn' || tab === 'pond') && <Learn p={p} plan={plan} onUpgrade={upgrade} onStart={(lesson) => setRun({ lesson, tasks: lesson.tasks })} />}
-                {tab === 'practice' && <Practice p={p} signedIn={!!session} plan={plan} onUpgrade={upgrade} onReview={() => setRun({ tasks: reviewTasks(p.done) })} />}
-                {tab === 'profile' && <Profile p={p} set={set} reset={reset} email={session?.user.email ?? null} plan={plan} onUpgrade={upgrade} />}
-                {tab === 'pond' &&
-                  // In a portal: the animated wrappers here use transforms, which would break `fixed`.
-                  createPortal(
-                    <div className="fixed inset-0 z-30">
-                      <Pond pond={p.pond} setPond={(pond) => set({ pond })} onExit={() => setTab('learn')} />
-                    </div>,
-                    document.body,
-                  )}
-              </motion.div>
-            </motion.div>
-          )}
-          {/* Outside the animated screens, so `fixed` stays pinned to the viewport. The pond is full-screen: no tab bar. */}
-          {screen === 'tabs' && tab !== 'pond' && (
-            <nav
-              aria-label="Bataa"
-              className="glass fixed inset-x-3 z-40 mx-auto flex max-w-[424px] rounded-full p-1.5 shadow-float"
-              style={{ bottom: 'calc(0.75rem + var(--sab, env(safe-area-inset-bottom, 0px)))' }}
-            >
-              {tabs.map(({ id, x, label }) => (
-                <button
-                  key={id}
-                  type="button"
-                  aria-current={tab === id ? 'page' : undefined}
-                  className={`relative grid h-14 flex-1 place-content-center justify-items-center gap-0.5 text-[11px] font-semibold transition-[color,transform] duration-150 active:scale-90 ${tab === id ? 'text-brandDeep' : 'text-ink2'}`}
-                  onClick={() => {
-                    sound.playClick()
-                    setTab(id)
+        <Suspense fallback={null}>
+          {/* No top padding here: each screen's own header reaches under the status bar and pads itself. */}
+          <div className="mx-auto min-h-dvh max-w-md overflow-x-clip">
+            {screen === 'onboarding' && (
+              <motion.div key="onboarding" {...fade}>
+                <Onboarding
+                  onToggleLang={() => set({ lang: p.lang === 'en' ? 'ar' : 'en' })}
+                  onDone={(answers) => {
+                    set({ ...answers, onboarded: true, joined: p.joined || isoDay() })
+                    setReplay(false)
+                    window.history.replaceState(null, '', window.location.pathname)
                   }}
-                >
-                  {tab === id && <motion.span layoutId="tab" className="absolute inset-0 rounded-full bg-brandSoft" transition={spring} />}
-                  <svg aria-hidden viewBox={`${x - 8} ${tab === id ? 40.6 : 22.3} 16 16`} className="relative h-[26px] w-[26px]">
-                    <image href="/nav/icons.svg" width="80" height="80" />
-                  </svg>
-                  <span className="relative">{p.lang === 'ar' ? label.ar : label.en}</span>
-                </button>
-              ))}
-            </nav>
-          )}
-        </div>
-        {/* Short confirmations and errors, as a glass pill at the top. Swipe one up (or sideways) to dismiss it.
+                />
+              </motion.div>
+            )}
+            {screen === 'lesson' && run && (
+              <motion.div key="lesson" {...fade}>
+                <LessonRunner tasks={run.tasks} onExit={() => setRun(null)} onFinish={finish} p={p} signedIn={!!session} plan={plan} onUpgrade={upgrade} />
+              </motion.div>
+            )}
+            {screen === 'done' && result && (
+              <motion.div key="done" {...fade}>
+                <Complete
+                  result={result}
+                  onContinue={() => {
+                    setResult(null)
+                    setTab('learn')
+                  }}
+                />
+              </motion.div>
+            )}
+            {screen === 'tabs' && (
+              <motion.div key="tabs" {...fade} className={tab === 'practice' ? undefined : 'pb-28'}>
+                <motion.div key={tab === 'pond' ? 'learn' : tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.16 }}>
+                  {/* Learn also sits under the pond, so swiping the pond away shows where it goes back to. */}
+                  {(tab === 'learn' || tab === 'pond') && <Learn p={p} plan={plan} onUpgrade={upgrade} onStart={(lesson) => setRun({ lesson, tasks: lesson.tasks })} />}
+                  {tab === 'practice' && <Practice p={p} signedIn={!!session} plan={plan} onUpgrade={upgrade} onReview={() => setRun({ tasks: reviewTasks(p.done) })} />}
+                  {tab === 'profile' && <Profile p={p} set={set} reset={reset} email={session?.user.email ?? null} plan={plan} onUpgrade={upgrade} />}
+                  {tab === 'pond' &&
+                    // In a portal: the animated wrappers here use transforms, which would break `fixed`.
+                    createPortal(
+                      <div className="fixed inset-0 z-30">
+                        <Pond pond={p.pond} setPond={(pond) => set({ pond })} onExit={() => setTab('learn')} />
+                      </div>,
+                      document.body,
+                    )}
+                </motion.div>
+              </motion.div>
+            )}
+            {/* Outside the animated screens, so `fixed` stays pinned to the viewport. The pond is full-screen: no tab bar. */}
+            {screen === 'tabs' && tab !== 'pond' && (
+              <nav
+                aria-label="Bataa"
+                className="glass fixed inset-x-3 z-40 mx-auto flex max-w-[424px] rounded-full p-1.5 shadow-float"
+                style={{ bottom: 'calc(0.75rem + var(--sab, env(safe-area-inset-bottom, 0px)))' }}
+              >
+                {tabs.map(({ id, x, label }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    aria-current={tab === id ? 'page' : undefined}
+                    className={`relative grid h-14 flex-1 place-content-center justify-items-center gap-0.5 text-[11px] font-semibold transition-[color,transform] duration-150 active:scale-90 ${tab === id ? 'text-brandDeep' : 'text-ink2'}`}
+                    onClick={() => {
+                      sound.playClick()
+                      setTab(id)
+                    }}
+                  >
+                    {tab === id && <motion.span layoutId="tab" className="absolute inset-0 rounded-full bg-brandSoft" transition={spring} />}
+                    <svg aria-hidden viewBox={`${x - 8} ${tab === id ? 40.6 : 22.3} 16 16`} className="relative h-[26px] w-[26px]">
+                      <image href="/nav/icons.svg" width="80" height="80" />
+                    </svg>
+                    <span className="relative">{p.lang === 'ar' ? label.ar : label.en}</span>
+                  </button>
+                ))}
+              </nav>
+            )}
+          </div>
+          {/* Short confirmations and errors, as a glass pill at the top. Swipe one up (or sideways) to dismiss it.
             On phones sonner reads mobileOffset, not offset, so both are set. */}
-        <Paywall
-          open={paywall}
-          current={plan}
-          onClose={() => setPaywall(false)}
-          onChoose={() =>
-            // shortcut: no payment provider is connected yet, so Continue only says so; start Google Play Billing here.
-            toast((session ? ui.paySoon : ui.paySignIn)[p.lang])
-          }
-        />
-        <Toaster
-          position="top-center"
-          dir={p.lang === 'ar' ? 'rtl' : 'ltr'}
-          offset="calc(var(--sat, env(safe-area-inset-top, 0px)) + 12px)"
-          mobileOffset={{ top: 'calc(var(--sat, env(safe-area-inset-top, 0px)) + 12px)', left: 16, right: 16 }}
-          swipeDirections={['top', 'left', 'right']}
-          toastOptions={{
-            className: '!justify-center !rounded-full !border-white/80 !bg-white/85 !px-5 !py-3 !font-sans !text-[15px] !font-semibold !text-ink !shadow-float !backdrop-blur-md',
-          }}
-        />
+          <Paywall
+            open={paywall}
+            current={plan}
+            onClose={() => setPaywall(false)}
+            onChoose={() =>
+              // shortcut: no payment provider is connected yet, so Continue only says so; start Google Play Billing here.
+              toast((session ? ui.paySoon : ui.paySignIn)[p.lang])
+            }
+          />
+          <Toaster
+            position="top-center"
+            dir={p.lang === 'ar' ? 'rtl' : 'ltr'}
+            offset="calc(var(--sat, env(safe-area-inset-top, 0px)) + 12px)"
+            mobileOffset={{ top: 'calc(var(--sat, env(safe-area-inset-top, 0px)) + 12px)', left: 16, right: 16 }}
+            swipeDirections={['top', 'left', 'right']}
+            toastOptions={{
+              className: '!justify-center !rounded-full !border-white/80 !bg-white/85 !px-5 !py-3 !font-sans !text-[15px] !font-semibold !text-ink !shadow-float !backdrop-blur-md',
+            }}
+          />
+        </Suspense>
       </MotionConfig>
     </LangContext.Provider>
   )

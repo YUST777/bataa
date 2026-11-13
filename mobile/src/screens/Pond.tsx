@@ -971,24 +971,13 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
             style={{ transformOrigin: '50% 80%' }}
           >
             {/* An open bag sags as it empties. */}
-            <svg
-              viewBox="0 0 64 74"
-              className="pointer-events-none h-full w-full drop-shadow-[0_4px_6px_rgba(90,50,20,.35)] transition-transform duration-200"
+            <img
+              src="/pond/bread-bag.webp"
+              alt=""
+              draggable={false}
+              className="pointer-events-none h-full w-full object-contain drop-shadow-[0_4px_6px_rgba(90,50,20,.35)] transition-transform duration-200"
               style={{ transform: `scaleY(${pond.bits ? 0.62 + (0.38 * pond.bits) / CRUMBS : 1})`, transformOrigin: '50% 100%' }}
-              aria-hidden
-            >
-              {/* Kraft-paper bag, drawn like the pond item sheet: flat shapes, soft shading, no outlines. */}
-              <path d="M13 20Q7 42 10 65Q32 73 54 65Q57 42 51 20Z" fill="#F5C590" />
-              <path d="M44 21Q50 42 47 67Q51 66 54 65Q57 42 51 20Z" fill="#E8AB74" />
-              <path d="M13 20Q9 40 10 52Q11 38 16 21Z" fill="#FAD5A7" />
-              <path d="M12 20Q32 27 52 20L50 9Q32 15 14 9Z" fill="#F7D0A7" />
-              <path d="M14 9Q32 15 50 9L51 13Q32 19 13 13Z" fill="#F0AB69" />
-              <path d="M12 20Q32 27 52 20L51.5 23Q32 30 12.5 23Z" fill="#E8AB74" />
-              <ellipse cx="32" cy="45" rx="14" ry="10" fill="#FEF5EC" />
-              <path d="M21 47Q21 38 32 38Q43 38 43 47Q43 51 32 51Q21 51 21 47Z" fill="#F7B26D" />
-              <path d="M21 47Q21 38 32 38Q43 38 43 47Q37 43 32 43Q27 43 21 47Z" fill="#F9A408" />
-              <path d="M27 41.5l1.6 3M32 40.5l0 3.2M37 41.5l-1.6 3" stroke="#FEF5EC" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
+            />
             <span className="pointer-events-none absolute -end-1 -top-1 grid min-w-[22px] place-items-center rounded-full bg-white px-1 text-[12px] font-bold leading-[22px] text-ink shadow-soft">
               {bags}
             </span>
@@ -1131,7 +1120,7 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
             {/* Bread: bought again and again, by the bag. */}
             <li className="flex items-center gap-3 rounded-2xl bg-ink/[.04] p-3">
               <span className="grid h-12 w-12 shrink-0 place-items-center">
-                <Croissant className="h-10 w-10" />
+                <img src="/pond/bread-bag.webp" alt="" className="h-11 w-11 object-contain" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-[15px] font-semibold">{t(ui.breadBag)}</span>
@@ -1265,7 +1254,7 @@ function PondTour({ onDone }: { onDone: () => void }) {
               ) : card.icon === 'sparkles' ? (
                 <PondDuck level={2} size={52} />
               ) : card.icon === 'bread' ? (
-                <Croissant className="h-12 w-12" />
+                <img src="/pond/bread-bag.webp" alt="" className="h-14 w-14 object-contain" />
               ) : (
                 <Moon className="h-12 w-12" />
               )}

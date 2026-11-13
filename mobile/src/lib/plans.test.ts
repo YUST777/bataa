@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 import { units } from '@/data/course'
-import { PRICE, proOnly } from './plans'
+import { DAILY, PRICE, proOnly } from './plans'
 
 test('Free opens the first unit only; Pro opens everything', () => {
   const [html, css] = units
@@ -10,5 +10,6 @@ test('Free opens the first unit only; Pro opens everything', () => {
 })
 
 test('yearly is about 20% off twelve months', () => {
+  expect(DAILY.free < DAILY.pro && DAILY.pro < DAILY.max).toBe(true)
   for (const p of Object.values(PRICE)) expect(p.yearly / (p.monthly * 12)).toBeCloseTo(0.8, 2)
 })

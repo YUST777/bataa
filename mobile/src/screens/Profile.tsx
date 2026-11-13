@@ -1,11 +1,12 @@
-import { useState, type ChangeEvent, type ReactNode } from 'react'
+import { Suspense, lazy, useState, type ChangeEvent, type ReactNode } from 'react'
 import { motion } from 'motion/react'
 import NumberFlow from '@number-flow/react'
 import { BookOpenCheck, Camera, Check, Flame, ImageIcon, Settings, Trash2, Zap } from '@/components/Icon'
 import Cropper, { type Area } from 'react-easy-crop'
 import { toast } from 'sonner'
 import { Badge, awards, type Award } from '@/components/Badge'
-import { BadgeModel } from '@/components/BadgeModel'
+// three.js is large: it loads only when a medal is opened.
+const BadgeModel = lazy(() => import('@/components/BadgeModel').then((m) => ({ default: m.BadgeModel })))
 import { Duck } from '@/components/Duck'
 import { Button, Sky, Tray, spring } from '@/components/ui'
 import { ui, useT } from '@/i18n'
@@ -249,7 +250,11 @@ export function Profile({
           <div className="grid justify-items-center gap-4 text-center">
             <div className="grid justify-items-center">
               {/* Mounted only while open, so the 3D renderer is torn down with the sheet. */}
-              {badgeOpen && <BadgeModel id={shownBadge.id} earned={shownBadge.earned} hint={t(ui.dragToSpin)} />}
+              {badgeOpen && (
+                <Suspense fallback={<div className="aspect-square w-full" />}>
+                  <BadgeModel id={shownBadge.id} earned={shownBadge.earned} hint={t(ui.dragToSpin)} />
+                </Suspense>
+              )}
             </div>
             <div className="grid gap-1">
               <h2 className="text-[22px] font-semibold tracking-tight">{t(shownBadge.label)}</h2>

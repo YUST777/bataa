@@ -1,7 +1,8 @@
 /**
  * Plans: Free and Pro. The plan lives in Supabase (`subscriptions`, written only by the server) and is read
  * through the current_plan() function; signed out means Free. What each plan unlocks:
- * - Free: the first unit and FREE_DAILY Bataa AI messages a day (the tutor function enforces the limit).
+ * - Free: the first unit and DAILY.free Bataa AI messages a day. Every plan has a daily AI limit (DAILY),
+ *   which the tutor function enforces.
  * - Pro (199 EGP a month): the desktop and mobile apps, every unit and Bataa AI.
  * - Max (499 EGP a month): everything in Pro with more Bataa AI.
  * See supabase/migrations/20261113120000_plans.sql.
@@ -14,8 +15,8 @@ import { units } from '@/data/course'
 export type Plan = 'free' | 'pro' | 'max'
 export type Period = 'monthly' | 'yearly'
 
-/** Keep in step with FREE_DAILY in supabase/functions/tutor. */
-export const FREE_DAILY = 10
+/** Bataa AI messages a day on each plan. Keep in step with DAILY in supabase/functions/tutor. */
+export const DAILY: Record<Plan, number> = { free: 10, pro: 100, max: 300 }
 /** Units open on the Free plan. */
 export const FREE_UNITS = ['html']
 

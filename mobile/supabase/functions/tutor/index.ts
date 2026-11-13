@@ -9,8 +9,8 @@ const MODEL = 'gpt-6.1-terra'
 const API = 'https://modelflare.dev/v1/chat/completions'
 const MAX_TURNS = 20
 const MAX_CHARS = 2000
-/** Bataa AI messages a day on the Free plan (Pro and Team have no limit). Keep in step with the app (src/lib/plans.ts). */
-const FREE_DAILY = 10
+/** Bataa AI messages a day on each plan ('team' counts as Max). Keep in step with DAILY in the app (src/lib/plans.ts). */
+const DAILY = { free: 10, pro: 100, max: 300 }
 
 const LESSONS: Record<string, string> = {
   button: 'buttons: <button>, opening and closing tags',
@@ -80,9 +80,9 @@ Deno.serve(async (req) => {
     .slice(-MAX_TURNS)
   if (!messages.length || messages[messages.length - 1].role !== 'user') return fail(400, 'no_question')
 
-  // Plans: Free learners get FREE_DAILY messages a day, counted in the database before the model runs.
+  // Plans: each has DAILY messages a day, counted in the database before the model runs.
   // shortcut: a message is counted even if Modelflare then fails; refund it if that becomes common.
-  const { data: quota, error: quotaError } = await supabase.rpc('use_ai_message', { free_limit: FREE_DAILY })
+  const { data: quota, error: quotaError } = await supabase.rpc('use_ai_message', { free_limit: DAILY.free, pro_limit: DAILY.pro, max_limit: DAILY.max })
   if (quotaError) {
     console.error('Quota check failed', quotaError.message)
     return fail(500, 'tutor_unavailable')
