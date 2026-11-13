@@ -115,3 +115,37 @@
   /* The medal's light sweep stays: it is light, not movement. */
   .skeleton, .duck-loading, .medal-rays { animation: none; }
 }
+
+/* Bataa AI chat (screens/Practice.tsx): drifting aurora, gradient greeting, shimmer while thinking. */
+.aurora-a { animation: aurora-a 18s ease-in-out infinite alternate; }
+.aurora-b { animation: aurora-b 22s ease-in-out infinite alternate; }
+.aurora-c { animation: aurora-c 26s ease-in-out infinite alternate; }
+@keyframes aurora-a { to { transform: translate(5rem, 6rem) scale(1.15); } }
+@keyframes aurora-b { to { transform: translate(-6rem, 4rem) scale(.9); } }
+@keyframes aurora-c { to { transform: translate(4rem, -7rem) scale(1.2); } }
+.ai-gradient {
+  background: linear-gradient(100deg, #FF8A1F, #FF5E7A 45%, #FFB020 90%) 0 0 / 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: ai-gradient 6s ease-in-out infinite alternate;
+}
+@keyframes ai-gradient { to { background-position: 100% 0; } }
+.ai-shimmer {
+  background: linear-gradient(90deg, #B5A99D 30%, #1F1611 50%, #B5A99D 70%) 0 0 / 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: ai-shimmer 1.6s linear infinite;
+}
+@keyframes ai-shimmer { from { background-position: 150% 0; } to { background-position: -100% 0; } }
+.ai-pulse { animation: ai-pulse 1.2s ease-in-out infinite; }
+@keyframes ai-pulse { 50% { box-shadow: 0 0 0 6px rgba(255,138,31,.18); } }
+.ai-spark svg { animation: ai-spark 5s ease-in-out infinite; }
+@keyframes ai-spark { 50% { transform: rotate(90deg) scale(.85); } }
+.ai-md p { margin: 0 0 .7em; }
+.ai-md p:last-child { margin-bottom: 0; }
+.ai-md ul, .ai-md ol { margin: 0 0 .7em; padding-inline-start: 1.3em; display: grid; gap: .25em; }
+.ai-md ul { list-style: disc; } .ai-md ol { list-style: decimal; }
+.ai-md strong { font-weight: 700; }
+.ai-md h1, .ai-md h2, .ai-md h3 { font-size: 1.05em; font-weight: 700; margin: .4em 0 .3em; }
+.ai-md a { color: #C25300; text-decoration: underline; }
+@media (prefers-reduced-motion: reduce) {
+  .aurora-a, .aurora-b, .aurora-c, .ai-gradient, .ai-shimmer, .ai-spark svg { animation: none; }
+}

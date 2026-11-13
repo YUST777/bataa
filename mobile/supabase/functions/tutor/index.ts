@@ -1,5 +1,6 @@
 // Bataa AI: the tutor behind the Practice chat. The app sends the conversation; this function adds the
-// tutor's instructions and streams the reply from Modelflare (gpt-6.1-terra, OpenAI-style chat API).
+// tutor's instructions and streams the reply from Modelflare (gpt-6.1-terra, OpenAI-style chat API) back
+// as plain text, which the app's AI SDK chat reads.
 // The Modelflare key lives only here, as the MODELFLARE_API_KEY secret, never in the app bundle.
 // Only signed-in learners may call it, so the public anon key alone cannot spend the credits.
 import { createClient } from 'npm:@supabase/supabase-js@2.116.0'
@@ -61,11 +62,16 @@ Deno.serve(async (req) => {
   } catch {
     return fail(400, 'bad_json')
   }
-  // Only the learner's and the tutor's turns, trimmed: the instructions are always ours.
-  const messages = (Array.isArray(body.messages) ? body.messages : [])
-    .filter((m): m is { role: 'user' | 'assistant'; content: string } => !!m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+  // Only the learner's and the tutor's turns, trimmed: the instructions are always ours. Accepts plain
+  // {role, content} turns or the AI SDK's UI messages ({role, parts: [{type: 'text', text}]}).
+  type Turn = { role?: unknown; content?: unknown; parts?: { type?: unknown; text?: unknown }[] }
+  const text = (m: Turn) =>
+    typeof m.content === 'string' ? m.content : Array.isArray(m.parts) ? m.parts.map((p) => (p?.type === 'text' && typeof p.text === 'string' ? p.text : '')).join('') : ''
+  const messages = (Array.isArray(body.messages) ? (body.messages as Turn[]) : [])
+    .filter((m) => !!m && (m.role === 'user' || m.role === 'assistant'))
+    .map((m) => ({ role: m.role as 'user' | 'assistant', content: text(m).slice(0, MAX_CHARS) }))
+    .filter((m) => m.content.trim())
     .slice(-MAX_TURNS)
-    .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_CHARS) }))
   if (!messages.length || messages[messages.length - 1].role !== 'user') return fail(400, 'no_question')
   const lang = body.lang === 'ar' ? 'ar' : 'en'
   const done = Array.isArray(body.done) ? body.done.filter((d): d is string => typeof d === 'string').slice(0, 50) : []
@@ -81,6 +87,27 @@ Deno.serve(async (req) => {
     console.error('Modelflare error', upstream.status, await upstream.text().catch(() => ''))
     return fail(502, 'tutor_unavailable')
   }
-  // The OpenAI-style event stream goes straight through to the app.
-  return new Response(upstream.body, { headers: { ...cors, 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' } })
+  // The app's chat (AI SDK, TextStreamChatTransport) reads plain text, so the OpenAI-style events are
+  // unwrapped here into just the reply's words.
+  let pending = ''
+  const decoder = new TextDecoder()
+  const encoder = new TextEncoder()
+  const words = new TransformStream<Uint8Array, Uint8Array>({
+    transform(chunk, out) {
+      pending += decoder.decode(chunk, { stream: true })
+      const lines = pending.split('\n')
+      pending = lines.pop() ?? ''
+      for (const line of lines) {
+        const data = line.startsWith('data:') ? line.slice(5).trim() : ''
+        if (!data || data === '[DONE]') continue
+        try {
+          const delta = JSON.parse(data).choices?.[0]?.delta?.content
+          if (delta) out.enqueue(encoder.encode(delta))
+        } catch {
+          // keep-alive or a partial event: skip
+        }
+      }
+    },
+  })
+  return new Response(upstream.body.pipeThrough(words), { headers: { ...cors, 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-cache' } })
 })

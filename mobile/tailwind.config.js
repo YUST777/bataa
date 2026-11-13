@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{ts,tsx}'],
+  content: ['./index.html', './src/**/*.{ts,tsx}', './node_modules/streamdown/dist/*.js'],
   theme: {
     extend: {
       // Bataa's warm palette on a white ground: hairlines and soft shadows instead of heavy borders.
