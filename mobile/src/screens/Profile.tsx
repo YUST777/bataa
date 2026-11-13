@@ -11,7 +11,7 @@ import { Button, Sky, Tray, spring } from '@/components/ui'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import { saveAvatar, signOut } from '@/lib/account'
-import { PLANS, type Plan } from '@/lib/plans'
+import { PLAN_ART, type Plan } from '@/lib/plans'
 import { GoogleButton } from '@/components/GoogleButton'
 import { NAME_MAX, isoDay, streak, type Progress } from '@/state/progress'
 
@@ -190,10 +190,10 @@ export function Profile({
       <div className="grid gap-7 px-4 pb-6 pt-3">
         {/* Plan: what the learner is on, and the way to the plans page. */}
         <button type="button" onClick={onUpgrade} className="card flex items-center gap-3 p-3 text-start active:scale-[.99] transition-transform">
-          <img src={PLANS.find((x) => x.id === plan)!.art} alt="" className="h-12 w-12 shrink-0 object-contain" />
+          <img src={PLAN_ART[plan]} alt="" className="h-12 w-12 shrink-0 object-contain" />
           <span className="min-w-0 flex-1">
             <span className="block text-[12px] font-semibold text-ink2">{t(ui.planLabel)}</span>
-            <span className="block text-[17px] font-semibold">{plan === 'free' ? t(PLANS[0].title) : `Bataa ${t(PLANS.find((x) => x.id === plan)!.title)}`}</span>
+            <span className="block text-[17px] font-semibold">{t(plan === 'free' ? ui.planFree : ui.planPro)}</span>
           </span>
           <span className={`rounded-full px-3.5 py-2 text-[13px] font-semibold ${plan === 'free' ? 'bg-accent text-ink' : 'bg-warm text-ink'}`}>
             {t(plan === 'free' ? ui.upgrade : ui.managePlan)}

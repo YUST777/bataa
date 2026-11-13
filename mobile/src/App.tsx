@@ -168,11 +168,10 @@ export default function App() {
           open={paywall}
           current={plan}
           onClose={() => setPaywall(false)}
-          onChoose={(choice) => {
-            if (choice === 'free') return setPaywall(false)
-            // shortcut: no payment provider is connected yet, so a paid choice only says so; wire checkout here.
+          onChoose={() =>
+            // shortcut: no payment provider is connected yet, so Continue only says so; start Google Play Billing here.
             toast((session ? ui.paySoon : ui.paySignIn)[p.lang])
-          }}
+          }
         />
         <Toaster
           position="top-center"
