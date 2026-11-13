@@ -61,7 +61,7 @@ export function Paywall({
         >
           <div className="flex-1 overflow-y-auto">
             {/* Hero: the sunset pond fading into the page, the picked plan's art in front. */}
-            <div className="relative h-[230px] bg-cover bg-top" style={{ backgroundImage: 'url(/plans/bg.webp)' }}>
+            <div className="relative h-[clamp(120px,20vh,180px)] bg-cover bg-top" style={{ backgroundImage: 'url(/plans/bg.webp)' }}>
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-page/10 to-page" />
               <div className="absolute start-4" style={{ top: 'calc(var(--sat, env(safe-area-inset-top, 0px)) + 0.75rem)' }}>
                 <IconButton label={t(ui.close)} onClick={onClose}>
@@ -76,15 +76,13 @@ export function Paywall({
                 initial={{ opacity: 0, y: 12, scale: 0.94 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={spring}
-                className="absolute bottom-0 left-1/2 h-[150px] -translate-x-1/2 object-contain drop-shadow-lg"
+                className="absolute bottom-0 left-1/2 h-[clamp(84px,14vh,124px)] -translate-x-1/2 object-contain drop-shadow-lg"
               />
             </div>
 
-            <div className="mx-auto grid max-w-[460px] gap-5 px-5 pb-6 pt-2">
-              <header className="text-center">
-                <h1 className="text-[30px] font-bold leading-tight tracking-tight">{t(ui.payTitle)}</h1>
-                <p className="mt-1 text-[15px] font-medium text-ink2">{t(ui.paySub)}</p>
-              </header>
+            {/* Kept tight so all three plans show without scrolling on a normal phone. */}
+            <div className="mx-auto grid max-w-[460px] gap-3 px-4 pb-4 pt-1">
+              <h1 className="text-center text-[24px] font-bold leading-tight tracking-tight">{t(ui.payTitle)}</h1>
 
               {/* Monthly or yearly. */}
               <div className="mx-auto flex rounded-full bg-white p-1 shadow-soft">
@@ -94,7 +92,7 @@ export function Paywall({
                     type="button"
                     aria-pressed={period === per}
                     onClick={() => setPeriod(per)}
-                    className={`relative flex h-10 items-center gap-2 rounded-full px-5 text-[14px] font-semibold ${period === per ? 'text-white' : 'text-ink2'}`}
+                    className={`relative flex h-9 items-center gap-2 rounded-full px-5 text-[14px] font-semibold ${period === per ? 'text-white' : 'text-ink2'}`}
                   >
                     {period === per && <motion.span layoutId="period" className="absolute inset-0 rounded-full bg-ink" transition={spring} />}
                     <span className="relative">{t(per === 'monthly' ? ui.payMonthly : ui.payYearly)}</span>
@@ -104,7 +102,7 @@ export function Paywall({
               </div>
 
               {/* Plans as rows: tap one to pick it. */}
-              <div role="radiogroup" aria-label={t(ui.payTitle)} className="grid gap-2.5">
+              <div role="radiogroup" aria-label={t(ui.payTitle)} className="mt-1 grid gap-2.5">
                 {rows.map((r) => {
                   const on = r.id === picked
                   return (
@@ -117,17 +115,17 @@ export function Paywall({
                         sound.playClick()
                         setPicked(r.id)
                       }}
-                      className={`relative block min-w-0 rounded-[22px] border-2 bg-white p-3 text-start transition-colors ${on ? 'border-accent' : 'border-transparent shadow-soft'}`}
+                      className={`relative block min-w-0 rounded-[20px] border-2 bg-white px-3 py-2.5 text-start transition-colors ${on ? 'border-accent' : 'border-transparent shadow-soft'}`}
                     >
                       {r.id === 'pro' && <span className="absolute -top-2.5 end-4 rounded-full bg-ink px-2.5 py-0.5 text-[10px] font-bold text-white">{t(ui.payPopular)}</span>}
                       <span className="flex items-center gap-3">
-                        <img src={PLAN_ART[r.id]} alt="" draggable={false} className="h-14 w-14 shrink-0 object-contain" />
+                        <img src={PLAN_ART[r.id]} alt="" draggable={false} className="h-11 w-11 shrink-0 object-contain" />
                         <span className="min-w-0 flex-1">
-                          <span className="block text-[17px] font-semibold leading-tight">{t(r.title)}</span>
+                          <span className="block text-[16px] font-semibold leading-tight">{t(r.title)}</span>
                           <span className="block truncate text-[13px] font-medium text-ink2">{r.id === current ? t(ui.payYourPlan) : t(r.line)}</span>
                         </span>
                         <span className="text-end">
-                          <span className="block text-[17px] font-bold tabular-nums">{r.price}</span>
+                          <span className="block text-[16px] font-bold leading-tight tabular-nums">{r.price}</span>
                           <span className="block text-[11px] font-semibold text-ink3">{t(ui.payPerMonth)}</span>
                         </span>
                         <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${on ? 'border-accent bg-accent text-ink' : 'border-lip'}`}>
@@ -144,10 +142,9 @@ export function Paywall({
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.28, ease: [0.65, 0, 0.35, 1] }}
                           >
-                            <span className="mt-3 grid gap-2 border-t border-line pt-3">
-                              <span className="text-[12px] font-semibold text-ink3">{t(ui.payIncludes)}</span>
+                            <span className="mt-2.5 grid gap-1.5 border-t border-line pt-2.5">
                               {r.perks.map((perk) => (
-                                <span key={perk.en} className="flex items-start gap-2.5 text-[14px] font-medium leading-snug text-ink">
+                                <span key={perk.en} className="flex items-start gap-2.5 text-[13.5px] font-medium leading-snug text-ink">
                                   <span className="mt-px grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent/30 text-ink">
                                     <Check className="h-2.5 w-2.5" />
                                   </span>
@@ -166,13 +163,13 @@ export function Paywall({
           </div>
 
           {/* One button, always in reach. */}
-          <div className="border-t border-line bg-page/95 px-5 pt-3 backdrop-blur" style={{ paddingBottom: 'calc(var(--sab, env(safe-area-inset-bottom, 0px)) + 0.75rem)' }}>
-            <div className="mx-auto grid max-w-[460px] gap-2">
+          <div className="border-t border-line bg-page/95 px-4 pt-2.5 backdrop-blur" style={{ paddingBottom: 'calc(var(--sab, env(safe-area-inset-bottom, 0px)) + 0.5rem)' }}>
+            <div className="mx-auto grid max-w-[460px] gap-1.5">
               <button
                 type="button"
                 disabled={picked === current}
                 onClick={() => (picked === 'free' ? onClose() : onChoose(picked, period))}
-                className="h-14 w-full rounded-full bg-accent text-[17px] font-bold text-ink shadow-soft transition-transform active:scale-[.98] disabled:bg-lip disabled:text-ink3"
+                className="h-[52px] w-full rounded-full bg-accent text-[17px] font-bold text-ink shadow-soft transition-transform active:scale-[.98] disabled:bg-lip disabled:text-ink3"
               >
                 {t(cta)}
               </button>
