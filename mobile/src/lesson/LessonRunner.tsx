@@ -6,8 +6,7 @@ import { Bubble, Button, Code, IconButton, Preview, ProgressBar, Tray, spring } 
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import type { Plan } from '@/lib/plans'
-import { ChatBody } from '@/screens/Practice'
-import { PondDuck } from '@/screens/Pond'
+import { ChatBody, G, Glyph } from '@/screens/Practice'
 import type { Progress } from '@/state/progress'
 import type { Answer, L, Task } from '@/types'
 import type { UIMessage } from 'ai'
@@ -112,11 +111,9 @@ export function LessonRunner({
             sound.playClick()
             setAsking(true)
           }}
-          className="glass flex h-10 shrink-0 items-center gap-1.5 rounded-full pe-3.5 ps-1.5 text-[14px] font-semibold text-ink shadow-soft transition-transform active:scale-95"
+          className="glass flex h-10 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[14px] font-semibold text-ink shadow-soft transition-transform active:scale-95"
         >
-          <span className="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-brandSoft">
-            <PondDuck level={1} size={20} />
-          </span>
+          <G d={Glyph.spark} fill className="h-4 w-4 text-brand" />
           {t(ui.askAi)}
         </button>
       </header>

@@ -12,7 +12,6 @@ import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import { textOf, tutorTransport, type TutorContext } from '@/lib/tutor'
 import { FREE_DAILY, aiUsedToday, type Plan } from '@/lib/plans'
-import { PondDuck } from '@/screens/Pond'
 import type { Progress } from '@/state/progress'
 import type { QuizTask, Task } from '@/types'
 
@@ -47,7 +46,7 @@ const titleOf = (messages: UIMessage[]) => {
 }
 
 /** Small line icons drawn here, in the style of the icon sheet. */
-const Glyph = {
+export const Glyph = {
   copy: 'M9 9h9v11H9zM6 15H5V4h11v1',
   menu: 'M4 8h16M4 16h10',
   plus: 'M12 5v14M5 12h14',
@@ -58,7 +57,7 @@ const Glyph = {
   eye: 'M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12zM12 9.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6z',
   spark: 'M12 3c.5 4.6 4.4 8.5 9 9-4.6.5-8.5 4.4-9 9-.5-4.6-4.4-8.5-9-9 4.6-.5 8.5-4.4 9-9z',
 }
-function G({ d, className = 'h-[18px] w-[18px]', fill = false }: { d: string; className?: string; fill?: boolean }) {
+export function G({ d, className = 'h-[18px] w-[18px]', fill = false }: { d: string; className?: string; fill?: boolean }) {
   return (
     <svg
       aria-hidden
@@ -346,7 +345,7 @@ export function ChatBody({
                 <motion.div key={m.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid gap-2">
                   <div className="flex items-center gap-2">
                     <span className={`grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-brandSoft ${live ? 'ai-pulse' : ''}`}>
-                      <PondDuck level={1} size={20} />
+                      <G d={Glyph.spark} fill className="h-4 w-4 text-brand" />
                     </span>
                     <span className="text-[13px] font-semibold text-ink2">Bataa</span>
                   </div>
@@ -378,7 +377,7 @@ export function ChatBody({
             {status === 'submitted' && (
               <div className="flex items-center gap-2">
                 <span className="ai-pulse grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-brandSoft">
-                  <PondDuck level={1} size={20} />
+                  <G d={Glyph.spark} fill className="h-4 w-4 text-brand" />
                 </span>
                 <span className="ai-shimmer text-[15px] font-semibold">{t(ui.aiThinking)}</span>
               </div>
