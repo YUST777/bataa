@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom'
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { Suspense, lazy, startTransition, useEffect, useState } from 'react'
 import { MotionConfig, motion } from 'motion/react'
 import { Toaster, toast } from 'sonner'
 import { spring } from '@/components/ui'
@@ -50,12 +50,32 @@ const tabs = [
 
 // Screens animate in only. Exit animations (AnimatePresence) around whole screens left them
 // mounted when a sheet inside was closing, so the next screen never appeared.
-const fade = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: spring } as const
+// Screens come in with a short fade: long enough to soften the cut, short enough never to look washed out.
+const fade = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { ...spring, opacity: { duration: 0.12 } } } as const
 
 export default function App() {
   // Fetch the other screens while the learner looks at the first one.
   useEffect(() => {
-    const warm = () => Object.values(screens).forEach((load) => load().catch(() => {}))
+    const warm = () => {
+      Object.values(screens).forEach((load) => load().catch(() => {}))
+      import('@/lib/highlight').then(
+        (m) => m.warm(),
+        () => {},
+      )
+      // Art the other screens draw, so the pond and the plans page never paint before their pictures.
+      for (const src of [
+        '/pond/sunset.svg',
+        '/pond/items.svg',
+        '/pond/gadgets.svg',
+        '/pond/decor.svg',
+        '/pond/bread-bag.webp',
+        '/plans/bg.webp',
+        '/plans/free.webp',
+        '/plans/pro.webp',
+        '/plans/team.webp',
+      ])
+        new Image().src = src
+    }
     // Safari has no requestIdleCallback: a short timer does the same job there.
     const idle = typeof requestIdleCallback === 'function'
     const id = idle ? requestIdleCallback(warm, { timeout: 2500 }) : window.setTimeout(warm, 1200)
@@ -143,7 +163,8 @@ export default function App() {
             )}
             {screen === 'tabs' && (
               <motion.div key="tabs" {...fade} className={tab === 'practice' ? undefined : 'pb-28'}>
-                <motion.div key={tab === 'pond' ? 'learn' : tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.16 }}>
+                {/* Tabs switch instantly, like a native tab bar: a fade here flashed the whole screen pale. */}
+                <div key={tab === 'pond' ? 'learn' : tab}>
                   {/* Learn also sits under the pond, so swiping the pond away shows where it goes back to. */}
                   {(tab === 'learn' || tab === 'pond') && <Learn p={p} plan={plan} onUpgrade={upgrade} onStart={(lesson) => setRun({ lesson, tasks: lesson.tasks })} />}
                   {tab === 'practice' && <Practice p={p} signedIn={!!session} plan={plan} onUpgrade={upgrade} onReview={() => setRun({ tasks: reviewTasks(p.done) })} />}
@@ -156,7 +177,7 @@ export default function App() {
                       </div>,
                       document.body,
                     )}
-                </motion.div>
+                </div>
               </motion.div>
             )}
             {/* Outside the animated screens, so `fixed` stays pinned to the viewport. The pond is full-screen: no tab bar. */}
@@ -174,7 +195,8 @@ export default function App() {
                     className={`relative grid h-14 flex-1 place-content-center justify-items-center gap-0.5 text-[11px] font-semibold transition-[color,transform] duration-150 active:scale-90 ${tab === id ? 'text-brandDeep' : 'text-ink2'}`}
                     onClick={() => {
                       sound.playClick()
-                      setTab(id)
+                      // A transition: React draws the new tab in slices, so the tap and the tab bar never stall on it.
+                      startTransition(() => setTab(id))
                     }}
                   >
                     {tab === id && <motion.span layoutId="tab" className="absolute inset-0 rounded-full bg-brandSoft" transition={spring} />}

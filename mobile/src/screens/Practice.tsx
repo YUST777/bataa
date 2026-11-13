@@ -1,4 +1,4 @@
-import { isValidElement, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
+import { isValidElement, startTransition, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { useChat } from '@ai-sdk/react'
 import type { UIMessage } from 'ai'
@@ -593,8 +593,9 @@ export function Practice({ p, signedIn, plan, onUpgrade, onReview }: { p: Progre
                   <button
                     type="button"
                     onClick={() => {
-                      setCurrent(c.id)
                       setDrawer(false)
+                      // Drawing a long chat is heavy: as a transition it never stalls the drawer sliding shut.
+                      startTransition(() => setCurrent(c.id))
                     }}
                     className="min-w-0 flex-1 px-3 py-2.5 text-start"
                   >

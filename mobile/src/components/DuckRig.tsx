@@ -5,6 +5,8 @@ import type { Mood } from './Duck'
 
 // Serve the Rive runtime from the app bundle, not a CDN, so the duck works offline in the APK.
 RuntimeLoader.setWasmUrl(riveWasm)
+// Start the engine as soon as this module loads (it is prefetched while the app is idle), not when the first duck appears.
+RuntimeLoader.awaitInstance().catch(() => {})
 
 const SM = 'Duck'
 const layout = new Layout({ fit: Fit.Contain })

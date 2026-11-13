@@ -60,17 +60,22 @@ const Dots = () => (
   </span>
 )
 
+// The highlighter module once loaded, so a snippet coloured before paints coloured on its first frame.
+let hl: typeof import('@/lib/highlight') | null = null
+
 /** Read-only code in an editor frame. Code always reads left to right, even in Arabic. */
 export function Code({ children, name }: { children: ReactNode; name?: string }) {
   // Plain snippets get syntax colours once the highlighter has loaded; snippets with blanks in them stay as they are.
-  const [html, setHtml] = useState<string | null>(null)
+  const [html, setHtml] = useState<string | null>(() => (typeof children === 'string' && hl?.cached(children)) || null)
   useEffect(() => {
+    if (typeof children !== 'string') return setHtml(null)
+    const ready = hl?.cached(children)
+    if (ready) return setHtml(ready)
     setHtml(null)
-    if (typeof children !== 'string') return
     let live = true
     // Loaded on demand: the highlighter is bigger than the rest of the app's code.
     import('@/lib/highlight')
-      .then((m) => m.highlight(children))
+      .then((m) => (hl = m).highlight(children))
       .then(
         (h) => live && setHtml(h),
         () => {},
@@ -178,7 +183,8 @@ export function Tray({
             initial={closed}
             animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
             exit={leave}
-            transition={glide}
+            // Opaque almost at once while it grows, so what is behind never shows through the card.
+            transition={{ ...glide, opacity: { duration: 0.1 } }}
             onClick={(e) => e.stopPropagation()}
           >
             <div aria-hidden className="mx-auto mb-3 h-1 w-9 rounded-full bg-lip" />
