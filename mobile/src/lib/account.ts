@@ -141,7 +141,9 @@ export function useCloudSync(session: Session | null, p: Progress, load: (next: 
         return
       }
       const remote = data ? parse(JSON.stringify(data.data)) : null
-      if (remote && score(remote) > score(live.current)) load({ ...remote, lang: live.current.lang, photo: live.current.photo })
+      // The account's copy wins when it is further along, language included, so a new phone opens in the
+      // learner's language. The photo stays local (it lives in the avatars bucket, not in this row).
+      if (remote && score(remote) > score(live.current)) load({ ...remote, lang: remote.lang ?? live.current.lang, photo: live.current.photo })
       // Who they are, from Google, unless they already set it here.
       const meta = session!.user.user_metadata ?? {}
       const name = String(meta.full_name ?? meta.name ?? '')

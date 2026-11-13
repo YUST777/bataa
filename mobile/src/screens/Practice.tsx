@@ -10,31 +10,12 @@ import { IconButton, Preview } from '@/components/ui'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 import { textOf, tutorTransport, type TutorContext } from '@/lib/tutor'
+import { deleteChat, loadChats, saveChat, syncChats, titleOf, type SavedChat } from '@/lib/chats'
 import { DAILY, aiUsedToday, type Plan } from '@/lib/plans'
 import type { Progress } from '@/state/progress'
 
-/** Saved chats, newest first. `title` is the learner's first question. */
-type SavedChat = { id: string; title: string; at: number; messages: UIMessage[] }
 /** Every animation in Bataa AI eases in and out the same way: no springs, no bounce. */
 const smooth = { duration: 0.4, ease: [0.65, 0, 0.35, 1] } as const
-
-const KEY = 'bataa.chats'
-const valid = (v: unknown): UIMessage[] => (Array.isArray(v) ? v.filter((m) => m && (m.role === 'user' || m.role === 'assistant') && Array.isArray(m.parts)).slice(-40) : [])
-function loadChats(): SavedChat[] {
-  try {
-    const v = JSON.parse(localStorage.getItem(KEY) ?? 'null')
-    if (Array.isArray(v)) return v.filter((c) => c && typeof c.id === 'string').map((c) => ({ ...c, messages: valid(c.messages) }))
-    // The single chat from before there were many becomes the first one.
-    const old = valid(JSON.parse(localStorage.getItem('bataa.chat.v2') ?? '[]'))
-    return old.length ? [{ id: crypto.randomUUID(), title: titleOf(old), at: Date.now(), messages: old }] : []
-  } catch {
-    return []
-  }
-}
-const titleOf = (messages: UIMessage[]) => {
-  const first = messages.find((m) => m.role === 'user')
-  return first ? textOf(first).replace(/\s+/g, ' ').trim().slice(0, 60) : ''
-}
 
 /** Small line icons drawn here, in the style of the icon sheet. */
 export const Glyph = {
@@ -498,7 +479,7 @@ export function ChatBody({
 }
 
 /**
- * Practice is a chat with Bataa AI. Chats are kept on the device; the menu button opens a side drawer with
+ * Practice is a chat with Bataa AI. Chats are kept on the phone and in the account (lib/chats); the menu button opens a side drawer with
  * a new chat and every earlier one (newest first), each deletable.
  */
 export function Practice({ p, signedIn, plan, onUpgrade, onReview }: { p: Progress; signedIn: boolean; plan: Plan; onUpgrade: () => void; onReview: () => void }) {
@@ -506,15 +487,17 @@ export function Practice({ p, signedIn, plan, onUpgrade, onReview }: { p: Progre
   const [chats, setChats] = useState<SavedChat[]>(loadChats)
   const [current, setCurrent] = useState<string>(() => crypto.randomUUID())
   const [drawer, setDrawer] = useState(false)
+  // Signed in: bring in the account's chats (from other phones) and upload any made only here.
   useEffect(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(chats.slice(0, 30)))
-    } catch {
-      // Storage full or blocked: chats still work, they just are not kept.
+    if (!signedIn) return
+    let live = true
+    syncChats().then((merged) => live && merged && setChats(merged))
+    return () => {
+      live = false
     }
-  }, [chats])
+  }, [signedIn])
   const open = chats.find((c) => c.id === current)
-  const save = (messages: UIMessage[]) => setChats((all) => [{ id: current, title: titleOf(messages), at: Date.now(), messages }, ...all.filter((c) => c.id !== current)])
+  const save = (messages: UIMessage[]) => setChats(saveChat({ id: current, title: titleOf(messages), at: Date.now(), messages }))
   const fresh = () => {
     setCurrent(crypto.randomUUID())
     setDrawer(false)
@@ -606,7 +589,7 @@ export function Practice({ p, signedIn, plan, onUpgrade, onReview }: { p: Progre
                     type="button"
                     aria-label={t(ui.aiDeleteChat)}
                     onClick={() => {
-                      setChats((all) => all.filter((x) => x.id !== c.id))
+                      setChats(deleteChat(c.id))
                       if (c.id === current) setCurrent(crypto.randomUUID())
                     }}
                     className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink3 active:bg-white"

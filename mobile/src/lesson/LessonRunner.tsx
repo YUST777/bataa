@@ -10,6 +10,7 @@ import { ChatBody, G, Glyph } from '@/screens/Practice'
 import type { Progress } from '@/state/progress'
 import type { Answer, L, Task } from '@/types'
 import type { UIMessage } from 'ai'
+import { saveChat, titleOf } from '@/lib/chats'
 import { blank, check, previewDoc, ready, solution } from './engine'
 import { TaskBody } from './TaskBody'
 
@@ -46,6 +47,9 @@ export function LessonRunner({
   const missed = useRef(new Set<string>())
   const [asking, setAsking] = useState(false)
   const [chat, setChat] = useState<UIMessage[]>([])
+  // The lesson's Ask chat is also saved to the chat list (and the account), named after the step it began on.
+  const chatId = useRef(crypto.randomUUID())
+  const chatTitle = useRef('')
 
   const doc = previewDoc(task, answer)
   const touched = index > 0 || tries > 0 || ready(task, answer)
@@ -227,7 +231,11 @@ export function LessonRunner({
               plan={plan}
               onUpgrade={onUpgrade}
               initial={chat}
-              onSave={setChat}
+              onSave={(messages) => {
+                setChat(messages)
+                chatTitle.current ||= `${t(task.prompt)} · ${titleOf(messages)}`.slice(0, 80)
+                saveChat({ id: chatId.current, title: chatTitle.current, at: Date.now(), messages })
+              }}
               step={{ title: t(task.prompt), about, onClose: () => setAsking(false) }}
             />
           </motion.div>
