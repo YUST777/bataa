@@ -210,9 +210,6 @@ export function Practice({ p, signedIn, onReview }: { p: Progress; signedIn: boo
 
       <header className="flex items-center gap-2 px-4 pb-1 pt-3">
         <div className="me-auto flex items-center gap-2">
-          <span className="ai-spark grid h-9 w-9 place-items-center rounded-full bg-white/70 text-brand shadow-soft backdrop-blur">
-            <G d={Glyph.spark} fill className="h-[18px] w-[18px]" />
-          </span>
           <div>
             <h1 className="text-[18px] font-semibold leading-tight tracking-tight">{t(ui.aiTitle)}</h1>
             <p className="text-[11px] font-semibold uppercase tracking-wide text-ink3">gpt-6.1 terra</p>
