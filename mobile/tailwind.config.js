@@ -11,6 +11,8 @@ export default {
         line: '#EFE6DA',
         lip: '#E3D6C6',
         warm: '#FFF8EF',
+        // The page itself: warm cream behind every screen (frosted glass sits on it).
+        page: '#FFF4E8',
         // accent: fill for the primary action, always with ink text. brand: orange as text or icon on white.
         accent: '#FF8A1F',
         brand: '#C25300',

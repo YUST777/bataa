@@ -1,8 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import NumberFlow from '@number-flow/react'
 import confetti from 'canvas-confetti'
-import { Flame, Target, Zap } from 'lucide-react'
+import { Flame, Target, Zap } from '@/components/Icon'
 import { Badge } from '@/components/Badge'
 import { Duck } from '@/components/Duck'
 import { Button, Preview, Sky, spring } from '@/components/ui'
@@ -47,14 +47,14 @@ export function Complete({ result, onContinue }: { result: Result; onContinue: (
 
   useEffect(() => {
     sound.playCelebrationFanfare()
-    confetti({ particleCount: 90, spread: 80, origin: { y: 0.3 }, colors: ['#F26B00', '#FFC533', '#23A160', '#2F9BF0'], disableForReducedMotion: true })
+    confetti({ particleCount: 90, spread: 80, origin: { y: 0.3 }, colors: ['#F9801D', '#FFC533', '#FFE9C4', '#FF6B6B', '#23A160'], disableForReducedMotion: true })
   }, [])
 
   return (
     <div className="flex min-h-dvh flex-col">
       <Sky>
         <div className="relative grid justify-items-center pt-12">
-          <Duck mood="happy" size={170} className="-mb-2" />
+          <Duck mood="dance" size={170} className="-mb-2" />
           {lesson && (
             <motion.span className="absolute bottom-0 start-1/2 ms-10" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 8 }} transition={{ ...spring, delay: 0.5 }}>
               <Badge id={lesson.id} size={72} />
@@ -93,7 +93,7 @@ export function Complete({ result, onContinue }: { result: Result; onContinue: (
         )}
       </div>
 
-      <div className="sticky bottom-0 bg-gradient-to-t from-white from-70% to-white/0 p-4 pt-6" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+      <div className="sticky bottom-0 bg-gradient-to-t from-page from-70% to-page/0 p-4 pt-6" style={{ paddingBottom: 'calc(1rem + var(--sab, env(safe-area-inset-bottom, 0px)))' }}>
         <Button autoFocus onClick={onContinue}>
           {t(ui.next)}
         </Button>

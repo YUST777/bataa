@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
-import { motion } from 'framer-motion'
-import { X } from 'lucide-react'
+import { motion } from 'motion/react'
+import { X } from '@/components/Icon'
 import { Duck } from '@/components/Duck'
 import { Bubble, Button, Code, IconButton, Preview, ProgressBar, Tray, spring } from '@/components/ui'
 import { ui, useT } from '@/i18n'
@@ -52,8 +52,8 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gradient-to-b from-warm to-white to-40%">
-      <header className="flex items-center gap-3 px-4 pt-4">
+    <div className="flex min-h-dvh flex-col bg-gradient-to-b from-warm to-page to-40%">
+      <header className="flex items-center gap-3 px-4" style={{ paddingTop: 'calc(var(--sat, env(safe-area-inset-top, 0px)) + 1rem)' }}>
         <IconButton label={t(ui.close)} onClick={() => (touched ? setLeaving(true) : onExit())}>
           <X className="h-5 w-5" strokeWidth={2.5} />
         </IconButton>
@@ -84,9 +84,9 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
         </motion.div>
       </main>
 
-      <footer className="sticky bottom-0 z-10" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+      <footer className="sticky bottom-0 z-10" style={{ paddingBottom: 'var(--sab, env(safe-area-inset-bottom, 0px))' }}>
         {state === 'idle' ? (
-          <div className="bg-gradient-to-t from-white from-70% to-white/0 p-4 pt-6">
+          <div className="bg-gradient-to-t from-page from-70% to-page/0 p-4 pt-6">
             <Button disabled={!ready(task, answer)} onClick={submit}>
               {t(ui.check)}
             </Button>
@@ -97,9 +97,12 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
             key={state}
             role={ok ? 'status' : 'alert'}
             className={`m-3 grid gap-3.5 rounded-[28px] border p-4 shadow-float ${ok ? 'border-okLine bg-okSoft' : 'border-bad/20 bg-badSoft'}`}
-            initial={{ y: 48, opacity: 0, scale: 0.94 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            transition={spring}
+            // Feedback pushed past real so the moment lands: right answers rise stretched and settle with a
+            // small squash; wrong ones arrive with a short shake.
+            style={{ originY: 1 }}
+            initial={{ y: 48, opacity: 0 }}
+            animate={ok ? { y: [48, 0, -4, 0], scaleY: [0.92, 1.04, 0.98, 1], scaleX: [1.02, 0.98, 1.01, 1], opacity: 1 } : { y: 0, x: [0, -9, 8, -5, 3, 0], opacity: 1 }}
+            transition={ok ? { duration: 0.42, times: [0, 0.5, 0.75, 1], ease: 'easeOut', opacity: { duration: 0.12 } } : { y: spring, x: { duration: 0.36, delay: 0.1 }, opacity: { duration: 0.12 } }}
           >
             <div>
               <div>

@@ -1,87 +1,38 @@
 #!/usr/bin/env bash
+# Builds the Bataa Android APK: the web app inside a WebView (android/manual), plus native Google sign-in
+# (Credential Manager), with Gradle (android/gradle-app). Signed with the local debug key.
 set -euo pipefail
 
 project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 android_sdk="${ANDROID_HOME:-/home/yousefmsm1/Android/Sdk}"
-build_tools="${ANDROID_BUILD_TOOLS:-35.0.0}"
-platform="${ANDROID_PLATFORM:-android-36}"
-tools_dir="$android_sdk/build-tools/$build_tools"
-android_jar="$android_sdk/platforms/$platform/android.jar"
-build_dir="$project_dir/android/manual/build"
-res_dir="$build_dir/res"
-classes_dir="$build_dir/classes"
-dex_dir="$build_dir/dex"
+gradle_dir="$project_dir/android/gradle-app"
 # BATAA_WEB_DIR picks which web app goes inside the APK: the repo root by default, or mobile/.
 web_dir="$(cd "${BATAA_WEB_DIR:-$project_dir}" && pwd)"
 output_apk="${BATAA_APK:-$project_dir/Bataa.apk}"
 
-for required in "$tools_dir/aapt2" "$tools_dir/d8" "$tools_dir/zipalign" "$tools_dir/apksigner" "$android_jar"; do
-  if [[ ! -e "$required" ]]; then
-    echo "Missing Android build dependency: $required" >&2
-    exit 1
-  fi
-done
+if [[ ! -d "$android_sdk/platforms" ]]; then
+  echo "Missing Android SDK at $android_sdk (set ANDROID_HOME)" >&2
+  exit 1
+fi
+printf 'sdk.dir=%s\n' "$android_sdk" > "$gradle_dir/local.properties"
 
-rm -rf "$build_dir"
-mkdir -p "$res_dir" "$classes_dir" "$dex_dir"
-cp -R "$project_dir/android/manual/res/." "$res_dir/"
+(cd "$web_dir" && npm run build)
 
+# Launcher icons, from the app logo.
+icons_dir="$gradle_dir/build/generated/icons"
+rm -rf "$icons_dir"
 for spec in mdpi:48:108 hdpi:72:162 xhdpi:96:216 xxhdpi:144:324 xxxhdpi:192:432; do
   density="${spec%%:*}"
   rest="${spec#*:}"
   legacy="${rest%%:*}"
   foreground="${rest##*:}"
-  target="$res_dir/mipmap-$density"
+  target="$icons_dir/mipmap-$density"
   mkdir -p "$target"
   convert "$project_dir/public/applogo.png" -filter Lanczos -resize "${legacy}x${legacy}" -strip "$target/ic_launcher.png"
   convert "$project_dir/public/applogo.png" -filter Lanczos -resize "${legacy}x${legacy}" -strip "$target/ic_launcher_round.png"
   convert "$project_dir/public/applogo.png" -filter Lanczos -resize "${foreground}x${foreground}" -strip "$target/ic_launcher_foreground.png"
 done
 
-cd "$web_dir"
-npm run build
-
-"$tools_dir/aapt2" compile --dir "$res_dir" -o "$build_dir/resources.zip"
-"$tools_dir/aapt2" link \
-  -o "$build_dir/unsigned.apk" \
-  -I "$android_jar" \
-  --manifest "$project_dir/android/manual/AndroidManifest.xml" \
-  --min-sdk-version 24 \
-  --target-sdk-version 36 \
-  --version-code 1 \
-  --version-name 1.0 \
-  --auto-add-overlay \
-  -A "$web_dir/dist" \
-  "$build_dir/resources.zip"
-
-javac \
-  -encoding UTF-8 \
-  -source 11 \
-  -target 11 \
-  -classpath "$android_jar" \
-  -d "$classes_dir" \
-  "$project_dir/android/manual/src/com/bataa/app/MainActivity.java"
-
-jar --create --file "$build_dir/classes.jar" -C "$classes_dir" .
-
-"$tools_dir/d8" \
-  --release \
-  --min-api 24 \
-  --lib "$android_jar" \
-  --output "$dex_dir" \
-  "$build_dir/classes.jar"
-
-(cd "$dex_dir" && zip -q -j "$build_dir/unsigned.apk" classes.dex)
-"$tools_dir/zipalign" -f -p 4 "$build_dir/unsigned.apk" "$build_dir/aligned.apk"
-
-debug_keystore="${ANDROID_DEBUG_KEYSTORE:-/home/yousefmsm1/.android/debug.keystore}"
-"$tools_dir/apksigner" sign \
-  --ks "$debug_keystore" \
-  --ks-key-alias androiddebugkey \
-  --ks-pass pass:android \
-  --key-pass pass:android \
-  --out "$output_apk" \
-  "$build_dir/aligned.apk"
-
-"$tools_dir/apksigner" verify --verbose "$output_apk"
+(cd "$gradle_dir" && BATAA_WEB_DIST="$web_dir/dist" ./gradlew --quiet assembleDebug)
+cp "$gradle_dir/build/outputs/apk/debug/bataa-debug.apk" "$output_apk"
 echo "APK created at $output_apk"

@@ -1,24 +1,19 @@
 import { useEffect, useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, type TargetAndTransition } from 'motion/react'
 import { TextMorph } from 'torph/react'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
 
 /** The app's one motion curve: quick to settle, no overshoot. */
-export const spring = { type: 'spring', duration: 0.4, bounce: 0 } as const
+/** UI motion: a critically damped spring that settles in 300ms. Interface moves stay under 300ms so they feel snappy. */
+export const spring = { type: 'spring', duration: 0.3, bounce: 0 } as const
 
 // Full class names, spelled out so Tailwind keeps them in the build.
 const TONES = { primary: 'btn btn-primary', ok: 'btn btn-ok', bad: 'btn btn-bad', plain: 'btn btn-plain', text: 'btn-text' }
 
 /** Styles live in index.css (.btn-*). */
-export function Button({
-  tone = 'primary',
-  className = '',
-  onClick,
-  children,
-  ...rest
-}: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: keyof typeof TONES }) {
+export function Button({ tone = 'primary', className = '', onClick, children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: keyof typeof TONES }) {
   const { lang } = useT()
   return (
     <button
@@ -52,12 +47,7 @@ export function ProgressBar({ value, label }: { value: number; label: string }) 
   const pct = Math.round(Math.min(1, Math.max(0, value)) * 100)
   return (
     <div role="progressbar" aria-label={label} aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} className="h-2.5 flex-1 overflow-hidden rounded-full bg-ink/10">
-      <motion.div
-        className="h-full rounded-full bg-accent"
-        initial={false}
-        animate={{ width: `${pct}%` }}
-        transition={spring}
-      />
+      <motion.div className="h-full rounded-full bg-accent" initial={false} animate={{ width: `${pct}%` }} transition={spring} />
     </div>
   )
 }
@@ -79,7 +69,12 @@ export function Code({ children, name }: { children: ReactNode; name?: string })
     if (typeof children !== 'string') return
     let live = true
     // Loaded on demand: the highlighter is bigger than the rest of the app's code.
-    import('@/lib/highlight').then((m) => m.highlight(children)).then((h) => live && setHtml(h), () => {})
+    import('@/lib/highlight')
+      .then((m) => m.highlight(children))
+      .then(
+        (h) => live && setHtml(h),
+        () => {},
+      )
     return () => {
       live = false
     }
@@ -90,9 +85,7 @@ export function Code({ children, name }: { children: ReactNode; name?: string })
         <Dots />
         {name && <span className="font-mono text-[12px] text-white/50">{name}</span>}
       </div>
-      <pre className="codeblock rounded-none">
-        {html ? <code dangerouslySetInnerHTML={{ __html: html }} /> : <code>{children}</code>}
-      </pre>
+      <pre className="codeblock rounded-none">{html ? <code dangerouslySetInnerHTML={{ __html: html }} /> : <code>{children}</code>}</pre>
     </div>
   )
 }
@@ -129,7 +122,19 @@ export function Preview({ html, css, height = 104 }: { html: string; css: string
  * point and shrinks back into it, so the tray reads as the tapped thing opening up.
  * Portalled to <body>: an animated ancestor would otherwise become the containing block for `fixed`.
  */
-export function Tray({ open, onClose, label, origin, children }: { open: boolean; onClose: () => void; label: string; origin?: { x: number; y: number } | null; children: ReactNode }) {
+export function Tray({
+  open,
+  onClose,
+  label,
+  origin,
+  children,
+}: {
+  open: boolean
+  onClose: () => void
+  label: string
+  origin?: { x: number; y: number } | null
+  children: ReactNode
+}) {
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -141,17 +146,22 @@ export function Tray({ open, onClose, label, origin, children }: { open: boolean
   const left = Math.max(0, (window.innerWidth - 448) / 2) + 12
   const transformOrigin = origin ? `${origin.x - left}px calc(100% - ${window.innerHeight - 12 - origin.y}px)` : '50% 100%'
   const closed = origin ? { opacity: 0, scale: 0.2 } : { opacity: 0, y: 60 }
+  // Open and close on one smooth ease-in-out curve: it glides down (or shrinks back into whatever opened it),
+  // no bounce, no jump.
+  const glide = { duration: 0.34, ease: [0.65, 0, 0.35, 1] } as const
+  const leave: TargetAndTransition = origin ? { opacity: 0, scale: 0.3, transition: glide } : { opacity: 0, y: '105%', transition: glide }
 
   return createPortal(
     <AnimatePresence>
       {open && (
+        // A plain dim, no backdrop blur: blurring the whole page drew a shifted, doubled copy of it in Chromium.
         <motion.div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/30 p-3 backdrop-blur-[3px]"
-          style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-3"
+          style={{ paddingBottom: 'calc(0.75rem + var(--sab, env(safe-area-inset-bottom, 0px)))' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
           onClick={onClose}
         >
           <motion.div
@@ -166,9 +176,9 @@ export function Tray({ open, onClose, label, origin, children }: { open: boolean
             dragElastic={{ top: 0, bottom: 0.7 }}
             onDragEnd={(_, info) => (info.offset.y > 90 || info.velocity.y > 500) && onClose()}
             initial={closed}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={closed}
-            transition={spring}
+            animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
+            exit={leave}
+            transition={glide}
             onClick={(e) => e.stopPropagation()}
           >
             <div aria-hidden className="mx-auto mb-3 h-1 w-9 rounded-full bg-lip" />
@@ -184,23 +194,32 @@ export function Tray({ open, onClose, label, origin, children }: { open: boolean
 /** The duck's speech bubble. The tail points back at the duck on the inline-start side. */
 export function Bubble({ children }: { children: ReactNode }) {
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={spring} className="card relative flex-1 px-4 py-3 text-[16px] font-semibold leading-snug">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.92 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={spring}
+      className="card relative flex-1 px-4 py-3 text-[16px] font-semibold leading-snug"
+    >
       <span className="absolute bottom-4 -start-[7px] h-3.5 w-3.5 rotate-45 border-b border-s border-line bg-white rtl:-rotate-45" />
       <span className="relative">{children}</span>
     </motion.div>
   )
 }
 
-/** Warm sky that fades into the page behind a row of clouds. Sits behind a screen's header. */
+/** Warm sky that fades into the page behind a row of clouds (the page's cream, see body in index.css). Sits behind a screen's header. */
 export function Sky({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`relative overflow-hidden ${className}`} style={{ background: 'linear-gradient(180deg, #FFC98A 0%, #FFE0BA 55%, #FFF1DF 100%)' }}>
+    <div
+      className={`relative overflow-hidden ${className}`}
+      // The sky runs up under the status bar; its content starts below it.
+      style={{ background: 'linear-gradient(180deg, #FFC98A 0%, #FFE0BA 55%, #FFF1DF 100%)', paddingTop: 'var(--sat, env(safe-area-inset-top, 0px))' }}
+    >
       <span aria-hidden className="absolute -end-24 -top-28 h-80 w-80 rounded-full border border-white/40 bg-white/10" />
       <span aria-hidden className="absolute -end-10 -top-14 h-52 w-52 rounded-full border border-white/40 bg-white/15" />
       <div className="relative">{children}</div>
       <svg aria-hidden viewBox="0 0 375 34" preserveAspectRatio="none" className="relative -mb-px block h-9 w-full">
-        <path fill="#fff" opacity=".55" d="M0 34V12q22-10 40 2 22-18 50-2 26-14 50 2 24-16 52 0 26-14 52 2 24-12 48 0 20-10 42 0 22-8 41 2V34z" />
-        <path fill="#fff" d="M0 34V20q16-14 36-5 14-17 40-7 20-15 44 0 16-12 38-2 20-15 46-2 22-13 44 2 18-11 40 0 16-9 34-1 14-8 29-1 12-5 24 2V34z" />
+        <path fill="#FFF4E8" opacity=".55" d="M0 34V12q22-10 40 2 22-18 50-2 26-14 50 2 24-16 52 0 26-14 52 2 24-12 48 0 20-10 42 0 22-8 41 2V34z" />
+        <path fill="#FFF4E8" d="M0 34V20q16-14 36-5 14-17 40-7 20-15 44 0 16-12 38-2 20-15 46-2 22-13 44 2 18-11 40 0 16-9 34-1 14-8 29-1 12-5 24 2V34z" />
       </svg>
     </div>
   )

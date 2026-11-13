@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { lessons, units } from '@/data/course'
 import type { Lang } from '@/types'
+import { freshPond, lessonEggs, parsePond, type Pond } from '@/state/pond'
 
 export type Experience = 'new' | 'some' | 'built'
 
@@ -16,10 +17,36 @@ export interface Progress {
   /** Local ISO date -> lessons or reviews finished that day. Streaks derive from this. */
   daily: Record<string, number>
   sound: boolean
+  /** Display name, at most NAME_MAX characters. Empty until the learner sets one. */
+  name: string
+  /** Profile photo as a small JPEG data URL (see Profile), or empty. */
+  photo: string
+  /** Local ISO date the learner started, or empty if unknown. */
+  joined: string
+  /** Badges earned on this device: when, in what order (1st, 2nd...), and a serial unique to this copy. */
+  badges: Record<string, Earned>
+  /** The Duck Pond mini-game (see pond.ts). */
+  pond: Pond
 }
 
+export interface Earned {
+  at: string
+  no: number
+  serial: string
+}
+
+/** A serial like BTA-8F3A-C21B, random per earned badge. */
+export function newSerial(): string {
+  const hex = [...crypto.getRandomValues(new Uint8Array(4))].map((b) => b.toString(16).padStart(2, '0')).join('').toUpperCase()
+  return `BTA-${hex.slice(0, 4)}-${hex.slice(4)}`
+}
+
+export const NAME_MAX = 30
+// A 256px JPEG is about 20 KB; the cap keeps a bad value from filling storage.
+const PHOTO_MAX = 200_000
+
 const KEY = 'bataa.mobile.v2'
-const FRESH: Progress = { lang: 'en', onboarded: false, experience: 'new', goal: 1, done: [], xp: 0, daily: {}, sound: true }
+const FRESH: Progress = { lang: 'en', onboarded: false, experience: 'new', goal: 1, done: [], xp: 0, daily: {}, sound: true, name: '', photo: '', joined: '', badges: {}, pond: freshPond() }
 
 export const isoDay = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -62,6 +89,17 @@ export function parse(raw: string | null): Progress {
       xp: typeof v.xp === 'number' && v.xp > 0 ? Math.floor(v.xp) : 0,
       daily,
       sound: v.sound !== false,
+      name: typeof v.name === 'string' ? v.name.trim().slice(0, NAME_MAX) : '',
+      photo: typeof v.photo === 'string' && v.photo.startsWith('data:image/') && v.photo.length <= PHOTO_MAX ? v.photo : '',
+      // Older saves have no join date: the first active day is the best guess.
+      joined: typeof v.joined === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v.joined) ? v.joined : (Object.keys(daily).sort()[0] ?? ''),
+      badges: Object.fromEntries(
+        Object.entries(v.badges && typeof v.badges === 'object' ? v.badges : {}).filter(
+          ([, e]: [string, any]) =>
+            e && /^\d{4}-\d{2}-\d{2}$/.test(e.at) && Number.isInteger(e.no) && e.no > 0 && /^BTA-[0-9A-F]{4}-[0-9A-F]{4}$/.test(e.serial),
+        ),
+      ) as Record<string, Earned>,
+      pond: parsePond(v.pond),
     }
   } catch {
     return FRESH
@@ -87,6 +125,8 @@ export function useProgress() {
   return {
     p,
     set: (patch: Partial<Progress>) => setP((cur) => ({ ...cur, ...patch })),
+    /** Replaces the whole save, e.g. with the cloud copy after signing in on a new device. */
+    load: (next: Progress) => setP(next),
     /** Records a finished lesson (or a review when `lessonId` is undefined). Returns XP earned. */
     complete(lessonId: string | undefined, perfect: boolean): number {
       const gain = reward(p, lessonId, perfect)
@@ -94,11 +134,13 @@ export function useProgress() {
       setP((cur) => ({
         ...cur,
         xp: cur.xp + gain,
+        pond: { ...cur.pond, eggs: cur.pond.eggs + lessonEggs(perfect) },
         done: lessonId && !cur.done.includes(lessonId) ? [...cur.done, lessonId] : cur.done,
         daily: { ...cur.daily, [day]: (cur.daily[day] ?? 0) + 1 },
       }))
       return gain
     },
-    reset: () => setP((cur) => ({ ...FRESH, lang: cur.lang })),
+    // Resetting clears learning progress, not who the learner is.
+    reset: () => setP((cur) => ({ ...FRESH, lang: cur.lang, name: cur.name, photo: cur.photo, joined: cur.joined })),
   }
 }

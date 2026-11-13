@@ -7,13 +7,28 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import androidx.credentials.Credential;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.CustomCredential;
+import androidx.credentials.GetCredentialRequest;
+import androidx.credentials.GetCredentialResponse;
+import androidx.credentials.exceptions.GetCredentialCancellationException;
+import androidx.credentials.exceptions.GetCredentialException;
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,22 +39,37 @@ import java.util.Map;
 public final class MainActivity extends Activity {
     private static final String APP_ORIGIN = "https://app.local";
     private WebView webView;
+    private int insetTop;
+    private int insetBottom;
+
+    /** Dark icons on light screens (true), light icons on dark ones like the pond at night (false). */
+    @SuppressWarnings("deprecation")
+    private void setBarIcons(boolean darkIcons) {
+        int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+        if (darkIcons && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        if (darkIcons && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        getWindow().getDecorView().setSystemUiVisibility(flags);
+    }
+
+    /** The bar sizes in CSS pixels, as --sat (top) and --sab (bottom) on the page. */
+    private void sendInsets() {
+        if (webView == null) return;
+        float density = getResources().getDisplayMetrics().density;
+        webView.evaluateJavascript(
+            "document.documentElement.style.setProperty('--sat','" + Math.round(insetTop / density) + "px');"
+                + "document.documentElement.style.setProperty('--sab','" + Math.round(insetBottom / density) + "px')",
+            null);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Let Android render the real system status/navigation bars. The web
-        // surface handles its own safe-area padding, so no fake 9:41/device
-        // chrome is needed inside the product UI.
-        getWindow().setStatusBarColor(Color.rgb(255, 250, 242));
-        getWindow().setNavigationBarColor(Color.rgb(255, 250, 242));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int systemUi = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                systemUi |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-            }
-            getWindow().getDecorView().setSystemUiVisibility(systemUi);
-        }
+        // Edge to edge: the web app draws behind the status and navigation bars (Android 15+ does this anyway)
+        // and pads itself with the bar sizes sent to it as --sat / --sab (see sendInsets).
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        getWindow().setNavigationBarColor(Color.TRANSPARENT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) getWindow().setNavigationBarContrastEnforced(false);
+        setBarIcons(true);
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(255, 248, 233));
@@ -58,13 +88,54 @@ public final class MainActivity extends Activity {
         settings.setTextZoom(100);
 
         webView.setWebViewClient(new LocalContentClient());
+        // Native Google sign-in for the web app (see GoogleSignIn below). Only app.local pages load in this
+        // WebView; every other link opens in the browser, so no outside page can reach the bridge.
+        webView.addJavascriptInterface(new NativeBridge(), "BataaNative");
         setContentView(webView);
+        webView.setOnApplyWindowInsetsListener((view, insets) -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                android.graphics.Insets bars = insets.getInsets(android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.displayCutout());
+                insetTop = bars.top;
+                insetBottom = bars.bottom;
+            } else {
+                insetTop = insets.getSystemWindowInsetTop();
+                insetBottom = insets.getSystemWindowInsetBottom();
+            }
+            sendInsets();
+            return insets;
+        });
 
-        if (savedInstanceState == null) {
+        String callback = authCallbackUrl(getIntent());
+        if (callback != null) {
+            webView.loadUrl(callback);
+        } else if (savedInstanceState == null) {
             webView.loadUrl(APP_ORIGIN + "/");
         } else {
             webView.restoreState(savedInstanceState);
         }
+    }
+
+    // The app is singleTask, so returning from the browser after sign-in lands here with the callback link.
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        String callback = authCallbackUrl(intent);
+        if (callback != null && webView != null) webView.loadUrl(callback);
+    }
+
+    /**
+     * com.bataa.app://auth-callback?code=... becomes https://app.local/?code=..., where the web app's
+     * Supabase client finishes signing in (it swaps the code for a session with the verifier it kept).
+     * Anything else returns null.
+     */
+    private static String authCallbackUrl(Intent intent) {
+        if (intent == null || !Intent.ACTION_VIEW.equals(intent.getAction())) return null;
+        Uri data = intent.getData();
+        if (data == null || !"com.bataa.app".equals(data.getScheme()) || !"auth-callback".equals(data.getHost())) return null;
+        String query = data.getEncodedQuery();
+        String fragment = data.getEncodedFragment();
+        return APP_ORIGIN + "/" + (query != null ? "?" + query : "") + (fragment != null ? "#" + fragment : "");
     }
 
     @Override
@@ -92,7 +163,77 @@ public final class MainActivity extends Activity {
         super.onDestroy();
     }
 
+    /** What the web app can ask of Android. */
+    private final class NativeBridge {
+        /**
+         * Shows Android's own "Sign in with Google" sheet (Credential Manager). `clientId` is the Google web
+         * client ID that Supabase verifies tokens against; `nonce` is the SHA-256 of a random value the web
+         * app keeps, so the token can only be used once. The answer goes to window.__bataaGoogle(token, error).
+         */
+        @JavascriptInterface
+        public void signInWithGoogle(String clientId, String nonce) {
+            runOnUiThread(() -> startGoogleSignIn(clientId, nonce));
+        }
+
+        /** "dark" for dark screens (light bar icons), anything else for light ones. */
+        @JavascriptInterface
+        public void setTheme(String theme) {
+            runOnUiThread(() -> setBarIcons(!"dark".equals(theme)));
+        }
+    }
+
+    private void startGoogleSignIn(String clientId, String nonce) {
+        GetSignInWithGoogleOption option = new GetSignInWithGoogleOption.Builder(clientId).setNonce(nonce).build();
+        GetCredentialRequest request = new GetCredentialRequest.Builder().addCredentialOption(option).build();
+        CredentialManager.create(this).getCredentialAsync(
+            this,
+            request,
+            new CancellationSignal(),
+            this::runOnUiThread,
+            new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+                @Override
+                public void onResult(GetCredentialResponse response) {
+                    Credential credential = response.getCredential();
+                    if (credential instanceof CustomCredential
+                        && GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL.equals(credential.getType())) {
+                        try {
+                            deliverGoogle(GoogleIdTokenCredential.createFrom(credential.getData()).getIdToken(), null);
+                        } catch (Exception e) {
+                            deliverGoogle(null, "bad_credential");
+                        }
+                    } else {
+                        deliverGoogle(null, "unexpected_credential");
+                    }
+                }
+
+                @Override
+                public void onError(GetCredentialException e) {
+                    deliverGoogle(null, e instanceof GetCredentialCancellationException ? "cancelled" : String.valueOf(e.getMessage()));
+                }
+            }
+        );
+    }
+
+    private void deliverGoogle(String token, String error) {
+        if (webView == null) return;
+        String js = "window.__bataaGoogle && window.__bataaGoogle("
+            + (token == null ? "null" : JSONObject.quote(token)) + ", "
+            + (error == null ? "null" : JSONObject.quote(error)) + ")";
+        webView.evaluateJavascript(js, null);
+    }
+
     private final class LocalContentClient extends WebViewClient {
+        // A new page starts without the bar sizes: send them as soon as it shows, and again once loaded.
+        @Override
+        public void onPageCommitVisible(WebView view, String url) {
+            sendInsets();
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            sendInsets();
+        }
+
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
             return localResponse(request.getUrl());

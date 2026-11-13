@@ -1,19 +1,33 @@
 import { useEffect, useRef, useState } from 'react'
 import confetti from 'canvas-confetti'
-import { motion } from 'framer-motion'
-import { ArrowLeft, Check, Clock, Languages, Target, UserRound } from 'lucide-react'
+import { motion } from 'motion/react'
+import { ArrowLeft, Check, Clock, Languages, Target, UserRound } from '@/components/Icon'
 import { Duck, type Mood } from '@/components/Duck'
 import { Bubble, Button, IconButton, Preview, ProgressBar, spring } from '@/components/ui'
 import { lessons } from '@/data/course'
 import { ui, useT } from '@/i18n'
+import { GoogleButton } from '@/components/GoogleButton'
+import { useSession } from '@/lib/account'
 import { blank, check, previewDoc, ready } from '@/lesson/engine'
 import { TaskBody } from '@/lesson/TaskBody'
 import { sound } from '@/lib/sound'
 import type { Experience, Progress } from '@/state/progress'
-import type { Answer, L } from '@/types'
+import type { Answer, FillTask, L } from '@/types'
 
-// The sample is a real lesson task, checked by the real engine.
-const sample = lessons[0].tasks[1]
+// The first taste of code: one blank, two choices, and the live preview turns into a real button the
+// moment the right word goes in. Checked by the real lesson engine. Kept to a single tap on purpose:
+// a harder puzzle here made people quit before they started.
+const sample: FillTask = {
+  id: 'onboarding-try',
+  type: 'fill',
+  lang: 'html',
+  prompt: { en: 'Tap the word that makes this a button.', ar: 'اضغط على الكلمة التي تجعل هذا زرًا.' },
+  code: '<___>Start learning</button>',
+  bank: ['button', 'p'],
+  answer: 'button',
+  explain: { en: 'The button tag makes something people can click.', ar: 'وسم button يصنع شيئًا يمكن النقر عليه.' },
+  hint: { en: 'It has the same name as the closing tag at the end.', ar: 'له نفس اسم وسم الإغلاق في النهاية.' },
+}
 const STEPS = 5
 
 const levels: { id: Experience; title: L; sub: L }[] = [
@@ -90,26 +104,40 @@ export function Onboarding({ onToggleLang, onDone }: { onToggleLang: () => void;
   const [goal, setGoal] = useState<Progress['goal'] | null>(null)
   const [answer, setAnswer] = useState<Answer>(() => blank(sample))
   const [wrong, setWrong] = useState(false)
+  // True for the moment between picking an option and the next step: the duck nods at the choice.
+  const [nodding, setNodding] = useState(false)
   const timer = useRef(0)
   useEffect(() => () => clearTimeout(timer.current), [])
 
   const go = (to: number) => {
     clearTimeout(timer.current)
+    setNodding(false)
     setDir(to > step ? 1 : -1)
     setStep(to)
   }
   // A pick is the answer: show the tick, then move on without a second tap.
   const pickThen = (to: number) => {
     clearTimeout(timer.current)
+    setNodding(true)
     timer.current = window.setTimeout(() => go(to), 380)
   }
 
   const slide = (lang === 'ar' ? -36 : 36) * dir
   const doc = previewDoc(sample, answer)
   const hero = step === 0 || step === 4
-  const mood: Mood = step === 0 ? 'wave' : step === 4 ? 'happy' : wrong ? 'oops' : step === 3 ? 'think' : 'talk'
+  // Hello on the welcome, listening on the questions with a nod at each pick, pointing at the try-it task,
+  // and a dance at the end.
+  const mood: Mood = step === 0 ? 'hello' : step === 4 ? 'dance' : wrong ? 'oops' : step === 3 ? 'point' : nodding ? 'nod' : 'curious'
   const title = [ui.obWelcome, ui.obLevel, ui.obGoal, ui.obTry, ui.obReady][step]
   const line = [ui.obWelcomeBody, ui.obLevelBody, ui.obGoalBody, wrong ? sample.hint : sample.prompt, ui.obReadyBody][step]
+
+  // Signed in from the welcome ("I already have an account"): carry on. If the account has saved progress,
+  // App loads it and leaves onboarding by itself (lib/account.ts useCloudSync).
+  const session = useSession()
+  useEffect(() => {
+    if (session && step === 0) go(1)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session])
 
   const advance = () => {
     if (step === 3) {
@@ -118,7 +146,7 @@ export function Onboarding({ onToggleLang, onDone }: { onToggleLang: () => void;
         return setWrong(true)
       }
       sound.playAscendingCorrect(4)
-      confetti({ particleCount: 80, spread: 80, origin: { y: 0.3 }, colors: ['#F26B00', '#FFC533', '#23A160', '#2F9BF0'], disableForReducedMotion: true })
+      confetti({ particleCount: 80, spread: 80, origin: { y: 0.3 }, colors: ['#F9801D', '#FFC533', '#FFE9C4', '#FF6B6B', '#23A160'], disableForReducedMotion: true })
     }
     if (step === STEPS - 1) return onDone({ experience: experience ?? 'new', goal: goal ?? 1 })
     go(step + 1)
@@ -136,13 +164,13 @@ export function Onboarding({ onToggleLang, onDone }: { onToggleLang: () => void;
       <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[62dvh] origin-top"
-        style={{ background: 'linear-gradient(180deg, #FFC98A 0%, #FFE0BA 45%, #FFFFFF 100%)' }}
+        style={{ background: 'linear-gradient(180deg, #FFC98A 0%, #FFE0BA 45%, #FFF4E8 100%)' }}
         initial={false}
         animate={{ scaleY: hero ? 1 : 0.32, opacity: hero ? 1 : 0.7 }}
         transition={spring}
       />
 
-      <header className="relative flex h-[60px] items-center gap-3 px-4 pt-4">
+      <header className="relative flex h-[60px] items-center gap-3 px-4 pt-4" style={{ marginTop: 'var(--sat, env(safe-area-inset-top, 0px))' }}>
         {step === 0 ? (
           <span className="me-auto ps-1 text-[26px] font-semibold tracking-tight">bataa</span>
         ) : (
@@ -213,7 +241,8 @@ export function Onboarding({ onToggleLang, onDone }: { onToggleLang: () => void;
                   setWrong(false)
                 }}
               />
-              {doc && <Preview html={doc.html} css={doc.css} />}
+              {/* Shown once a word is in, so it never displays half-written code. */}
+              {doc && ready(sample, answer) && <Preview html={doc.html} css={doc.css} />}
             </>
           )}
           {step === 4 && (
@@ -232,8 +261,8 @@ export function Onboarding({ onToggleLang, onDone }: { onToggleLang: () => void;
       {/* The two question steps move on by themselves, so they have no button. */}
       {step !== 1 && step !== 2 && (
         <motion.footer
-          className="sticky bottom-0 bg-gradient-to-t from-white from-70% to-white/0 p-4 pt-6"
-          style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}
+          className="sticky bottom-0 bg-gradient-to-t from-page from-70% to-page/0 p-4 pt-6"
+          style={{ paddingBottom: 'calc(1rem + var(--sab, env(safe-area-inset-bottom, 0px)))' }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={spring}
@@ -241,6 +270,8 @@ export function Onboarding({ onToggleLang, onDone }: { onToggleLang: () => void;
           <Button disabled={step === 3 && !ready(sample, answer)} onClick={advance}>
             {t(step === 0 ? ui.obStart : step === 3 ? ui.check : ui.obGo)}
           </Button>
+          {/* Returning learners: sign in and their saved progress comes back (lib/account.ts). */}
+          {step === 0 && !session && <GoogleButton label={t(ui.haveAccount)} className="mt-2" />}
         </motion.footer>
       )}
     </div>

@@ -4,7 +4,8 @@
 
 @layer base {
   html { -webkit-tap-highlight-color: transparent; }
-  body { @apply bg-white font-sans text-ink antialiased; overscroll-behavior-y: none; letter-spacing: -0.005em; }
+  /* A warm cream behind every screen, so the frosted glass pieces have something to sit on. */
+  body { @apply bg-page font-sans text-ink antialiased; overscroll-behavior-y: none; letter-spacing: -0.005em; }
   [dir='rtl'] body { @apply font-arabic; letter-spacing: 0; }
   :focus-visible { outline: 2px solid #c25300; outline-offset: 3px; }
   button { touch-action: manipulation; }
@@ -22,14 +23,15 @@
   .btn-primary:active:not(:disabled) { @apply bg-[#F47A0C]; }
   .btn-ok { @apply bg-okDeep text-white; }
   .btn-bad { @apply bg-badFill text-white; }
-  .btn-plain { @apply border border-line bg-white text-ink; }
+  .btn-plain { @apply border border-white/80 bg-white/75 text-ink shadow-soft; }
   .btn-text { @apply min-h-[44px] w-full rounded-xl text-[15px] font-medium text-ink2; }
 
-  .card { @apply rounded-[20px] border border-line bg-white shadow-soft; }
+  /* Frosted glass, like the pond's pills: translucent white, a bright edge, a soft shadow. */
+  .card { @apply rounded-[24px] border border-white/80 bg-white/70 shadow-soft; }
 
   /* Selectable row or token */
   .pick {
-    @apply min-h-[52px] rounded-2xl border border-line bg-white px-4 py-3 text-start text-[15px] font-semibold text-ink shadow-soft;
+    @apply min-h-[52px] rounded-[20px] border border-white/80 bg-white/70 px-4 py-3 text-start text-[15px] font-semibold text-ink shadow-soft;
     transition: transform 120ms ease-out, border-color 120ms ease-out, background-color 120ms ease-out;
   }
   .pick:active:not(:disabled) { transform: scale(0.98); }
@@ -42,8 +44,74 @@
   /* Frosted pill used for header stats and round icon buttons */
   .glass { @apply border border-white/70 bg-white/75 shadow-soft backdrop-blur-md; }
   .eyebrow { @apply text-[13px] font-medium; }
+
+  /* Bigger hit area than it looks: an invisible zone 8px past the edge of a small control (it must be positioned). */
+  .hit::after { content: ''; position: absolute; inset: -8px; }
 }
+
+@layer components {
+  /* Placeholder while an image loads: a warm block with a slow sheen passing over it. */
+  .skeleton {
+    background: linear-gradient(100deg, #F4ECE2 40%, #FBF6F0 50%, #F4ECE2 60%) 0 0 / 300% 100%;
+    animation: skeleton-sheen 1.4s linear infinite;
+  }
+  /* The duck's stand-in is a soft egg shape, not a box. !important beats the sprite player's inline style. */
+  .duck-loading {
+    background: radial-gradient(ellipse 34% 38% at 50% 58%, #F4ECE2 97%, transparent 100%) !important;
+    animation: skeleton-pulse 1.4s ease-in-out infinite;
+  }
+}
+@layer components {
+  /* Badge sheet: a band of light that crosses the medal face once, and soft rays behind earned medals. */
+  .medal-shine {
+    background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.75) 48%, transparent 60%) -150% 0 / 250% 100% no-repeat;
+    animation: medal-shine 0.9s 1.05s ease-out both;
+  }
+  .medal-rays {
+    background: repeating-conic-gradient(from 0deg, rgba(255,197,51,.45) 0deg 9deg, transparent 9deg 24deg);
+    -webkit-mask-image: radial-gradient(circle closest-side, #000 30%, transparent 100%);
+    mask-image: radial-gradient(circle closest-side, #000 30%, transparent 100%);
+    animation: medal-rays 24s linear infinite;
+  }
+}
+/* Pond ducks (screens/Pond.tsx): every part moves on its own beat. Origins are in the duck's own units
+   (viewBox 2 0 32 40); --d, set per duck, offsets the timings so no two ducks move in step. */
+.pd-head, .pd-tuft, .pd-tail, .pd-body { transform-box: view-box; }
+.pd-head { transform-origin: 15.5px 18px; animation: pd-head 3.4s ease-in-out infinite var(--d, 0s); }
+.pd-tuft { transform-origin: 15.4px 3.6px; animation: pd-tuft 2.3s ease-in-out infinite calc(var(--d, 0s) * 1.3); }
+.pd-tail { transform-origin: 23.8px 26.4px; animation: pd-tail 1.5s ease-in-out infinite calc(var(--d, 0s) * 0.7); }
+.pd-body { transform-origin: 16.4px 33px; animation: pd-breathe 3.4s ease-in-out infinite calc(var(--d, 0s) * 1.1); }
+.pd-eye { transform-box: fill-box; transform-origin: center; animation: pd-blink 4.8s ease-in-out infinite calc(var(--d, 0s) * 1.7); }
+.pond-glint { animation: pond-glint 3.6s ease-in-out infinite; opacity: 0; }
+@keyframes pond-glint { 0%, 100% { opacity: 0; transform: scaleX(.4); } 45% { opacity: .85; transform: scaleX(1); } 60% { opacity: .2; } }
+/* Night: stars twinkle, sleeping ducks breathe out z's, fireflies drift and blink. */
+.pond-star { animation: pond-star 3.2s ease-in-out infinite; }
+@keyframes pond-star { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+.pd-z { animation: pd-z 2.4s ease-out infinite; opacity: 0; }
+@keyframes pd-z { 0% { opacity: 0; transform: translate(0, 4px) scale(.6); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(10px, -16px) scale(1.1); } }
+.firefly { animation: firefly 8s ease-in-out infinite; }
+@keyframes firefly {
+  0%, 100% { opacity: .15; transform: translate(0, 0); } 25% { opacity: 1; transform: translate(14px, -10px); }
+  50% { opacity: .3; transform: translate(4px, -22px); } 75% { opacity: .95; transform: translate(-12px, -8px); }
+}
+.pd-look { animation: pd-look 7s ease-in-out infinite calc(var(--d, 0s) * 2.3); }
+/* Glance: hold, look ahead, hold, back, look up and behind, hold, back. Quick moves, long holds, like real eyes. */
+@keyframes pd-look {
+  0%, 14% { transform: translate(0, 0); } 18%, 38% { transform: translate(-.75px, .15px); } 42%, 52% { transform: translate(0, 0); }
+  56%, 74% { transform: translate(.6px, -.35px); } 78%, 100% { transform: translate(0, 0); }
+}
+@keyframes pd-head { 0%, 100% { transform: rotate(0) translateY(0); } 30% { transform: rotate(-4deg) translateY(.35px); } 70% { transform: rotate(3deg) translateY(-.4px); } }
+@keyframes pd-tuft { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(8deg); } }
+@keyframes pd-tail { 0%, 100% { transform: rotate(-12deg); } 50% { transform: rotate(7deg); } }
+@keyframes pd-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(.99, 1.035); } }
+@keyframes pd-blink { 0%, 90%, 100% { transform: scaleY(1); } 93% { transform: scaleY(.1); } 96% { transform: scaleY(1); } }
+@keyframes medal-shine { to { background-position: 150% 0; } }
+@keyframes medal-rays { to { rotate: 360deg; } }
+@keyframes skeleton-sheen { to { background-position: -150% 0; } }
+@keyframes skeleton-pulse { 50% { opacity: 0.55; } }
 
 @media (prefers-reduced-motion: reduce) {
   .btn, .pick { transition: none; }
+  /* The medal's light sweep stays: it is light, not movement. */
+  .skeleton, .duck-loading, .medal-rays { animation: none; }
 }

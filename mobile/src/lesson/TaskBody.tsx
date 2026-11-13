@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
-import { motion } from 'framer-motion'
-import { Check } from 'lucide-react'
+import { motion } from 'motion/react'
+import { Check } from '@/components/Icon'
 import { Code } from '@/components/ui'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'

@@ -1,6 +1,6 @@
 import { useState, type MouseEvent } from 'react'
-import { motion } from 'framer-motion'
-import { Check, Clock, Flame, ListChecks, Lock, Play, Zap } from 'lucide-react'
+import { motion } from 'motion/react'
+import { Check, Clock, Flame, ListChecks, Lock, Play, Zap } from '@/components/Icon'
 import { Button, Sky, Tray, spring } from '@/components/ui'
 import { lessons, units } from '@/data/course'
 import { ui, useT } from '@/i18n'
@@ -16,7 +16,13 @@ function Ring({ value, size = 44, stroke = 5, color = '#FF8A1F', children }: { v
       <svg viewBox={`0 0 ${size} ${size}`} className="absolute inset-0 -rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} stroke="rgba(31,22,17,.08)" />
         <motion.circle
-          cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} strokeLinecap="round" stroke={color}
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          stroke={color}
           opacity={value > 0 ? 1 : 0}
           initial={{ pathLength: 0 }}
           animate={{ pathLength: Math.min(1, value) }}
@@ -80,63 +86,86 @@ export function Learn({ p, onStart }: { p: Progress; onStart: (lesson: Lesson) =
         </div>
       </Sky>
 
-      <div className="grid grid-cols-1 gap-8 px-4 pb-6 pt-2">
-        {units.map((unit, u) => {
-          return (
-            <section key={unit.id} className="relative grid grid-cols-1 gap-7">
-              <span aria-hidden className="pointer-events-none absolute -end-44 top-24 h-[360px] w-[360px] rounded-full bg-brandSoft/60" />
-              <span aria-hidden className="pointer-events-none absolute -end-28 top-40 h-[232px] w-[232px] rounded-full bg-brandSoft" />
+      <div className="relative">
+        {/* The pond scene (public/learn/bg.svg) behind the path. It grows out of the header's cream cloud edge,
+            so header and scene read as one; a light cream wash down the middle keeps the path easy to read.
+            It stays put while the path scrolls. */}
+        <div
+          aria-hidden
+          className="pointer-events-none sticky top-0 -mb-[100dvh] h-dvh"
+          style={{
+            background:
+              'linear-gradient(#FFF4E8, rgba(255,244,232,0) 22%), linear-gradient(90deg, transparent 4%, rgba(255,244,232,.55) 30%, rgba(255,244,232,.55) 70%, transparent 96%), url(/learn/bg.svg) 50% 0 / cover no-repeat, #FDDCA5',
+          }}
+        />
+        <div className="relative grid grid-cols-1 gap-8 px-4 pb-6 pt-2">
+          {units.map((unit, u) => {
+            return (
+              <section key={unit.id} className="relative grid grid-cols-1 gap-7">
+                <header className="card relative p-3.5">
+                  <p className="text-[12px] font-semibold text-brand">
+                    {t(ui.unit)} {u + 1}
+                  </p>
+                  <h2 className="truncate text-[17px] font-semibold leading-tight">{t(unit.title)}</h2>
+                  <p className="truncate text-[13px] font-medium text-ink2">{t(unit.goal)}</p>
+                </header>
 
-              <header className="card relative p-3.5">
-                <p className="text-[12px] font-semibold text-brand">
-                  {t(ui.unit)} {u + 1}
-                </p>
-                <h2 className="truncate text-[17px] font-semibold leading-tight">{t(unit.title)}</h2>
-                <p className="truncate text-[13px] font-medium text-ink2">{t(unit.goal)}</p>
-              </header>
-
-              <ol className="relative grid gap-6">
-                {unit.lessons.map((lesson, i) => {
-                  const done = p.done.includes(lesson.id)
-                  const isCurrent = lesson.id === current?.id
-                  const locked = !unlocked(p, lesson.id)
-                  return (
-                    <motion.li
-                      key={lesson.id}
-                      className="grid justify-items-center gap-2"
-                      style={{ x: [0, 56, 0, -56][i % 4] * flip }}
-                      initial={{ opacity: 0, y: 18 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ ...spring, delay: 0.06 * i }}
-                    >
-                      <span className="relative grid place-items-center">
-                        <motion.button
-                          type="button"
-                          aria-label={`${t(lesson.title)}. ${t(done ? ui.done : locked ? ui.locked : ui.start)}`}
-                          whileTap={{ scale: 0.95 }}
-                          transition={spring}
-                          onClick={(e) => openBrief(lesson, e)}
-                          className={`relative grid h-16 w-16 place-items-center rounded-full ${
-                            done ? 'bg-okDeep text-white' : isCurrent ? 'bg-accent text-ink ring-2 ring-accent ring-offset-4 ring-offset-white' : locked ? 'border border-line bg-white text-ink3' : 'border border-brand/40 bg-white text-brand'
-                          }`}
-                        >
-                          {done ? <Check className="h-7 w-7" strokeWidth={3.2} /> : locked ? <Lock className="h-5 w-5" /> : <Play className="h-6 w-6 translate-x-px fill-current rtl:-scale-x-100" />}
-                        </motion.button>
-                      </span>
-                      <div className="max-w-[150px] text-center">
-                        <p className={`text-[14px] font-semibold leading-tight ${locked ? 'text-ink3' : ''}`}>{t(lesson.title)}</p>
-                        <p className="mt-0.5 text-[12px] font-medium text-ink2">
-                          {isCurrent && <span className="font-semibold text-brand">{t(ui.start)} · </span>}
-                          {lesson.minutes} {t(ui.min)}
-                        </p>
-                      </div>
-                    </motion.li>
-                  )
-                })}
-              </ol>
-            </section>
-          )
-        })}
+                <ol className="relative grid gap-6">
+                  {unit.lessons.map((lesson, i) => {
+                    const done = p.done.includes(lesson.id)
+                    const isCurrent = lesson.id === current?.id
+                    const locked = !unlocked(p, lesson.id)
+                    return (
+                      <motion.li
+                        key={lesson.id}
+                        className="grid justify-items-center gap-2"
+                        style={{ x: [0, 56, 0, -56][i % 4] * flip }}
+                        initial={{ opacity: 0, y: 18 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ ...spring, delay: 0.06 * i }}
+                      >
+                        <span className="relative grid place-items-center">
+                          <motion.button
+                            type="button"
+                            aria-label={`${t(lesson.title)}. ${t(done ? ui.done : locked ? ui.locked : ui.start)}`}
+                            // Press in first (anticipation); the sheet then grows out of this button.
+                            whileTap={{ scale: 0.9 }}
+                            transition={spring}
+                            onClick={(e) => openBrief(lesson, e)}
+                            className={`relative grid h-16 w-16 place-items-center rounded-full ${
+                              done
+                                ? 'bg-okDeep text-white'
+                                : isCurrent
+                                  ? 'bg-accent text-ink ring-2 ring-accent ring-offset-4 ring-offset-page'
+                                  : locked
+                                    ? 'border border-line bg-white text-ink3'
+                                    : 'border border-brand/40 bg-white text-brand'
+                            }`}
+                          >
+                            {done ? (
+                              <Check className="h-7 w-7" strokeWidth={3.2} />
+                            ) : locked ? (
+                              <Lock className="h-5 w-5" />
+                            ) : (
+                              <Play className="h-6 w-6 translate-x-px fill-current rtl:-scale-x-100" />
+                            )}
+                          </motion.button>
+                        </span>
+                        <div className="max-w-[150px] text-center">
+                          <p className={`text-[14px] font-semibold leading-tight ${locked ? 'text-ink2' : ''}`}>{t(lesson.title)}</p>
+                          <p className="mt-0.5 text-[12px] font-medium text-ink2">
+                            {isCurrent && <span className="font-semibold text-brand">{t(ui.start)} · </span>}
+                            {lesson.minutes} {t(ui.min)}
+                          </p>
+                        </div>
+                      </motion.li>
+                    )
+                  })}
+                </ol>
+              </section>
+            )
+          })}
+        </div>
       </div>
 
       <Tray open={open} onClose={() => setOpen(false)} label={brief ? t(brief.title) : ''} origin={shown?.origin}>

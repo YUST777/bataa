@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 import { lessons } from '@/data/course'
-import { parse, reward, streak, unlocked } from '@/state/progress'
+import { newSerial, parse, reward, streak, unlocked } from '@/state/progress'
 import type { CodeTask } from '@/types'
 import { blank, check, previewDoc, ready, solution } from './engine'
 
@@ -57,6 +57,16 @@ test('stored progress is validated, and lessons unlock in order', () => {
   expect(parse('not json').done).toEqual([])
   const p = parse(JSON.stringify({ lang: 'ar', goal: 9, xp: -4, done: ['button', 'button', 'nope'], daily: { bad: 1, '2026-11-11': 2 } }))
   expect(p).toMatchObject({ lang: 'ar', goal: 1, xp: 0, done: ['button'], daily: { '2026-11-11': 2 } })
+  // Profile fields: trimmed and capped name, only image data URLs, join date falls back to the first active day.
+  expect(p).toMatchObject({ name: '', photo: '', joined: '2026-11-11' })
+  const who = parse(JSON.stringify({ name: `  ${'a'.repeat(40)} `, photo: 'javascript:alert(1)', joined: '2026-01-02' }))
+  expect(who).toMatchObject({ name: 'a'.repeat(30), photo: '', joined: '2026-01-02' })
+  expect(parse(JSON.stringify({ photo: 'data:image/jpeg;base64,AAAA' })).photo).toBe('data:image/jpeg;base64,AAAA')
+  // Earned badges: only well-formed records survive.
+  const good = { at: '2026-11-12', no: 1, serial: 'BTA-8F3A-C21B' }
+  const stored = parse(JSON.stringify({ badges: { button: good, text: { ...good, no: 0 }, links: { ...good, serial: 'x' }, color: null } }))
+  expect(stored.badges).toEqual({ button: good })
+  expect(newSerial()).toMatch(/^BTA-[0-9A-F]{4}-[0-9A-F]{4}$/)
 
   expect(unlocked(p, 'button')).toBe(true)
   expect(unlocked(p, 'text')).toBe(true)

@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion'
-import { ChevronRight, Shuffle } from 'lucide-react'
+import { motion } from 'motion/react'
+import { ChevronRight, Shuffle } from '@/components/Icon'
 import { Duck } from '@/components/Duck'
 import { Button, Sky, spring } from '@/components/ui'
 import { lessons } from '@/data/course'

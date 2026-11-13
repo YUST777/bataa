@@ -33,3 +33,4 @@ dist-ssr
 # Generated Playwright snapshots
 .playwright-cli/page-*.yml
 /BataaMobile.apk
+/BataaMobile.apk.idsig
