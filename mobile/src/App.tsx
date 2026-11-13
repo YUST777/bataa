@@ -112,18 +112,11 @@ export default function App() {
             </motion.div>
           )}
           {screen === 'tabs' && (
-            <motion.div key="tabs" {...fade} className="pb-28">
+            <motion.div key="tabs" {...fade} className={tab === 'practice' ? undefined : 'pb-28'}>
               <motion.div key={tab === 'pond' ? 'learn' : tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.16 }}>
                 {/* Learn also sits under the pond, so swiping the pond away shows where it goes back to. */}
                 {(tab === 'learn' || tab === 'pond') && <Learn p={p} onStart={(lesson) => setRun({ lesson, tasks: lesson.tasks })} />}
-                {tab === 'practice' && (
-                  <Practice
-                    p={p}
-                    onReview={() => setRun({ tasks: reviewTasks(p.done) })}
-                    onReplay={(lesson) => setRun({ lesson, tasks: lesson.tasks })}
-                    onGoLearn={() => setTab('learn')}
-                  />
-                )}
+                {tab === 'practice' && <Practice p={p} signedIn={!!session} onReview={() => setRun({ tasks: reviewTasks(p.done) })} />}
                 {tab === 'profile' && <Profile p={p} set={set} reset={reset} email={session?.user.email ?? null} />}
                 {tab === 'pond' &&
                   // In a portal: the animated wrappers here use transforms, which would break `fixed`.

@@ -47,6 +47,7 @@ public final class MainActivity extends Activity {
     private WebView webView;
     private int insetTop;
     private int insetBottom;
+    private int insetKeyboard;
 
     /** Dark icons on light screens (true), light icons on dark ones like the pond at night (false). */
     @SuppressWarnings("deprecation")
@@ -63,7 +64,8 @@ public final class MainActivity extends Activity {
         float density = getResources().getDisplayMetrics().density;
         webView.evaluateJavascript(
             "document.documentElement.style.setProperty('--sat','" + Math.round(insetTop / density) + "px');"
-                + "document.documentElement.style.setProperty('--sab','" + Math.round(insetBottom / density) + "px')",
+                + "document.documentElement.style.setProperty('--sab','" + Math.round(insetBottom / density) + "px');"
+                + "document.documentElement.style.setProperty('--kb','" + Math.round(insetKeyboard / density) + "px')",
             null);
     }
 
@@ -104,6 +106,8 @@ public final class MainActivity extends Activity {
                 android.graphics.Insets bars = insets.getInsets(android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.displayCutout());
                 insetTop = bars.top;
                 insetBottom = bars.bottom;
+                // The on-screen keyboard: edge to edge, the page is not resized for it, so it is sent as --kb.
+                insetKeyboard = insets.getInsets(android.view.WindowInsets.Type.ime()).bottom;
             } else {
                 insetTop = insets.getSystemWindowInsetTop();
                 insetBottom = insets.getSystemWindowInsetBottom();
