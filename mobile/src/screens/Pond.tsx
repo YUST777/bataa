@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, animate, motion, useDragControls, useMotionValue, useMotionValueEvent, useTransform } from 'motion/react'
 import NumberFlow from '@number-flow/react'
 import { ArrowLeft, Croissant, Heart, Info, Moon, Store } from '@/components/Icon'
 import { toast } from 'sonner'
@@ -471,36 +471,26 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
       html.style.overflow = ''
     }
   }, [])
-  // Swipe from the left, toward the right, to leave (like Android's back swipe). The scene follows the finger
-  // and the app shows through behind it; let go past 60px, or flick, and it slides away, otherwise it eases
-  // back. A swipe can start anywhere outside the dock and buttons, or anywhere within 40px of the left edge.
-  const swipe = useRef<{ x: number; y: number; on: boolean; lx: number; lt: number; v: number } | null>(null)
-  const swiped = useRef(false)
-  // The back badge that rides in from the left edge as the pond uncovers it; it fills orange once letting go will close.
-  const backHint = useRef<HTMLDivElement>(null)
+  // Swipe toward the right to leave, with motion's drag (it handles touch, pointer capture and flick speed).
+  // The scene follows the finger and the app shows through behind it; let go past 60px, or flick, and it
+  // slides away, otherwise it springs back. A swipe can start anywhere outside the dock and buttons, or
+  // anywhere within 40px of the left edge. Android's own back gesture (MainActivity asks window.__bataaBack)
+  // does the same slide: edge swipes belong to the system there, not to the page.
   const CLOSE_AT = 60
-  const showBack = (dx: number) => {
-    const el = backHint.current
-    if (!el) return
-    const p = Math.min(1, dx / CLOSE_AT)
-    el.style.left = `${Math.min(dx, 120) / 2 - 22}px`
-    el.style.opacity = String(p)
-    el.style.transform = `translateY(-50%) scale(${0.6 + 0.4 * p})`
-    el.dataset.armed = p >= 1 ? 'yes' : 'no'
-  }
-  // Slides the pond off to the right, from `dx` px, then leaves. Also what Android's back gesture does
-  // (MainActivity asks window.__bataaBack first): edge swipes belong to the system there, not to the page.
+  const dragX = useMotionValue(0)
+  const swipeControls = useDragControls()
+  // The back badge that rides in from the left edge as the pond uncovers it; it fills orange once letting go will close.
+  const backLeft = useTransform(dragX, (v) => Math.min(v, 120) / 2 - 22)
+  const backOpacity = useTransform(dragX, [0, CLOSE_AT], [0, 1])
+  const backScale = useTransform(dragX, [0, CLOSE_AT], [0.6, 1])
+  const [armed, setArmed] = useState(false)
+  useMotionValueEvent(dragX, 'change', (v) => setArmed(v >= CLOSE_AT))
   const leaving = useRef(false)
-  const slideAway = (dx = 0) => {
-    const node = root.current
-    if (!node || leaving.current) return
+  const slideAway = () => {
+    if (leaving.current) return
     leaving.current = true
     sound.playClick(360)
-    node.animate([{ transform: `translateX(${dx}px)` }, { transform: 'translateX(105%)' }], {
-      duration: 260,
-      easing: 'cubic-bezier(.4,0,.2,1)',
-      fill: 'forwards',
-    }).onfinish = onExit
+    animate(dragX, window.innerWidth * 1.05, { duration: 0.26, ease: [0.4, 0, 0.2, 1] }).then(onExit)
   }
   useEffect(() => {
     window.__bataaBack = () => {
@@ -513,41 +503,8 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
   })
   const swipeStart = (e: RPointerEvent<HTMLDivElement>) => {
     const edge = e.clientX < 40
-    const blocked = (e.target as HTMLElement).closest(edge ? '[role=dialog]' : '[data-slot],[data-bag],button,[role=dialog]')
-    swipe.current = blocked ? null : { x: e.clientX, y: e.clientY, on: false, lx: e.clientX, lt: e.timeStamp, v: 0 }
-  }
-  const swipeMove = (e: RPointerEvent<HTMLDivElement>) => {
-    const s = swipe.current
-    if (!s || !root.current) return
-    const dx = Math.max(0, e.clientX - s.x) // only to the right
-    const dy = e.clientY - s.y
-    if (!s.on) {
-      if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(e.clientX - s.x)) return void (swipe.current = null)
-      if (dx < 8) return
-      s.on = true
-    }
-    if (e.timeStamp > s.lt) s.v = (e.clientX - s.lx) / (e.timeStamp - s.lt)
-    s.lx = e.clientX
-    s.lt = e.timeStamp
-    root.current.style.transition = 'none'
-    root.current.style.transform = `translateX(${dx}px)`
-    showBack(dx)
-  }
-  const swipeEnd = (e: RPointerEvent<HTMLDivElement>) => {
-    const s = swipe.current
-    swipe.current = null
-    if (!s?.on || !root.current) return
-    swiped.current = true // the click that follows is not a tap on the water
-    window.setTimeout(() => (swiped.current = false))
-    const dx = Math.max(0, e.clientX - s.x)
-    const node = root.current
-    if (backHint.current) backHint.current.style.opacity = '0'
-    if (dx > CLOSE_AT || (dx > 20 && s.v > 0.45)) {
-      slideAway(dx)
-    } else {
-      node.style.transition = 'transform 300ms cubic-bezier(.65,0,.35,1)'
-      node.style.transform = ''
-    }
+    if ((e.target as HTMLElement).closest(edge ? '[role=dialog]' : '[data-slot],[data-bag],button,[role=dialog]')) return
+    swipeControls.start(e)
   }
   // The lake: from the far shore in the art down to the dock. Nothing on the water goes past the shore.
   // `top` is where the shore falls inside the water box; the art covers the screen from the top, so the
@@ -747,22 +704,28 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
     // < moon, stars, sky lanterns, fireflies (z-16) < ducks and bread (z-17) < dock (z-20) < header (z-30).
     <>
       {/* Swipe-to-close badge, outside the moving scene so it stays on screen. */}
-      <div
-        ref={backHint}
+      <motion.div
         aria-hidden
-        data-armed="no"
-        className="pointer-events-none fixed top-1/2 z-50 grid h-11 w-11 place-items-center rounded-full bg-white/85 text-ink opacity-0 shadow-float backdrop-blur-md transition-colors duration-150 data-[armed=yes]:bg-brand data-[armed=yes]:text-white"
+        className={`pointer-events-none fixed top-1/2 z-50 -mt-[22px] grid h-11 w-11 place-items-center rounded-full shadow-float backdrop-blur-md transition-colors duration-150 ${armed ? 'bg-brand text-white' : 'bg-white/85 text-ink'}`}
+        style={{ left: backLeft, opacity: backOpacity, scale: backScale }}
       >
         <ArrowLeft className="h-5 w-5 rtl:-scale-x-100" />
-      </div>
-      <div
+      </motion.div>
+      <motion.div
         ref={root}
-        className="relative flex h-dvh touch-pan-x flex-col overflow-hidden bg-[#F98427] bg-cover bg-top"
-        style={{ backgroundImage: 'url(/pond/sunset.svg)' }}
+        className="relative flex h-dvh touch-none flex-col overflow-hidden bg-[#F98427] bg-cover bg-top"
+        style={{ backgroundImage: 'url(/pond/sunset.svg)', x: dragX }}
+        drag="x"
+        dragListener={false}
+        dragControls={swipeControls}
+        dragDirectionLock
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={{ left: 0, right: 1 }}
+        dragMomentum={false}
+        onDragEnd={(_, info) => {
+          if (info.offset.x > CLOSE_AT || (info.offset.x > 24 && info.velocity.x > 250)) slideAway()
+        }}
         onPointerDown={swipeStart}
-        onPointerMove={swipeMove}
-        onPointerUp={swipeEnd}
-        onPointerCancel={swipeEnd}
       >
         <AnimatePresence>
           {TINT[phase] && (
@@ -1241,7 +1204,7 @@ export function Pond({ pond, setPond, onExit }: { pond: PondState; setPond: (p: 
 
         {/* Edge handle: a quiet hint that the pond swipes away from the left edge. */}
         <span aria-hidden className="pointer-events-none absolute left-1 top-[38%] z-[25] h-10 w-1 rounded-full bg-white/55" />
-      </div>
+      </motion.div>
     </>
   )
 }
