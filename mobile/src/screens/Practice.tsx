@@ -25,19 +25,32 @@ export function reviewTasks(done: string[]): Task[] {
   return pool.slice(0, 5)
 }
 
-const KEY = 'bataa.chat.v2'
-function saved(): UIMessage[] {
+/** Saved chats, newest first. `title` is the learner's first question. */
+type SavedChat = { id: string; title: string; at: number; messages: UIMessage[] }
+const KEY = 'bataa.chats'
+const valid = (v: unknown): UIMessage[] => (Array.isArray(v) ? v.filter((m) => m && (m.role === 'user' || m.role === 'assistant') && Array.isArray(m.parts)).slice(-40) : [])
+function loadChats(): SavedChat[] {
   try {
-    const v = JSON.parse(localStorage.getItem(KEY) ?? '[]')
-    return Array.isArray(v) ? v.filter((m) => m && (m.role === 'user' || m.role === 'assistant') && Array.isArray(m.parts)).slice(-40) : []
+    const v = JSON.parse(localStorage.getItem(KEY) ?? 'null')
+    if (Array.isArray(v)) return v.filter((c) => c && typeof c.id === 'string').map((c) => ({ ...c, messages: valid(c.messages) }))
+    // The single chat from before there were many becomes the first one.
+    const old = valid(JSON.parse(localStorage.getItem('bataa.chat.v2') ?? '[]'))
+    return old.length ? [{ id: crypto.randomUUID(), title: titleOf(old), at: Date.now(), messages: old }] : []
   } catch {
     return []
   }
+}
+const titleOf = (messages: UIMessage[]) => {
+  const first = messages.find((m) => m.role === 'user')
+  return first ? textOf(first).replace(/\s+/g, ' ').trim().slice(0, 60) : ''
 }
 
 /** Small line icons drawn here, in the style of the icon sheet. */
 const Glyph = {
   copy: 'M9 9h9v11H9zM6 15H5V4h11v1',
+  menu: 'M4 8h16M4 16h10',
+  plus: 'M12 5v14M5 12h14',
+  close: 'M6 6l12 12M18 6 6 18',
   again: 'M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4',
   down: 'M12 5v14M6 13l6 6 6-6',
   stop: 'M8 8h8v8H8z',
@@ -153,12 +166,26 @@ const markdown = {
  * code cards that copy and run live. A soft aurora moves behind it. Chatting needs a signed-in account;
  * the quick review of real lesson questions stays in the header.
  */
-export function Practice({ p, signedIn, onReview }: { p: Progress; signedIn: boolean; onReview: () => void }) {
+function ChatBody({
+  p,
+  signedIn,
+  onReview,
+  onMenu,
+  initial,
+  onSave,
+}: {
+  p: Progress
+  signedIn: boolean
+  onReview: () => void
+  onMenu: () => void
+  initial: UIMessage[]
+  onSave: (messages: UIMessage[]) => void
+}) {
   const { t, lang } = useT()
   const context = useRef({ lang, done: p.done, name: p.name })
   context.current = { lang, done: p.done, name: p.name }
   const transport = useMemo(() => tutorTransport(() => context.current), [])
-  const { messages, sendMessage, status, stop, regenerate, error, setMessages, clearError } = useChat({ transport, messages: saved() })
+  const { messages, sendMessage, status, stop, regenerate, error, clearError } = useChat({ transport, messages: initial })
   const [draft, setDraft] = useState('')
   const [atEnd, setAtEnd] = useState(true)
   const list = useRef<HTMLDivElement>(null)
@@ -166,12 +193,10 @@ export function Practice({ p, signedIn, onReview }: { p: Progress; signedIn: boo
   const finished = p.done.length > 0
 
   useEffect(() => {
-    if (busy) return
-    try {
-      localStorage.setItem(KEY, JSON.stringify(messages.slice(-40)))
-    } catch {
-      // Storage full or blocked: the chat still works, it just is not kept.
-    }
+    // Only real changes: opening an old chat must not move it to the top of the list.
+    const unchanged = messages.length === initial.length && messages[messages.length - 1]?.id === initial[initial.length - 1]?.id
+    if (!busy && messages.length && !unchanged) onSave(messages)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, busy])
   // Follow the reply as it streams in, unless the learner scrolled up to read.
   useEffect(() => {
@@ -209,6 +234,9 @@ export function Practice({ p, signedIn, onReview }: { p: Progress; signedIn: boo
       </div>
 
       <header className="flex items-center gap-2 px-4 pb-1 pt-3">
+        <IconButton label={t(ui.aiChats)} onClick={onMenu}>
+          <G d={Glyph.menu} className="h-5 w-5" />
+        </IconButton>
         <div className="me-auto flex items-center gap-2">
           <div>
             <h1 className="text-[18px] font-semibold leading-tight tracking-tight">{t(ui.aiTitle)}</h1>
@@ -224,18 +252,6 @@ export function Practice({ p, signedIn, onReview }: { p: Progress; signedIn: boo
             <Shuffle className="h-4 w-4" />
             {t(ui.quickReview)}
           </button>
-        )}
-        {messages.length > 0 && (
-          <IconButton
-            label={t(ui.aiNewChat)}
-            onClick={() => {
-              stop()
-              clearError()
-              setMessages([])
-            }}
-          >
-            <Trash2 className="h-[18px] w-[18px]" />
-          </IconButton>
         )}
       </header>
 
@@ -449,5 +465,105 @@ export function Practice({ p, signedIn, onReview }: { p: Progress; signedIn: boo
         )}
       </div>
     </div>
+  )
+}
+
+/**
+ * Practice is a chat with Bataa AI. Chats are kept on the device; the menu button opens a side drawer with
+ * a new chat and every earlier one (newest first), each deletable.
+ */
+export function Practice({ p, signedIn, onReview }: { p: Progress; signedIn: boolean; onReview: () => void }) {
+  const { t, lang } = useT()
+  const [chats, setChats] = useState<SavedChat[]>(loadChats)
+  const [current, setCurrent] = useState<string>(() => crypto.randomUUID())
+  const [drawer, setDrawer] = useState(false)
+  useEffect(() => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(chats.slice(0, 30)))
+    } catch {
+      // Storage full or blocked: chats still work, they just are not kept.
+    }
+  }, [chats])
+  const open = chats.find((c) => c.id === current)
+  const save = (messages: UIMessage[]) => setChats((all) => [{ id: current, title: titleOf(messages), at: Date.now(), messages }, ...all.filter((c) => c.id !== current)])
+  const fresh = () => {
+    setCurrent(crypto.randomUUID())
+    setDrawer(false)
+  }
+  const when = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short' })
+  const today = new Date().toDateString()
+
+  return (
+    <>
+      <ChatBody key={current} p={p} signedIn={signedIn} onReview={onReview} onMenu={() => setDrawer(true)} initial={open?.messages ?? []} onSave={save} />
+      <AnimatePresence>
+        {drawer && (
+          <motion.div key="dim" className="fixed inset-0 z-50 bg-ink/30" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(false)} />
+        )}
+        {drawer && (
+          <motion.aside
+            key="drawer"
+            aria-label={t(ui.aiChats)}
+            className="fixed inset-y-0 start-0 z-50 flex w-[84%] max-w-[330px] flex-col rounded-e-[28px] bg-page/95 shadow-float backdrop-blur-xl"
+            style={{ paddingTop: 'var(--sat, env(safe-area-inset-top, 0px))', paddingBottom: 'var(--sab, env(safe-area-inset-bottom, 0px))' }}
+            initial={{ x: lang === 'ar' ? '100%' : '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: lang === 'ar' ? '100%' : '-100%' }}
+            transition={{ duration: 0.32, ease: [0.65, 0, 0.35, 1] }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={lang === 'ar' ? { left: 0, right: 0.6 } : { left: 0.6, right: 0 }}
+            onDragEnd={(_, info) => (lang === 'ar' ? info.offset.x > 80 : info.offset.x < -80) && setDrawer(false)}
+          >
+            <div className="flex items-center gap-2 px-4 pb-3 pt-4">
+              <h2 className="me-auto text-[20px] font-semibold tracking-tight">{t(ui.aiChats)}</h2>
+              <IconButton label={t(ui.close)} onClick={() => setDrawer(false)}>
+                <G d={Glyph.close} />
+              </IconButton>
+            </div>
+            <div className="px-3">
+              <button
+                type="button"
+                onClick={fresh}
+                className="flex h-12 w-full items-center gap-2.5 rounded-full bg-accent px-4 text-[15px] font-semibold text-ink active:scale-[.98] transition-transform"
+              >
+                <G d={Glyph.plus} />
+                {t(ui.aiNewChat)}
+              </button>
+            </div>
+            <p className="px-5 pb-1 pt-5 text-[12px] font-semibold uppercase tracking-wide text-ink3">{t(ui.aiRecent)}</p>
+            <ul className="flex-1 overflow-y-auto px-2 pb-4">
+              {chats.length === 0 && <li className="px-3 py-2 text-[14px] font-medium text-ink3">{t(ui.aiNoChats)}</li>}
+              {chats.map((c) => (
+                <li key={c.id} className={`group flex items-center rounded-2xl ${c.id === current ? 'bg-white shadow-soft' : ''}`}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrent(c.id)
+                      setDrawer(false)
+                    }}
+                    className="min-w-0 flex-1 px-3 py-2.5 text-start"
+                  >
+                    <span className="block truncate text-[15px] font-semibold text-ink">{c.title || t(ui.aiNewChat)}</span>
+                    <span className="block text-[12px] font-medium text-ink3">{new Date(c.at).toDateString() === today ? t(ui.today) : when.format(c.at)}</span>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={t(ui.aiDeleteChat)}
+                    onClick={() => {
+                      setChats((all) => all.filter((x) => x.id !== c.id))
+                      if (c.id === current) setCurrent(crypto.randomUUID())
+                    }}
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink3 active:bg-white"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+    </>
   )
 }
