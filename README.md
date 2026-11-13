@@ -4,16 +4,16 @@
 
 🌐 Live: [bataa.app](https://bataa.app)
 
-## Stack
+## Folders
 
-- **Web:** React + TypeScript + Vite
-- **Mobile / Android** clients
-- **API** backend
-- Deployed on **Vercel**
+- `web/`: the website (React + TypeScript + Vite, API routes in `web/api`), deployed on Vercel with Root Directory `web`.
+- `mobile/`: the learning app (React + Vite), its Android wrapper in `mobile/android`, Supabase migrations in `mobile/supabase`, design files and references in `mobile/design`.
+- `assignments/`: course work (market research, task 1, pitch deck, BMC, video).
 
 ## Run locally
 
 ```bash
-npm install
-npm run dev
+cd web && npm install && npm run dev        # website on :5173
+cd mobile && bun install && npm run dev     # app on :5174
+cd mobile && npm run android:apk            # builds mobile/BataaMobile.apk
 ```

@@ -4,11 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "android:apk": "./scripts/build-android-apk.sh",
     "dev": "vite --port 5174 --host",
     "build": "tsc && vite build",
     "preview": "vite preview --port 5174",
     "test": "bun test",
-    "apk": "BATAA_WEB_DIR=. BATAA_APK=../BataaMobile.apk ../scripts/build-android-apk.sh",
     "cap:sync": "cap sync",
     "cap:android": "cap open android",
     "cap:ios": "cap open ios"

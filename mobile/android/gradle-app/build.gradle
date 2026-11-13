@@ -15,13 +15,13 @@ android {
     }
 
     // Sources stay where the old hand-made build kept them (android/manual); the web app is mobile/dist,
-    // and the launcher icons are made from public/applogo.png by scripts/build-android-apk.sh.
+    // and the launcher icons are made from android/icon.png by mobile/scripts/build-android-apk.sh.
     sourceSets {
         main {
             manifest.srcFile '../manual/AndroidManifest.xml'
             java.srcDirs = ['../manual/src']
             res.srcDirs = ['../manual/res', 'build/generated/icons']
-            assets.srcDirs = [System.getenv('BATAA_WEB_DIST') ?: '../../mobile/dist']
+            assets.srcDirs = [System.getenv('BATAA_WEB_DIST') ?: '../../dist']
         }
     }
 

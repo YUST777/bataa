@@ -14,7 +14,6 @@ dist-ssr
 .env
 .env.*
 .env.local
-/Bataa.apk
 
 # Editor directories and files
 .vscode/*
@@ -30,7 +29,10 @@ dist-ssr
 # Vercel
 .vercel
 
-# Generated Playwright snapshots
-.playwright-cli/page-*.yml
-/BataaMobile.apk
-/BataaMobile.apk.idsig
+/mobile/BataaMobile.apk
+/mobile/BataaMobile.apk.idsig
+.wrangler
+.playwright-cli
+
+# Over GitHub's 100 MB file limit; kept locally only.
+assignments/market-research/Market research startups - 6 H.pdf

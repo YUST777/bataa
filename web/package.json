@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "android:apk": "./scripts/build-android-apk.sh"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@iconify-json/devicon": "^1.2.62",

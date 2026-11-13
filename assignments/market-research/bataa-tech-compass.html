@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bataa Tech Compass</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{--fg:#1f1a16;--muted:#6b625a;--line:#e4e0db;--o:#f26a1b;--os:#fff1e6;--b:#2f6fde;--bs:#e8f0fd;--g:#2e8b3d;--gs:#e5f4e7}
+@page{size:297mm 210mm;margin:0}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--fg);font-family:Nunito,system-ui,sans-serif;font-size:12.8px;line-height:1.35}
+.pg{width:297mm;height:210mm;padding:9mm 11mm;break-after:page;display:flex;flex-direction:column;overflow:hidden}
+.pg:last-child{break-after:auto}
+.top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--fg);padding-bottom:5px;margin-bottom:8px}
+.top h1{margin:0;font-size:24px;font-weight:900}
+.top .m{font:700 9px "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--muted);text-align:right}
+.lead{color:var(--muted);margin:0 0 8px;font-size:11px}
+.cols{display:grid;gap:10px;flex:1;min-height:0}
+.box{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}
+.n{font:700 9.5px "JetBrains Mono",monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--o);margin-bottom:5px}
+.q{font-size:10px;color:var(--muted);margin-bottom:4px}
+.ans{font-weight:700;font-size:15px}
+.pick{display:inline-block;font:700 9.5px "JetBrains Mono",monospace;padding:2px 7px;border-radius:99px;border:1.5px solid var(--line);color:var(--muted);margin-right:3px}
+.pick.on{background:var(--o);border-color:var(--o);color:#fff}
+table{border-collapse:collapse;width:100%}
+td,th{border:1px solid var(--line);padding:5px 7px;text-align:left;vertical-align:top;font-size:12.5px}
+th{font:700 9px "JetBrains Mono",monospace;text-transform:uppercase;color:var(--muted);background:#faf8f6}
+.lay td:first-child{font-weight:800;width:62px}
+.kv{margin:0 0 6px}.kv b{display:block;font:700 9px "JetBrains Mono",monospace;text-transform:uppercase;color:var(--muted);letter-spacing:.05em}
+.io{display:grid;grid-template-columns:1fr 18px 1fr;gap:4px;align-items:center;margin-bottom:6px}
+.io div{background:#faf8f6;border-radius:6px;padding:6px 8px;font-size:12.5px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.step{border:1.5px solid var(--line);border-radius:10px;padding:7px 9px}
+.step h4{margin:0 0 3px;font-size:12px;font-weight:900}
+.step .t{font-size:12px;color:var(--muted);margin:3px 0}
+ul{margin:0;padding-left:15px}li{margin:1px 0}
+.sig{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px}
+.sig div{border:1.5px solid var(--line);border-radius:8px;padding:5px;text-align:center;font-size:10px}
+.sig .on{border-color:var(--g);background:var(--gs);font-weight:800}
+.foot{font:700 8.5px "JetBrains Mono",monospace;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between}
+.est{font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- SIDE A -->
+<section class="pg">
+  <div class="top"><h1>Tech Integration Compass · Side A: Decide</h1><div class="m">TEAM: BATAA · TRACK: EDUTECH<br>GENOVATE 2026</div></div>
+  <div class="cols" style="grid-template-columns:1fr 1.35fr 1.1fr">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="box">
+        <div class="n">01 · One sentence</div>
+        <div class="q">"We help [one specific person] to [do what] without [the pain they have today]."</div>
+        <p class="ans">We help self-learners worldwide to learn by doing inside real software like Blender, without getting stuck on video courses they can't follow.</p>
+      </div>
+      <div class="box" style="flex:1">
+        <div class="n">02 · What kind of company are we?</div>
+        <div class="kv"><b>The removal test</b>Delete all our tech tomorrow and the learner gets nothing. The mentor that sees your screen and guides each click is the product.</div>
+        <div class="kv"><b>So our tech is…</b><span class="pick on">THE PRODUCT</span><span class="pick">THE ENGINE</span><span class="pick">A TOOL</span></div>
+        <div class="kv"><b>Our website or app is…</b><span class="pick on">THE BUSINESS</span><span class="pick">THE SHOP WINDOW</span></div>
+        <p>The desktop app is where the learning and the paying happen. The website and mobile app bring people in.</p>
+      </div>
+    </div>
+    <div class="box">
+      <div class="n">03 · The five layers</div>
+      <table class="lay">
+        <tr><th>Layer</th><th>What we use</th><th>Build · Plug in · Fake</th></tr>
+        <tr><td>1 Face</td><td>Desktop app that opens over Blender. Also the mobile app, website and Android APK</td><td><span class="pick on">BUILD</span></td></tr>
+        <tr><td>2 Brain</td><td>Our in-house AI agent. It reads the learner's screen, decides the next click and checks each task. It runs on frontier models from our AI provider: GPT-6.1 Tera, Opus, Astra, Luna 6</td><td><span class="pick on">BUILD</span> <span class="pick on">PLUG IN</span></td></tr>
+        <tr><td>3 Memory</td><td>Supabase: accounts, project progress, daily tasks and streaks. All user data is saved there</td><td><span class="pick on">PLUG IN</span></td></tr>
+        <tr><td>4 Plumbing</td><td>Login with Supabase. Payments with Paymob, Fawry, DodoPay</td><td><span class="pick on">PLUG IN</span> <span class="pick on">FAKE</span></td></tr>
+        <tr><td>5 Human</td><td>The team picks the guided projects (Blender first), meets students on campus</td><td><span class="pick on">FAKE</span></td></tr>
+      </table>
+      <div class="kv" style="margin-top:8px"><b>Our core: the one thing we build ourselves</b><span class="ans">The AI mentor that sees your screen, guides each click and checks your work.</span> It matches our removal test. "Build" is circled twice: Face and Brain.</div>
+    </div>
+    <div class="box">
+      <div class="n">04 · AI job card</div>
+      <div class="kv"><b>The one job AI does</b><span class="ans">Look at the learner's screen, point at the next click, then check it was done right.</span></div>
+      <div class="io"><div><b>IN</b><br>A screenshot of Blender + the current step of the guided project</div><div style="background:none;text-align:center">→</div><div><b>OUT</b><br>The next button circled on screen, a short instruction, and "done" or "try again"</div></div>
+      <div class="kv"><b>Who checks it before the customer sees it</b>The model checks the screen again after each click before moving on. Guided projects: AI plans each path, tested by AI.</div>
+      <div class="kv"><b>When AI is wrong, the worst case is</b>It points at the wrong step. The learner sends feedback, and the mentor gets better over time.</div>
+      <div class="kv"><b>Today, without AI, this job is done by</b>The instructor in the video, or a friend sitting next to you.</div>
+      <div class="kv"><b>Human in the loop</b>
+        <span class="pick">1 AI suggests</span><span class="pick">2 Human approves</span><span class="pick on">3 AI acts, human audits</span><span class="pick">4 AI alone</span>
+      </div>
+      <p class="est">The team reviews a session when the learner sends a note or feedback.</p>
+      
+    </div>
+  </div>
+  <div class="foot"><span>Build your core · Plug in the rest · Fake the expensive part until someone pays</span><span>bataa.app</span></div>
+</section>
+
+<!-- SIDE B -->
+<section class="pg">
+  <div class="top"><h1>Side B: Wire It &amp; Prove It</h1><div class="m">TEAM: BATAA<br>GENOVATE 2026</div></div>
+  <div class="box" style="margin-bottom:10px">
+    <div class="n">05 · The core journey, five steps</div>
+    <div class="steps">
+      <div class="step"><div class="q">Step 1</div><h4>They find us</h4><div class="t">Tool: campus visits, TikTok @bataa_app, website</div><span class="pick">AUTO</span><span class="pick on">MANUAL</span></div>
+      <div class="step"><div class="q">Step 2</div><h4>They start</h4><div class="t">Tool: bataa.app download, desktop app, Supabase login</div><span class="pick on">AUTO</span><span class="pick">MANUAL</span></div>
+      <div class="step"><div class="q">Step 3</div><h4>We do the job</h4><div class="t">Tool: in-house AI model guides each click in Blender</div><span class="pick on">AUTO</span><span class="pick">MANUAL</span></div>
+      <div class="step"><div class="q">Step 4</div><h4>They get the result</h4><div class="t">Tool: desktop app checks each task, then the next, until the project is finished</div><span class="pick on">AUTO</span><span class="pick">MANUAL</span></div>
+      <div class="step"><div class="q">Step 5</div><h4>They pay or return</h4><div class="t">Tool: Paymob, Fawry, DodoPay (not built yet); daily tasks and streaks on mobile bring them back</div><span class="pick">AUTO</span><span class="pick on">MANUAL</span></div>
+    </div>
+  </div>
+  <div class="cols" style="grid-template-columns:1.25fr 1fr 1fr">
+    <div class="box">
+      <div class="n">06 · Data</div>
+      <div class="q">Collect only what the job needs.</div>
+      <table>
+        <tr><th>We collect</th><th>From where</th><th>Sensitive?</th><th>Who sees it</th></tr>
+        <tr><td>Name, email</td><td>Sign-up, saved in Supabase</td><td>No</td><td>Our team</td></tr>
+        <tr><td>Screenshots, only of the app the learner gives access to (for example Blender)</td><td>Desktop app</td><td>Can be. Used live, not stored</td><td>The AI model only</td></tr>
+        <tr><td>Project progress, streaks</td><td>Desktop and mobile app, saved in Supabase</td><td>No</td><td>The learner, our team</td></tr>
+        <tr><td>Payment details</td><td>Paymob, Fawry, DodoPay</td><td>Yes, held by the payment provider</td><td>Payment provider only</td></tr>
+      </table>
+      <p class="est" style="margin-top:6px">On Demo Day we use a sample account, not real students (Law 151 of 2020).</p>
+    </div>
+    <div class="box" style="display:flex;flex-direction:column;gap:6px">
+      <div class="n">07 · Demo Day path</div>
+      <div class="kv"><b>Our path, shown live</b>The full mobile and desktop app, on a sample account. The learner gives the mentor access to Blender, it guides each click and checks each task. Then daily tasks and streaks on the mobile app.</div>
+      <div class="kv"><b>What we fake, and will say out loud</b><ul><li>Payment: not built yet (Paymob, Fawry, DodoPay next)</li><li>Only Blender projects for now</li></ul></div>
+      <div class="kv"><b>What V1 must not do</b><ul><li>Godot, Unity, Premiere, After Effects, VS Code</li><li>Creator uploads and commission</li><li>AI token store</li><li>API for software teams</li><li>Store any screenshots</li></ul></div>
+    </div>
+    <div class="box" style="display:flex;flex-direction:column;gap:6px">
+      <div class="n">08 · Running cost per month</div>
+      <table>
+        <tr><td>Today, only our team using it</td><td><b>2,000 EGP</b></td></tr>
+        <tr><td>At 100 users</td><td><b>2,000 EGP</b></td></tr>
+      </table>
+      <p class="est">AI cost = users × uses per user × price per call. Our provider's native price for GPT-6.1 Tera: input 0.81 EGP, output 4.3 EGP. Learners pay for their usage: 5-minute free trial, then 1 EGP per minute, or a 200 EGP monthly subscription with 100M tokens from frontier models (50% GPT-6.1 Tera, some Opus and Astra) and 2M tokens of Luna 6. Pay per credit after the plan.</p>
+      <div class="kv"><b>What breaks first, at what number</b>_______</div>
+      <div class="n" style="margin-top:4px">09 · Tech signal</div>
+      <div class="sig"><div class="on">✓ Real core<br>One path works end to end</div><div>? Half</div><div>✕ Decoration</div></div>
+      <div class="kv"><b>The one integration we make work in the next 48 hours</b>Payments with Paymob, Fawry and DodoPay, so the hard paywall works: pay to start learning.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Build your core · Plug in the rest · Fake the expensive part until someone pays</span><span>bataa.app</span></div>
+</section>
+
+</body>
+</html>
