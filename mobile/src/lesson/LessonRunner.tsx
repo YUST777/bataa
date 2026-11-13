@@ -1,19 +1,41 @@
-import { useRef, useState } from 'react'
-import { motion } from 'motion/react'
-import { X } from '@/components/Icon'
+import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import { ArrowLeft, X } from '@/components/Icon'
 import { Duck } from '@/components/Duck'
 import { Bubble, Button, Code, IconButton, Preview, ProgressBar, Tray, spring } from '@/components/ui'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
+import type { Plan } from '@/lib/plans'
+import { ChatBody } from '@/screens/Practice'
+import { PondDuck } from '@/screens/Pond'
+import type { Progress } from '@/state/progress'
 import type { Answer, L, Task } from '@/types'
+import type { UIMessage } from 'ai'
 import { blank, check, previewDoc, ready, solution } from './engine'
 import { TaskBody } from './TaskBody'
 
 /**
- * Runs a list of tasks: answer, check, explain, retry or continue.
+ * Runs a list of tasks: answer, check, explain, retry or continue, or step back to the one before.
  * Mistakes never end the lesson; `onFinish` reports how many tasks needed a retry.
+ * "Ask" opens Bataa AI about the current step; that chat lasts as long as the lesson.
  */
-export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExit: () => void; onFinish: (missed: number) => void }) {
+export function LessonRunner({
+  tasks,
+  onExit,
+  onFinish,
+  p,
+  signedIn,
+  plan,
+  onUpgrade,
+}: {
+  tasks: Task[]
+  onExit: () => void
+  onFinish: (missed: number) => void
+  p: Progress
+  signedIn: boolean
+  plan: Plan
+  onUpgrade: () => void
+}) {
   const { t, lang } = useT()
   const [index, setIndex] = useState(0)
   const task = tasks[index]
@@ -23,6 +45,8 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
   const [tries, setTries] = useState(0)
   const [leaving, setLeaving] = useState(false)
   const missed = useRef(new Set<string>())
+  const [asking, setAsking] = useState(false)
+  const [chat, setChat] = useState<UIMessage[]>([])
 
   const doc = previewDoc(task, answer)
   const touched = index > 0 || tries > 0 || ready(task, answer)
@@ -44,15 +68,36 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
     }
   }
 
-  const next = () => {
-    if (index + 1 === tasks.length) return onFinish(missed.current.size)
-    setIndex(index + 1)
-    setAnswer(blank(tasks[index + 1]))
+  const go = (to: number) => {
+    setIndex(to)
+    setAnswer(blank(tasks[to]))
     setState('idle')
     setTries(0)
     setWhy(null)
   }
+  const next = () => (index + 1 === tasks.length ? onFinish(missed.current.size) : go(index + 1))
+  const back = () => {
+    sound.playClick()
+    go(index - 1)
+  }
   const learn = task.type === 'learn'
+  // What the tutor is told about this step, so "explain this more" has something to point at.
+  const about = [t(task.prompt), task.type === 'learn' ? `${t(task.body)}\n${task.code}` : (task.show ?? '')].filter(Boolean).join('\n')
+
+  // Android's back button: close the chat, then step back, then offer to leave.
+  useEffect(() => {
+    window.__bataaBack = () => {
+      if (asking) setAsking(false)
+      else if (leaving) setLeaving(false)
+      else if (index > 0) back()
+      else if (touched) setLeaving(true)
+      else onExit()
+      return true
+    }
+    return () => {
+      delete window.__bataaBack
+    }
+  })
 
   return (
     <div className="flex min-h-dvh flex-col bg-gradient-to-b from-warm to-page to-40%">
@@ -61,9 +106,19 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
           <X className="h-5 w-5" strokeWidth={2.5} />
         </IconButton>
         <ProgressBar value={(index + (ok ? 1 : 0)) / tasks.length} label={`${index + 1} / ${tasks.length}`} />
-        <span className="w-9 text-end text-[13px] font-semibold tabular-nums text-ink2">
-          {index + 1}/{tasks.length}
-        </span>
+        <button
+          type="button"
+          onClick={() => {
+            sound.playClick()
+            setAsking(true)
+          }}
+          className="glass flex h-10 shrink-0 items-center gap-1.5 rounded-full pe-3.5 ps-1.5 text-[14px] font-semibold text-ink shadow-soft transition-transform active:scale-95"
+        >
+          <span className="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-brandSoft">
+            <PondDuck level={1} size={20} />
+          </span>
+          {t(ui.askAi)}
+        </button>
       </header>
 
       <main className="flex-1 overflow-x-hidden px-4 pb-6 pt-6">
@@ -99,10 +154,22 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
 
       <footer className="sticky bottom-0 z-10" style={{ paddingBottom: 'var(--sab, env(safe-area-inset-bottom, 0px))' }}>
         {state === 'idle' ? (
-          <div className="bg-gradient-to-t from-page from-70% to-page/0 p-4 pt-6">
-            <Button disabled={!ready(task, answer)} onClick={submit}>
-              {t(learn ? ui.gotIt : ui.check)}
-            </Button>
+          <div className="flex items-center gap-3 bg-gradient-to-t from-page from-70% to-page/0 p-4 pt-6">
+            {index > 0 && (
+              <button
+                type="button"
+                aria-label={t(ui.back)}
+                onClick={back}
+                className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-white text-ink shadow-soft transition-transform active:scale-95"
+              >
+                <ArrowLeft className={`h-5 w-5 ${lang === 'ar' ? 'rotate-180' : ''}`} strokeWidth={2.5} />
+              </button>
+            )}
+            <div className="flex-1">
+              <Button disabled={!ready(task, answer)} onClick={submit}>
+                {t(learn ? ui.gotIt : ui.check)}
+              </Button>
+            </div>
           </div>
         ) : (
           // Floating result tray: springs up from the button it replaces.
@@ -152,6 +219,23 @@ export function LessonRunner({ tasks, onExit, onFinish }: { tasks: Task[]; onExi
           </motion.div>
         )}
       </footer>
+
+      {/* Bataa AI over the lesson, about this step. */}
+      <AnimatePresence>
+        {asking && (
+          <motion.div className="fixed inset-0 z-50" initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ duration: 0.34, ease: [0.65, 0, 0.35, 1] }}>
+            <ChatBody
+              p={p}
+              signedIn={signedIn}
+              plan={plan}
+              onUpgrade={onUpgrade}
+              initial={chat}
+              onSave={setChat}
+              step={{ title: t(task.prompt), about, onClose: () => setAsking(false) }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Tray open={leaving} onClose={() => setLeaving(false)} label={t(ui.leaveTitle)}>
         <div className="grid justify-items-center gap-1 pb-4 pt-1 text-center">

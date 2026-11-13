@@ -2,7 +2,7 @@
  * Plans: Free and Pro. The plan lives in Supabase (`subscriptions`, written only by the server) and is read
  * through the current_plan() function; signed out means Free. What each plan unlocks:
  * - Free: the first unit and FREE_DAILY Bataa AI messages a day (the tutor function enforces the limit).
- * - Pro: every unit and unlimited Bataa AI.
+ * - Pro (200 EGP a month): the desktop and mobile apps, every unit and Bataa AI.
  * See supabase/migrations/20261113120000_plans.sql.
  */
 import { useEffect, useState } from 'react'
@@ -18,8 +18,9 @@ export const FREE_DAILY = 10
 /** Units open on the Free plan. */
 export const FREE_UNITS = ['html']
 
-/** Pro prices in US dollars. Yearly is 20% off twelve months. */
-export const PRICE: Record<Period, number> = { monthly: 4.99, yearly: 47.99 }
+/** Pro prices in Egyptian pounds (assignments/market-research/bataa-tech-compass.html). Yearly is 20% off twelve months. */
+export const CURRENCY = 'EGP'
+export const PRICE: Record<Period, number> = { monthly: 200, yearly: 1920 }
 
 /** Each plan's art: an egg on a lily pad for Free, the crowned duck for Pro. */
 export const PLAN_ART: Record<Plan, string> = { free: '/plans/free.webp', pro: '/plans/pro.webp' }

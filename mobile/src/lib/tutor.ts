@@ -6,7 +6,8 @@
 import { TextStreamChatTransport, type UIMessage } from 'ai'
 import { supabase } from '@/lib/account'
 
-export type TutorContext = { lang: 'en' | 'ar'; done: string[]; name: string }
+/** `step`: the lesson step the learner is asking about, when the chat is opened from a lesson. */
+export type TutorContext = { lang: 'en' | 'ar'; done: string[]; name: string; step?: string }
 
 export function tutorTransport(context: () => TutorContext) {
   return new TextStreamChatTransport<UIMessage>({

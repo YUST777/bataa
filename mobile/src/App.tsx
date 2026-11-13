@@ -102,7 +102,7 @@ export default function App() {
           )}
           {screen === 'lesson' && run && (
             <motion.div key="lesson" {...fade}>
-              <LessonRunner tasks={run.tasks} onExit={() => setRun(null)} onFinish={finish} />
+              <LessonRunner tasks={run.tasks} onExit={() => setRun(null)} onFinish={finish} p={p} signedIn={!!session} plan={plan} onUpgrade={upgrade} />
             </motion.div>
           )}
           {screen === 'done' && result && (

@@ -5,21 +5,27 @@ import { Check, X } from '@/components/Icon'
 import { IconButton, spring } from '@/components/ui'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
-import { PLAN_ART, PRICE, type Period, type Plan } from '@/lib/plans'
+import { CURRENCY, PLAN_ART, PRICE, type Period, type Plan } from '@/lib/plans'
 
 /**
  * The plans page ("Choose your plan"): the sunset pond as a header that fades into the page with the
- * picked plan's art on its lily pad, monthly or yearly (20% off), Free and Pro as rows to tap, and one
- * sticky button. `onChoose` gets the period when Pro is picked; picking Free just closes.
+ * picked plan's art on its lily pad, monthly or yearly (20% off), Free and Pro as rows to tap (the picked
+ * one opens to show what it gives), and one sticky button. `onChoose` gets the period when Pro is picked; picking Free just closes.
  */
 export function Paywall({ open, current, onClose, onChoose }: { open: boolean; current: Plan; onClose: () => void; onChoose: (period: Period) => void }) {
   const { t, lang } = useT()
   const [picked, setPicked] = useState<Plan>('pro')
   const [period, setPeriod] = useState<Period>('monthly')
-  const money = new Intl.NumberFormat(lang === 'ar' ? 'ar-EG' : 'en-US', { style: 'currency', currency: 'USD' })
+  const money = new Intl.NumberFormat(lang === 'ar' ? 'ar-EG' : 'en-US', { style: 'currency', currency: CURRENCY, maximumFractionDigits: 0 })
   const rows = [
-    { id: 'free' as const, title: ui.planFree, line: ui.payFreeLine, price: money.format(0).replace(/[.,٫]00/, '') },
-    { id: 'pro' as const, title: ui.planPro, line: ui.payProLine, price: money.format(period === 'monthly' ? PRICE.monthly : PRICE.yearly / 12) },
+    { id: 'free' as const, title: ui.planFree, line: ui.payFreeLine, price: money.format(0), perks: [ui.perkFreeApp, ui.perkFreeUnit, ui.perkFreeAi] },
+    {
+      id: 'pro' as const,
+      title: ui.planPro,
+      line: ui.payProLine,
+      price: money.format(period === 'monthly' ? PRICE.monthly : PRICE.yearly / 12),
+      perks: [ui.perkProApps, ui.perkProAi, ui.perkProCourses],
+    },
   ]
   const cta = picked === current ? ui.payYourPlan : picked === 'free' ? ui.payStayFree : ui.payUpgradePro
 
@@ -94,21 +100,47 @@ export function Paywall({ open, current, onClose, onChoose }: { open: boolean; c
                         sound.playClick()
                         setPicked(r.id)
                       }}
-                      className={`relative flex items-center gap-3 rounded-[22px] border-2 bg-white p-3 text-start transition-colors ${on ? 'border-accent' : 'border-transparent shadow-soft'}`}
+                      className={`relative block min-w-0 rounded-[22px] border-2 bg-white p-3 text-start transition-colors ${on ? 'border-accent' : 'border-transparent shadow-soft'}`}
                     >
                       {r.id === 'pro' && <span className="absolute -top-2.5 end-4 rounded-full bg-ink px-2.5 py-0.5 text-[10px] font-bold text-white">{t(ui.payPopular)}</span>}
-                      <img src={PLAN_ART[r.id]} alt="" draggable={false} className="h-14 w-14 shrink-0 object-contain" />
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-[17px] font-semibold leading-tight">{t(r.title)}</span>
-                        <span className="block truncate text-[13px] font-medium text-ink2">{r.id === current ? t(ui.payYourPlan) : t(r.line)}</span>
+                      <span className="flex items-center gap-3">
+                        <img src={PLAN_ART[r.id]} alt="" draggable={false} className="h-14 w-14 shrink-0 object-contain" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-[17px] font-semibold leading-tight">{t(r.title)}</span>
+                          <span className="block truncate text-[13px] font-medium text-ink2">{r.id === current ? t(ui.payYourPlan) : t(r.line)}</span>
+                        </span>
+                        <span className="text-end">
+                          <span className="block text-[17px] font-bold tabular-nums">{r.price}</span>
+                          <span className="block text-[11px] font-semibold text-ink3">{t(ui.payPerMonth)}</span>
+                        </span>
+                        <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${on ? 'border-accent bg-accent text-ink' : 'border-lip'}`}>
+                          {on && <Check className="h-3 w-3" />}
+                        </span>
                       </span>
-                      <span className="text-end">
-                        <span className="block text-[17px] font-bold tabular-nums">{r.price}</span>
-                        <span className="block text-[11px] font-semibold text-ink3">{t(ui.payPerMonth)}</span>
-                      </span>
-                      <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${on ? 'border-accent bg-accent text-ink' : 'border-lip'}`}>
-                        {on && <Check className="h-3 w-3" />}
-                      </span>
+                      {/* The picked plan opens to show what it gives. */}
+                      <AnimatePresence initial={false}>
+                        {on && (
+                          <motion.span
+                            className="block overflow-hidden"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.28, ease: [0.65, 0, 0.35, 1] }}
+                          >
+                            <span className="mt-3 grid gap-2 border-t border-line pt-3">
+                              <span className="text-[12px] font-semibold text-ink3">{t(ui.payIncludes)}</span>
+                              {r.perks.map((perk) => (
+                                <span key={perk.en} className="flex items-start gap-2.5 text-[14px] font-medium leading-snug text-ink">
+                                  <span className="mt-px grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent/30 text-ink">
+                                    <Check className="h-2.5 w-2.5" />
+                                  </span>
+                                  {t(perk)}
+                                </span>
+                              ))}
+                            </span>
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
                     </button>
                   )
                 })}

@@ -10,7 +10,7 @@ import { IconButton, Preview, spring } from '@/components/ui'
 import { lessons } from '@/data/course'
 import { ui, useT } from '@/i18n'
 import { sound } from '@/lib/sound'
-import { textOf, tutorTransport } from '@/lib/tutor'
+import { textOf, tutorTransport, type TutorContext } from '@/lib/tutor'
 import { FREE_DAILY, aiUsedToday, type Plan } from '@/lib/plans'
 import { PondDuck } from '@/screens/Pond'
 import type { Progress } from '@/state/progress'
@@ -167,7 +167,7 @@ const markdown = {
  * code cards that copy and run live. A soft aurora moves behind it. Chatting needs a signed-in account;
  * the quick review of real lesson questions stays in the header.
  */
-function ChatBody({
+export function ChatBody({
   p,
   signedIn,
   onReview,
@@ -176,26 +176,29 @@ function ChatBody({
   onSave,
   plan,
   onUpgrade,
+  step,
 }: {
   p: Progress
   signedIn: boolean
   plan: Plan
   onUpgrade: () => void
-  onReview: () => void
-  onMenu: () => void
+  onReview?: () => void
+  onMenu?: () => void
   initial: UIMessage[]
   onSave: (messages: UIMessage[]) => void
+  /** Opened from a lesson: asks about that step (`about` goes to the tutor as context), closes back to it. */
+  step?: { title: string; about: string; onClose: () => void }
 }) {
   const { t, lang } = useT()
-  const context = useRef({ lang, done: p.done, name: p.name })
-  context.current = { lang, done: p.done, name: p.name }
+  const context = useRef<TutorContext>({ lang, done: p.done, name: p.name, step: step?.about })
+  context.current = { lang, done: p.done, name: p.name, step: step?.about }
   const transport = useMemo(() => tutorTransport(() => context.current), [])
   const { messages, sendMessage, status, stop, regenerate, error, clearError } = useChat({ transport, messages: initial })
   const [draft, setDraft] = useState('')
   const [atEnd, setAtEnd] = useState(true)
   const list = useRef<HTMLDivElement>(null)
   const busy = status === 'submitted' || status === 'streaming'
-  const finished = p.done.length > 0
+  const finished = p.done.length > 0 && !!onReview
   // Free plan: messages left today, from the same count the tutor function keeps.
   const [used, setUsed] = useState<number | null>(null)
   useEffect(() => {
@@ -226,12 +229,19 @@ function ChatBody({
   const limited = !!error && /"limit"/.test(error.message)
   const errorText = error ? t(limited ? ui.aiLimit : /sign_in/.test(error.message) ? ui.aiSignIn : ui.aiError) : null
   const last = messages[messages.length - 1]
-  const cards = [
-    { icon: Target, title: ui.aiCardQuizTitle, body: ui.aiCardQuizBody, ask: ui.aiChipQuiz },
-    { icon: BookOpenCheck, title: ui.aiCardExplainTitle, body: ui.aiCardExplainBody, ask: ui.aiChipExplain },
-    { icon: Zap, title: ui.aiCardBuildTitle, body: ui.aiCardBuildBody, ask: ui.aiChipBuild },
-    { icon: ListChecks, title: ui.aiCardCompareTitle, body: ui.aiCardCompareBody, ask: ui.aiChipPadding },
-  ]
+  const cards = step
+    ? [
+        { icon: BookOpenCheck, title: ui.askMore, body: null, ask: ui.askMore },
+        { icon: Zap, title: ui.askExample, body: null, ask: ui.askExample },
+        { icon: ListChecks, title: ui.askWhy, body: null, ask: ui.askWhy },
+        { icon: Target, title: ui.askStuck, body: null, ask: ui.askStuck },
+      ]
+    : [
+        { icon: Target, title: ui.aiCardQuizTitle, body: ui.aiCardQuizBody, ask: ui.aiChipQuiz },
+        { icon: BookOpenCheck, title: ui.aiCardExplainTitle, body: ui.aiCardExplainBody, ask: ui.aiChipExplain },
+        { icon: Zap, title: ui.aiCardBuildTitle, body: ui.aiCardBuildBody, ask: ui.aiChipBuild },
+        { icon: ListChecks, title: ui.aiCardCompareTitle, body: ui.aiCardCompareBody, ask: ui.aiChipPadding },
+      ]
   const followUps = [ui.aiFollowSimpler, ui.aiFollowExample, ui.aiFollowQuiz]
 
   return (
@@ -245,13 +255,19 @@ function ChatBody({
       </div>
 
       <header className="flex items-center gap-2 px-4 pb-1 pt-3">
-        <IconButton label={t(ui.aiChats)} onClick={onMenu}>
-          <G d={Glyph.menu} className="h-5 w-5" />
-        </IconButton>
-        <div className="me-auto flex items-center gap-2">
-          <div>
+        {step ? (
+          <IconButton label={t(ui.close)} onClick={step.onClose}>
+            <G d={Glyph.close} className="h-5 w-5" />
+          </IconButton>
+        ) : (
+          <IconButton label={t(ui.aiChats)} onClick={onMenu ?? (() => {})}>
+            <G d={Glyph.menu} className="h-5 w-5" />
+          </IconButton>
+        )}
+        <div className="me-auto flex min-w-0 items-center gap-2">
+          <div className="min-w-0">
             <h1 className="text-[18px] font-semibold leading-tight tracking-tight">{t(ui.aiTitle)}</h1>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-ink3">gpt-6.1 terra</p>
+            <p className={`truncate text-[11px] font-semibold text-ink3 ${step ? '' : 'uppercase tracking-wide'}`}>{step ? step.title : 'gpt-6.1 terra'}</p>
           </div>
         </div>
         {finished && (
@@ -275,7 +291,7 @@ function ChatBody({
         className="flex-1 overflow-y-auto overscroll-contain px-4 pt-2"
         // Messages fade out under the header instead of cutting off against it.
         style={{
-          paddingBottom: 'calc(var(--sab, env(safe-area-inset-bottom, 0px)) + 15rem)',
+          paddingBottom: `calc(var(--sab, env(safe-area-inset-bottom, 0px)) + ${step ? 10 : 15}rem)`,
           maskImage: 'linear-gradient(to bottom, transparent, #000 28px)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent, #000 28px)',
         }}
@@ -285,10 +301,10 @@ function ChatBody({
           <div className="grid gap-6 pt-[8vh]">
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="grid gap-1 px-1">
               <h2 className="ai-gradient text-[34px] font-bold leading-[1.1] tracking-tight">
-                {t(ui.aiHello)}
-                {p.name ? `, ${p.name}` : ''}
+                {step ? t(ui.askTitle) : t(ui.aiHello)}
+                {!step && p.name ? `, ${p.name}` : ''}
               </h2>
-              <p className="text-[28px] font-semibold leading-[1.15] tracking-tight text-ink3">{t(ui.aiHelloSub)}</p>
+              <p className={`font-semibold leading-[1.15] tracking-tight text-ink3 ${step ? 'text-[20px]' : 'text-[28px]'}`}>{step ? step.title : t(ui.aiHelloSub)}</p>
             </motion.div>
             <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none]">
               {cards.map((c, i) => (
@@ -304,7 +320,7 @@ function ChatBody({
                 >
                   <span className="text-[15px] font-semibold leading-snug text-ink">
                     {t(c.title)}
-                    <span className="mt-0.5 block text-[13px] font-medium text-ink2">{t(c.body)}</span>
+                    {c.body && <span className="mt-0.5 block text-[13px] font-medium text-ink2">{t(c.body)}</span>}
                   </span>
                   <span className="grid h-9 w-9 place-items-center self-end rounded-full bg-white/80">
                     <c.icon className="h-5 w-5" />
@@ -404,7 +420,8 @@ function ChatBody({
       {/* Composer: above the tab bar, or above the keyboard while typing (--kb, from the Android app). */}
       <div
         className="fixed inset-x-3 z-40 mx-auto max-w-[424px]"
-        style={{ bottom: 'max(calc(var(--kb, 0px) + 0.5rem), calc(var(--sab, env(safe-area-inset-bottom, 0px)) + 6rem))' }}
+        // In a lesson there is no tab bar to sit above.
+        style={{ bottom: `max(calc(var(--kb, 0px) + 0.5rem), calc(var(--sab, env(safe-area-inset-bottom, 0px)) + ${step ? 0.75 : 6}rem))` }}
       >
         <AnimatePresence>
           {!atEnd && (
