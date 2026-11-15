@@ -28,8 +28,8 @@ test('code checks accept equivalent answers and explain the first failure', () =
   expect(check(button, '<button>Go</button>').why).toBe(button.rules[1].fail)
 
   const link = task('links-6') as CodeTask
-  expect(check(link, '<a href="">Visit Bataa</a>').ok).toBe(false)
-  expect(check(link, "<a href='/x'>Visit Bataa</a>").ok).toBe(true)
+  expect(check(link, '<a href="">Visit Waddle</a>').ok).toBe(false)
+  expect(check(link, "<a href='/x'>Visit Waddle</a>").ok).toBe(true)
 
   const color = task('color-6') as CodeTask
   expect(check(color, 'button{background-color:red;color:#fff}').ok).toBe(true)

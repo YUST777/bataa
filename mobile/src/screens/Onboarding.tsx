@@ -172,7 +172,7 @@ export function Onboarding({ onToggleLang, onDone }: { onToggleLang: () => void;
 
       <header className="relative flex h-[60px] items-center gap-3 px-4 pt-4" style={{ marginTop: 'var(--sat, env(safe-area-inset-top, 0px))' }}>
         {step === 0 ? (
-          <span className="me-auto ps-1 text-[26px] font-semibold tracking-tight">bataa</span>
+          <span className="me-auto ps-1 text-[26px] font-semibold tracking-tight">waddle</span>
         ) : (
           <>
             <IconButton label={t(ui.back)} onClick={() => go(step - 1)}>

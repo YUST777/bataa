@@ -3,7 +3,7 @@ export default {
   content: ['./index.html', './src/**/*.{ts,tsx}', './node_modules/streamdown/dist/*.js'],
   theme: {
     extend: {
-      // Bataa's warm palette on a white ground: hairlines and soft shadows instead of heavy borders.
+      // Waddle's warm palette on a white ground: hairlines and soft shadows instead of heavy borders.
       colors: {
         ink: '#1F1611',
         ink2: '#7A6A5D',

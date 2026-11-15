@@ -1,5 +1,5 @@
 /**
- * Bataa AI: the chat transport for the AI SDK's useChat. It talks to the `tutor` Supabase Edge Function
+ * Waddle AI: the chat transport for the AI SDK's useChat. It talks to the `tutor` Supabase Edge Function
  * (supabase/functions/tutor), which holds the Modelflare key and streams gpt-6.1-terra's reply back as
  * plain text. The learner must be signed in: the function checks the session token sent here.
  */

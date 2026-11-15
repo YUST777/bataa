@@ -19,7 +19,7 @@ export type Mood =
 // paint at once with the egg-shaped placeholder (index.css .duck-loading) and the rig drops in when ready.
 const DuckRig = lazy(() => import('./DuckRig').then((m) => ({ default: m.DuckRig })))
 
-/** Bataa the duck (see DuckRig). `size` is roughly the duck's own width. */
+/** Waddle the duck (see DuckRig). `size` is roughly the duck's own width. */
 export function Duck(props: { mood?: Mood; size?: number; className?: string }) {
   const width = (props.size ?? 96) * 1.4
   return (

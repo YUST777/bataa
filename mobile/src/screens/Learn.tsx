@@ -61,7 +61,7 @@ export function Learn({ p, plan, onUpgrade, onStart }: { p: Progress; plan: Plan
     <div>
       <Sky>
         <header className="flex items-center gap-2 px-5 pt-5">
-          <span className="me-auto text-[26px] font-semibold tracking-tight text-ink">bataa</span>
+          <span className="me-auto text-[26px] font-semibold tracking-tight text-ink">waddle</span>
           <span aria-label={`${streak(p.daily)} ${t(ui.streak)}`} className="glass flex h-10 items-center gap-1.5 rounded-full px-3 text-[15px] font-semibold tabular-nums">
             <Flame className="h-[18px] w-[18px] fill-accent text-accent" />
             {streak(p.daily)}

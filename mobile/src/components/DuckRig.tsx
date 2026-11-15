@@ -13,7 +13,7 @@ const layout = new Layout({ fit: Fit.Contain })
 const clamp = (n: number) => Math.max(-100, Math.min(100, n))
 
 /**
- * Bataa the duck, a Rive rig built from the parts sheet in design/mascot/rig (see build_rig.py there).
+ * Waddle the duck, a Rive rig built from the parts sheet in design/mascot/rig (see build_rig.py there).
  *
  * The state machine runs layers at once: Body, Face, Mouth, LookX and LookY. So the duck breathes and
  * blinks on its own, its eyes follow the pointer, and a mood adds a reaction on top.
@@ -87,7 +87,7 @@ export function DuckRig({ mood = 'idle', size = 96, className = '' }: { mood?: M
     <div
       ref={box}
       role="img"
-      aria-label="Bataa"
+      aria-label="Waddle"
       className={`pointer-events-none shrink-0 ${rive ? '' : 'duck-loading'} ${className}`}
       style={{ width, height: (width * 500) / 480 }}
     >

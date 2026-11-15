@@ -29,8 +29,8 @@ dist-ssr
 # Vercel
 .vercel
 
-/mobile/BataaMobile.apk
-/mobile/BataaMobile.apk.idsig
+/mobile/WaddleMobile.apk
+/mobile/WaddleMobile.apk.idsig
 .wrangler
 .playwright-cli
 

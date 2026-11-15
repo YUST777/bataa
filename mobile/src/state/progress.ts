@@ -45,6 +45,7 @@ export const NAME_MAX = 30
 // A 256px JPEG is about 20 KB; the cap keeps a bad value from filling storage.
 const PHOTO_MAX = 200_000
 
+// The old name stays in the storage keys so learners keep their saved progress.
 const KEY = 'bataa.mobile.v2'
 const FRESH: Progress = { lang: 'en', onboarded: false, experience: 'new', goal: 1, done: [], xp: 0, daily: {}, sound: true, name: '', photo: '', joined: '', badges: {}, pond: freshPond() }
 

@@ -205,7 +205,7 @@ export const units: Unit[] = [
         title: { en: 'Links and images', ar: 'الروابط والصور' },
         can: { en: 'link to another page and describe an image', ar: 'الربط بصفحة أخرى ووصف صورة' },
         minutes: 6,
-        artifact: { html: '<a href="https://bataa.app">Visit Bataa</a>', css: '' },
+        artifact: { html: '<a href="https://example.com">Visit Waddle</a>', css: '' },
         tasks: [
           {
             id: 'links-learn-1',
@@ -216,7 +216,7 @@ export const units: Unit[] = [
               en: '<a> makes a link. The address it opens goes in href, inside the opening tag. Extra details written inside a tag like this are called attributes: name="value".',
               ar: '<a> يصنع رابطًا. والعنوان الذي يفتحه يوضع في href داخل وسم الفتح. التفاصيل الإضافية المكتوبة داخل الوسم هكذا تُسمّى خصائص: name="value".',
             },
-            code: '<a href="https://bataa.app">Visit Bataa</a>',
+            code: '<a href="https://example.com">Visit Waddle</a>',
           },
           {
             id: 'links-1',
@@ -224,9 +224,9 @@ export const units: Unit[] = [
             lang: 'html',
             prompt: { en: 'Which element takes you to another page?', ar: 'أي عنصر ينقلك إلى صفحة أخرى؟' },
             options: [
-              { id: 'p', text: '<p>', value: '<p>Visit Bataa</p>' },
-              { id: 'h2', text: '<h2>', value: '<h2>Visit Bataa</h2>' },
-              { id: 'a', text: '<a>', value: '<a href="https://bataa.app">Visit Bataa</a>' },
+              { id: 'p', text: '<p>', value: '<p>Visit Waddle</p>' },
+              { id: 'h2', text: '<h2>', value: '<h2>Visit Waddle</h2>' },
+              { id: 'a', text: '<a>', value: '<a href="https://example.com">Visit Waddle</a>' },
             ],
             answer: 'a',
             explain: { en: '<a> is the anchor element. It makes links.', ar: '<a> هو عنصر الرابط (anchor)، وهو الذي يصنع الروابط.' },
@@ -237,7 +237,7 @@ export const units: Unit[] = [
             type: 'fill',
             lang: 'html',
             prompt: { en: 'Tell the link where to go.', ar: 'أخبر الرابط إلى أين يذهب.' },
-            code: '<a ___="https://bataa.app">Visit Bataa</a>',
+            code: '<a ___="https://example.com">Visit Waddle</a>',
             bank: ['src', 'href', 'link', 'go'],
             answer: 'href',
             explain: { en: 'href holds the address the link opens.', ar: 'href يحمل العنوان الذي يفتحه الرابط.' },
@@ -298,8 +298,8 @@ export const units: Unit[] = [
             type: 'code',
             lang: 'html',
             prompt: { en: 'This link goes nowhere. Give it an address.', ar: 'هذا الرابط لا يذهب إلى أي مكان. أعطه عنوانًا.' },
-            starter: '<a>Visit Bataa</a>',
-            solution: '<a href="https://bataa.app">Visit Bataa</a>',
+            starter: '<a>Visit Waddle</a>',
+            solution: '<a href="https://example.com">Visit Waddle</a>',
             rules: [
               { tag: 'a', fail: { en: 'Keep the <a> element and its label.', ar: 'أبقِ عنصر <a> ونصه.' } },
               {
@@ -309,7 +309,7 @@ export const units: Unit[] = [
               },
             ],
             explain: { en: 'Now the link has somewhere to go.', ar: 'الآن أصبح للرابط وجهة.' },
-            hint: { en: 'It looks like this: <a href="https://bataa.app">', ar: 'يبدو هكذا: <a href="https://bataa.app">' },
+            hint: { en: 'It looks like this: <a href="https://example.com">', ar: 'يبدو هكذا: <a href="https://example.com">' },
           },
         ],
       },

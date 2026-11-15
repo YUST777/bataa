@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds the Bataa Android APK: the mobile web app inside a WebView (android/manual), plus native Google sign-in
+# Builds the Waddle Android APK: the mobile web app inside a WebView (android/manual), plus native Google sign-in
 # (Credential Manager), with Gradle (android/gradle-app). Signed with the local debug key.
 set -euo pipefail
 
@@ -7,7 +7,7 @@ project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 android_sdk="${ANDROID_HOME:-/home/yousefmsm1/Android/Sdk}"
 gradle_dir="$project_dir/android/gradle-app"
 web_dir="$project_dir"
-output_apk="${BATAA_APK:-$project_dir/BataaMobile.apk}"
+output_apk="${WADDLE_APK:-$project_dir/WaddleMobile.apk}"
 
 if [[ ! -d "$android_sdk/platforms" ]]; then
   echo "Missing Android SDK at $android_sdk (set ANDROID_HOME)" >&2
@@ -32,6 +32,6 @@ for spec in mdpi:48:108 hdpi:72:162 xhdpi:96:216 xxhdpi:144:324 xxxhdpi:192:432;
   convert "$project_dir/android/icon.png" -filter Lanczos -resize "${foreground}x${foreground}" -strip "$target/ic_launcher_foreground.png"
 done
 
-(cd "$gradle_dir" && BATAA_WEB_DIST="$web_dir/dist" ./gradlew --quiet assembleDebug)
-cp "$gradle_dir/build/outputs/apk/debug/bataa-debug.apk" "$output_apk"
+(cd "$gradle_dir" && WADDLE_WEB_DIST="$web_dir/dist" ./gradlew --quiet assembleDebug)
+cp "$gradle_dir/build/outputs/apk/debug/waddle-debug.apk" "$output_apk"
 echo "APK created at $output_apk"

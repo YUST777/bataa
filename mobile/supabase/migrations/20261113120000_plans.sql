@@ -1,4 +1,4 @@
--- Bataa plans: Free, Pro and Team. A learner can read their own plan; only the server (service role, e.g. a
+-- Waddle plans: Free, Pro and Team. A learner can read their own plan; only the server (service role, e.g. a
 -- payment webhook) writes it, so nobody can make themselves Pro from the app. No row means Free.
 create table if not exists public.subscriptions (
   user_id uuid primary key references auth.users (id) on delete cascade,
@@ -12,7 +12,7 @@ alter table public.subscriptions enable row level security;
 drop policy if exists "subscriptions: read own" on public.subscriptions;
 create policy "subscriptions: read own" on public.subscriptions for select to authenticated using (auth.uid() = user_id);
 
--- Bataa AI messages per learner per day (UTC), for the Free plan's daily limit.
+-- Waddle AI messages per learner per day (UTC), for the Free plan's daily limit.
 create table if not exists public.ai_usage (
   user_id uuid not null references auth.users (id) on delete cascade,
   day date not null default (now() at time zone 'utc')::date,
@@ -30,7 +30,7 @@ language sql stable security definer set search_path = public as $$
   select coalesce((select s.plan from subscriptions s where s.user_id = auth.uid() and (s.renews_at is null or s.renews_at > now())), 'free')
 $$;
 
--- Called by the tutor Edge Function (with the learner's token) before each Bataa AI reply. Counts the
+-- Called by the tutor Edge Function (with the learner's token) before each Waddle AI reply. Counts the
 -- message and says whether it is allowed: Free stops at `free_limit` a day, paid plans never do.
 -- One statement, so two messages sent at once cannot both slip past the limit.
 create or replace function public.use_ai_message(free_limit int) returns json

@@ -1,4 +1,4 @@
--- Every plan gets a daily Bataa AI limit: Free, Pro and Max each pass their own (the tutor Edge Function
+-- Every plan gets a daily Waddle AI limit: Free, Pro and Max each pass their own (the tutor Edge Function
 -- holds the numbers); 'team' counts as Max. The one-argument use_ai_message stays until the new tutor is
 -- deployed, so the live function keeps working in between.
 create or replace function public.use_ai_message(free_limit int, pro_limit int, max_limit int) returns json

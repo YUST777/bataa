@@ -1,4 +1,4 @@
--- Bataa mobile: each signed-in learner's progress (the same JSON the app keeps in local storage).
+-- Waddle mobile: each signed-in learner's progress (the same JSON the app keeps in local storage).
 -- Run once in the Supabase SQL editor (or with `supabase db push`). Safe to run again.
 
 create table if not exists public.progress (

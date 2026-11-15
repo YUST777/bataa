@@ -21,7 +21,7 @@ android {
             manifest.srcFile '../manual/AndroidManifest.xml'
             java.srcDirs = ['../manual/src']
             res.srcDirs = ['../manual/res', 'build/generated/icons']
-            assets.srcDirs = [System.getenv('BATAA_WEB_DIST') ?: '../../dist']
+            assets.srcDirs = [System.getenv('WADDLE_WEB_DIST') ?: '../../dist']
         }
     }
 

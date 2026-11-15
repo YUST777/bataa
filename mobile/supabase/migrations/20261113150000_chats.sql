@@ -1,4 +1,4 @@
--- Bataa AI chats, kept with the account so they follow the learner to any phone. One row per chat; the
+-- Waddle AI chats, kept with the account so they follow the learner to any phone. One row per chat; the
 -- app keeps the newest 30 and at most 40 messages each. Learners can only see and change their own.
 create table if not exists public.chats (
   user_id uuid not null references auth.users (id) on delete cascade,

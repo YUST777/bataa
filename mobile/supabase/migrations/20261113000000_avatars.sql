@@ -1,4 +1,4 @@
--- Bataa mobile: profile photos. Public bucket `avatars`; a learner reads and writes only avatars/<their id>/.
+-- Waddle mobile: profile photos. Public bucket `avatars`; a learner reads and writes only avatars/<their id>/.
 -- The app uploads a 256px JPEG (about 20 KB) to avatars/<user id>/avatar.jpg (src/lib/account.ts saveAvatar).
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)

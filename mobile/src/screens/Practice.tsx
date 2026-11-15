@@ -14,7 +14,7 @@ import { deleteChat, loadChats, saveChat, syncChats, titleOf, type SavedChat } f
 import { DAILY, aiUsedToday, type Plan } from '@/lib/plans'
 import type { Progress } from '@/state/progress'
 
-/** Every animation in Bataa AI eases in and out the same way: no springs, no bounce. */
+/** Every animation in Waddle AI eases in and out the same way: no springs, no bounce. */
 const smooth = { duration: 0.4, ease: [0.65, 0, 0.35, 1] } as const
 
 /** Small line icons drawn here, in the style of the icon sheet. */
@@ -133,7 +133,7 @@ const markdown = {
 }
 
 /**
- * Practice is a chat with Bataa AI, a duck tutor (gpt-6.1-terra through the `tutor` Edge Function), built
+ * Practice is a chat with Waddle AI, a duck tutor (gpt-6.1-terra through the `tutor` Edge Function), built
  * on the AI SDK's useChat: streaming replies, stop, regenerate and errors. Replies render as markdown with
  * code cards that copy and run live. A soft aurora moves behind it. Chatting needs a signed-in account;
  * the quick review of real lesson questions stays in the header.
@@ -319,7 +319,7 @@ export function ChatBody({
                     <span className={`grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-brandSoft ${live ? 'ai-pulse' : ''}`}>
                       <G d={Glyph.spark} fill className="h-4 w-4 text-brand" />
                     </span>
-                    <span className="text-[13px] font-semibold text-ink2">Bataa</span>
+                    <span className="text-[13px] font-semibold text-ink2">Waddle</span>
                   </div>
                   <div className="ai-md text-[15.5px] leading-relaxed text-ink">
                     <Streamdown mode={live ? 'streaming' : 'static'} isAnimating={live} caret={live ? 'block' : undefined} controls={false} components={markdown}>
@@ -479,7 +479,7 @@ export function ChatBody({
 }
 
 /**
- * Practice is a chat with Bataa AI. Chats are kept on the phone and in the account (lib/chats); the menu button opens a side drawer with
+ * Practice is a chat with Waddle AI. Chats are kept on the phone and in the account (lib/chats); the menu button opens a side drawer with
  * a new chat and every earlier one (newest first), each deletable.
  */
 export function Practice({ p, signedIn, plan, onUpgrade, onReview }: { p: Progress; signedIn: boolean; plan: Plan; onUpgrade: () => void; onReview: () => void }) {

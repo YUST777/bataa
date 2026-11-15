@@ -1,4 +1,4 @@
-// Gradle build for the Bataa Android app (a WebView around mobile/dist, plus native Google sign-in).
+// Gradle build for the Waddle Android app (a WebView around mobile/dist, plus native Google sign-in).
 pluginManagement {
     repositories {
         google()
@@ -13,4 +13,4 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = 'bataa'
+rootProject.name = 'waddle'

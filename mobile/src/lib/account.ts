@@ -20,7 +20,7 @@ export const supabase = url && key ? createClient(url, key, { auth: { flowType: 
 /**
  * Inside the Android app the page is served from https://app.local (android/manual MainActivity).
  * There sign-in is native: Android's own Google account sheet (Credential Manager, through the
- * window.BataaNative bridge) hands back a Google ID token, and Supabase signs in with it; no browser.
+ * window.WaddleNative bridge) hands back a Google ID token, and Supabase signs in with it; no browser.
  * If that is not possible on the phone (no Google Play services, or a setup error), it falls back to
  * Google's page in the browser, which comes back through the app link com.bataa.app://auth-callback.
  * On the web it is a plain redirect.
@@ -32,10 +32,10 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID as string | u
 type Bridge = { signInWithGoogle: (clientId: string, nonce: string) => void; setTheme?: (theme: 'dark' | 'light') => void }
 declare global {
   interface Window {
-    BataaNative?: Bridge
-    __bataaGoogle?: (token: string | null, error: string | null) => void
+    WaddleNative?: Bridge
+    __waddleGoogle?: (token: string | null, error: string | null) => void
     /** Android back (MainActivity): true when the page handled it. */
-    __bataaBack?: () => boolean
+    __waddleBack?: () => boolean
   }
 }
 
@@ -45,7 +45,7 @@ declare global {
  */
 export async function signInWithGoogle(): Promise<string | null> {
   if (!supabase) return 'unavailable'
-  const bridge = window.BataaNative
+  const bridge = window.WaddleNative
   if (inApp && bridge && GOOGLE_CLIENT_ID) {
     const result = await nativeGoogle(bridge, GOOGLE_CLIENT_ID)
     if (result === null) return 'signed-in'
@@ -68,7 +68,7 @@ async function nativeGoogle(bridge: Bridge, clientId: string): Promise<string | 
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(nonce))
   const hashed = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('')
   const answer = await new Promise<{ token: string | null; error: string | null }>((resolve) => {
-    window.__bataaGoogle = (token, error) => resolve({ token, error })
+    window.__waddleGoogle = (token, error) => resolve({ token, error })
     bridge.signInWithGoogle(clientId, hashed)
   })
   if (!answer.token) return answer.error ?? 'failed'

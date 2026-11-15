@@ -478,8 +478,8 @@ export function Pond({ pond, setPond, onExit, lessonsDone }: { pond: PondState; 
   const lit = night || phase === 'sunset'
   // In the Android app: light status-bar icons over the dark night pond, dark ones otherwise (MainActivity).
   useEffect(() => {
-    window.BataaNative?.setTheme?.(night ? 'dark' : 'light')
-    return () => window.BataaNative?.setTheme?.('light')
+    window.WaddleNative?.setTheme?.(night ? 'dark' : 'light')
+    return () => window.WaddleNative?.setTheme?.('light')
   }, [night])
   // The pond is fixed to the screen: the page under it must not scroll up and down.
   useEffect(() => {
@@ -492,7 +492,7 @@ export function Pond({ pond, setPond, onExit, lessonsDone }: { pond: PondState; 
   // Swipe toward the right to leave, with motion's drag (it handles touch, pointer capture and flick speed).
   // The scene follows the finger and the app shows through behind it; let go past 60px, or flick, and it
   // slides away, otherwise it springs back. A swipe can start anywhere outside the dock and buttons, or
-  // anywhere within 40px of the left edge. Android's own back gesture (MainActivity asks window.__bataaBack)
+  // anywhere within 40px of the left edge. Android's own back gesture (MainActivity asks window.__waddleBack)
   // does the same slide: edge swipes belong to the system there, not to the page.
   const CLOSE_AT = 60
   const dragX = useMotionValue(0)
@@ -511,12 +511,12 @@ export function Pond({ pond, setPond, onExit, lessonsDone }: { pond: PondState; 
     animate(dragX, window.innerWidth * 1.05, { duration: 0.26, ease: [0.4, 0, 0.2, 1] }).then(onExit)
   }
   useEffect(() => {
-    window.__bataaBack = () => {
+    window.__waddleBack = () => {
       slideAway()
       return true
     }
     return () => {
-      delete window.__bataaBack
+      delete window.__waddleBack
     }
   })
   const swipeStart = (e: RPointerEvent<HTMLDivElement>) => {

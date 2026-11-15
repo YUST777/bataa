@@ -188,7 +188,7 @@ export default function App() {
             {/* Outside the animated screens, so `fixed` stays pinned to the viewport. The pond is full-screen: no tab bar. */}
             {screen === 'tabs' && tab !== 'pond' && (
               <nav
-                aria-label="Bataa"
+                aria-label="Waddle"
                 className="glass fixed inset-x-3 z-40 mx-auto flex max-w-[424px] rounded-full p-1.5 shadow-float"
                 style={{ bottom: 'calc(0.75rem + var(--sab, env(safe-area-inset-bottom, 0px)))' }}
               >

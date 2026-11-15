@@ -99,7 +99,7 @@ public final class MainActivity extends Activity {
         webView.setWebChromeClient(new PhotoChooser());
         // Native Google sign-in for the web app (see GoogleSignIn below). Only app.local pages load in this
         // WebView; every other link opens in the browser, so no outside page can reach the bridge.
-        webView.addJavascriptInterface(new NativeBridge(), "BataaNative");
+        webView.addJavascriptInterface(new NativeBridge(), "WaddleNative");
         setContentView(webView);
         webView.setOnApplyWindowInsetsListener((view, insets) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -159,7 +159,7 @@ public final class MainActivity extends Activity {
     }
 
     /**
-     * Back (button or edge gesture) asks the web app first: window.__bataaBack() returns true when it handled
+     * Back (button or edge gesture) asks the web app first: window.__waddleBack() returns true when it handled
      * it (the pond slides away). Otherwise the page goes back, or the app goes to the background.
      */
     private void handleBack() {
@@ -167,7 +167,7 @@ public final class MainActivity extends Activity {
             moveTaskToBack(true);
             return;
         }
-        webView.evaluateJavascript("String(!!(window.__bataaBack && window.__bataaBack()))", value -> {
+        webView.evaluateJavascript("String(!!(window.__waddleBack && window.__waddleBack()))", value -> {
             if ("\"true\"".equals(value)) return;
             if (webView.canGoBack()) webView.goBack();
             else moveTaskToBack(true);
@@ -254,7 +254,7 @@ public final class MainActivity extends Activity {
         /**
          * Shows Android's own "Sign in with Google" sheet (Credential Manager). `clientId` is the Google web
          * client ID that Supabase verifies tokens against; `nonce` is the SHA-256 of a random value the web
-         * app keeps, so the token can only be used once. The answer goes to window.__bataaGoogle(token, error).
+         * app keeps, so the token can only be used once. The answer goes to window.__waddleGoogle(token, error).
          */
         @JavascriptInterface
         public void signInWithGoogle(String clientId, String nonce) {
@@ -302,7 +302,7 @@ public final class MainActivity extends Activity {
 
     private void deliverGoogle(String token, String error) {
         if (webView == null) return;
-        String js = "window.__bataaGoogle && window.__bataaGoogle("
+        String js = "window.__waddleGoogle && window.__waddleGoogle("
             + (token == null ? "null" : JSONObject.quote(token)) + ", "
             + (error == null ? "null" : JSONObject.quote(error)) + ")";
         webView.evaluateJavascript(js, null);

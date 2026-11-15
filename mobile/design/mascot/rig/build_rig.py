@@ -1,4 +1,4 @@
-"""Builds the Rive scene for the Bataa duck from the parts sheet.
+"""Builds the Rive scene for the Waddle duck from the parts sheet.
 
 Pipeline (all files in this folder):
   parts.svg            the parts sheet: every piece drawn separately (body, head, 4 wings, eyes, 5 mouths...)

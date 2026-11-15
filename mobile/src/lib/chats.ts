@@ -1,5 +1,5 @@
 /**
- * Bataa AI chats: kept on the phone (localStorage) so they open instantly and offline, and copied to the
+ * Waddle AI chats: kept on the phone (localStorage) so they open instantly and offline, and copied to the
  * learner's account (Supabase `chats`, see supabase/migrations/20261113150000_chats.sql) so they follow
  * them to any phone. Lesson "Ask" chats are saved here too, so they show up in the chat list.
  */
@@ -10,6 +10,7 @@ import { textOf } from '@/lib/tutor'
 /** A saved chat, newest first in lists. `title` is the learner's first question. */
 export type SavedChat = { id: string; title: string; at: number; messages: UIMessage[] }
 
+// Old name kept: renaming the key would lose chats saved on the phone.
 const KEY = 'bataa.chats'
 const MAX_CHATS = 30
 const MAX_MESSAGES = 40

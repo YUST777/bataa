@@ -1,5 +1,5 @@
 /**
- * Bataa's own icons, from two art sheets in public/icons (80x80 units each):
+ * Waddle's own icons, from two art sheets in public/icons (80x80 units each):
  * - line.svg: interface line icons. Drawn as a mask over the current text color, so `text-*` classes color them.
  * - fill.svg: filled status icons in their own colors (orange, the red heart, the lilac moon).
  * The check and play marks are drawn inline from the same paths, because they sit inside circles the app draws.

@@ -116,7 +116,7 @@
   .skeleton, .duck-loading, .medal-rays { animation: none; }
 }
 
-/* Bataa AI chat (screens/Practice.tsx): drifting aurora, gradient greeting, shimmer while thinking. */
+/* Waddle AI chat (screens/Practice.tsx): drifting aurora, gradient greeting, shimmer while thinking. */
 .aurora-a { animation: aurora-a 18s ease-in-out infinite alternate; }
 .aurora-b { animation: aurora-b 22s ease-in-out infinite alternate; }
 .aurora-c { animation: aurora-c 26s ease-in-out infinite alternate; }

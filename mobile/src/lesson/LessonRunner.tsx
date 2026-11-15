@@ -17,7 +17,7 @@ import { TaskBody } from './TaskBody'
 /**
  * Runs a list of tasks: answer, check, explain, retry or continue, or step back to the one before.
  * Mistakes never end the lesson; `onFinish` reports how many tasks needed a retry.
- * "Ask" opens Bataa AI about the current step; that chat lasts as long as the lesson.
+ * "Ask" opens Waddle AI about the current step; that chat lasts as long as the lesson.
  */
 export function LessonRunner({
   tasks,
@@ -89,7 +89,7 @@ export function LessonRunner({
 
   // Android's back button: close the chat, then step back, then offer to leave.
   useEffect(() => {
-    window.__bataaBack = () => {
+    window.__waddleBack = () => {
       if (asking) setAsking(false)
       else if (leaving) setLeaving(false)
       else if (index > 0) back()
@@ -98,7 +98,7 @@ export function LessonRunner({
       return true
     }
     return () => {
-      delete window.__bataaBack
+      delete window.__waddleBack
     }
   })
 
@@ -221,7 +221,7 @@ export function LessonRunner({
         )}
       </footer>
 
-      {/* Bataa AI over the lesson, about this step. */}
+      {/* Waddle AI over the lesson, about this step. */}
       <AnimatePresence>
         {asking && (
           <motion.div className="fixed inset-0 z-50" initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ duration: 0.34, ease: [0.65, 0, 0.35, 1] }}>

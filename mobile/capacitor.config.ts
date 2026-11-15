@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'app.bataa.learn',
-  appName: 'Bataa',
+  appName: 'Waddle',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
