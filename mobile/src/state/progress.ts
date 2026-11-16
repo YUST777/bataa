@@ -35,10 +35,10 @@ export interface Earned {
   serial: string
 }
 
-/** A serial like BTA-8F3A-C21B, random per earned badge. */
+/** A serial like WDL-8F3A-C21B, random per earned badge. Badges earned before the rename keep their BTA- serial. */
 export function newSerial(): string {
   const hex = [...crypto.getRandomValues(new Uint8Array(4))].map((b) => b.toString(16).padStart(2, '0')).join('').toUpperCase()
-  return `BTA-${hex.slice(0, 4)}-${hex.slice(4)}`
+  return `WDL-${hex.slice(0, 4)}-${hex.slice(4)}`
 }
 
 export const NAME_MAX = 30
@@ -97,7 +97,7 @@ export function parse(raw: string | null): Progress {
       badges: Object.fromEntries(
         Object.entries(v.badges && typeof v.badges === 'object' ? v.badges : {}).filter(
           ([, e]: [string, any]) =>
-            e && /^\d{4}-\d{2}-\d{2}$/.test(e.at) && Number.isInteger(e.no) && e.no > 0 && /^BTA-[0-9A-F]{4}-[0-9A-F]{4}$/.test(e.serial),
+            e && /^\d{4}-\d{2}-\d{2}$/.test(e.at) && Number.isInteger(e.no) && e.no > 0 && /^(WDL|BTA)-[0-9A-F]{4}-[0-9A-F]{4}$/.test(e.serial),
         ),
       ) as Record<string, Earned>,
       pond: parsePond(v.pond),

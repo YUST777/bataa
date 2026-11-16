@@ -71,7 +71,7 @@ test('stored progress is validated, and lessons unlock in order', () => {
   const good = { at: '2026-11-12', no: 1, serial: 'BTA-8F3A-C21B' }
   const stored = parse(JSON.stringify({ badges: { button: good, text: { ...good, no: 0 }, links: { ...good, serial: 'x' }, color: null } }))
   expect(stored.badges).toEqual({ button: good })
-  expect(newSerial()).toMatch(/^BTA-[0-9A-F]{4}-[0-9A-F]{4}$/)
+  expect(newSerial()).toMatch(/^WDL-[0-9A-F]{4}-[0-9A-F]{4}$/)
 
   expect(unlocked(p, 'button')).toBe(true)
   expect(unlocked(p, 'text')).toBe(true)
