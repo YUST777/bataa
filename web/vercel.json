@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/bataa.apk",
+      "destination": "/Bataa.apk"
+    },
+    {
       "source": "/bmc",
       "destination": "/bmc.html"
     },
