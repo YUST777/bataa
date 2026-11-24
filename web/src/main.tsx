@@ -1,5 +1,6 @@
 import { StrictMode, useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
+import Lenis from 'lenis'
 import { Eye, EyeOff } from 'lucide-react'
 import { FcGoogle } from 'react-icons/fc'
 import { createRootRoute, createRoute, createRouter, Outlet, RouterProvider } from '@tanstack/react-router'
@@ -127,6 +128,14 @@ function SignupForm() {
 }
 
 function Hero() {
+  // Very light smooth scrolling on the landing page only (touch scrolling stays native).
+  useEffect(() => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const lenis = new Lenis({ lerp: reduce ? 0.3 : 0.16, wheelMultiplier: 1, smoothWheel: true })
+    let raf = requestAnimationFrame(function loop(t) { lenis.raf(t); raf = requestAnimationFrame(loop) })
+    return () => { cancelAnimationFrame(raf); lenis.destroy() }
+  }, [])
+
   return (
     <main id="about" className="hero-shell">
       <Navbar />

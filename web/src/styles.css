@@ -30,7 +30,7 @@ a { color: inherit; text-decoration: none; }
 
 .hero-shell {
   min-height: 100vh;
-  overflow: hidden;
+  overflow: clip; /* clip, not hidden: hidden would break position: sticky in the mobile section */
   background: radial-gradient(circle at 73% 52%, rgba(255, 248, 238, .65), transparent 32%), var(--cream);
 }
 
@@ -680,7 +680,7 @@ h1 span { color: #ed6907; }
 }
 
 @media (max-width: 460px) {
-  .top-cta { max-width: 140px; white-space: normal; line-height: 1.05; }
+  .top-cta { white-space: nowrap; line-height: 1; }
   .hero-content { padding-top: 39px; }
   .art { min-height: 330px; }
 }
@@ -2979,3 +2979,212 @@ body:has(.bataa-register-shell) {
 }
 
 
+
+
+/* Mobile app section: fits one screen. Centred header, four real app screens in iPhone-style
+   frames that run off the bottom of the section; a swipe row on phones. */
+/* Framer-style pin: the section is taller than the screen and its content sticks to the
+   viewport as one full, all-dark screen while the phones rise (--p, AiPowered.tsx) */
+.bataa-mob {
+  position: relative;
+  background: #120803;
+  height: 190vh;
+  height: 190svh;
+}
+
+.bataa-mob-pin {
+  position: sticky;
+  top: 0;
+  padding: clamp(28px, 3.5vw, 52px) 24px 0;
+  overflow: hidden;
+  height: 100vh;
+  height: 100svh;
+  min-height: 600px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.bataa-mob-head {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.bataa-mob-head h2 {
+  margin: 0;
+  font-size: clamp(30px, 3.4vw, 44px);
+  line-height: 1.12;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.bataa-mob-head p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 26px;
+  color: #bfa593;
+}
+
+.bataa-mob-row {
+  --w: clamp(190px, min(21vw, calc((100svh - 250px) / 1.75)), 340px);
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  gap: clamp(20px, 3vw, 44px);
+  margin-top: clamp(28px, 3.5vw, 44px);
+}
+
+.bataa-mob-item {
+  margin: 0;
+  width: var(--w);
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bataa-mob-item figcaption {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bataa-mob-item strong { font-size: 17px; font-weight: 600; color: #fff; }
+.bataa-mob-item figcaption span { font-size: 14px; line-height: 20px; color: #bfa593; }
+
+/* show the top ~78% of each phone; the rest runs off the section */
+.bataa-mob-crop {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.bataa-mob-phone {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 545 / 1135;
+  border-radius: 17% / 8.2%;
+  padding: 1.1%;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #8a8a8f 0%, #3a3a3d 6%, #1c1c1e 18%, #2a2a2d 50%, #1c1c1e 82%, #3a3a3d 94%, #8a8a8f 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.bataa-mob-phone img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  border: 5px solid #000;
+  border-radius: 15.5% / 7.4%;
+  box-sizing: border-box;
+  background: #fff8f0;
+}
+
+.bataa-mob-phone i {
+  position: absolute;
+  top: 3.3%;
+  left: 50%;
+  width: 30%;
+  height: 3.5%;
+  border-radius: 99px;
+  background: #000;
+  transform: translateX(-50%);
+}
+
+.bataa-mob-pin::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 90px;
+  background: linear-gradient(rgba(18, 8, 3, 0), #120803);
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .bataa-mob-row {
+    --w: 62vw;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin-left: -24px;
+    margin-right: -24px;
+    padding: 0 19vw;
+    gap: 16px;
+    scrollbar-width: none;
+  }
+  .bataa-mob-row::-webkit-scrollbar { display: none; }
+  .bataa-mob-item { scroll-snap-align: center; }
+}
+
+/* phones rise out of the section's bottom edge as you scroll (--p from AiPowered.tsx, 0 -> 1);
+   each phone starts a little lower than the one before, so they arrive in a wave */
+.bataa-mob { --p: 0; --rise: 1; }
+.bataa-mob.is-calm { --rise: 0.25; }
+
+.bataa-mob-phone {
+  transform: translateY(calc((1 - var(--p)) * var(--rise) * (70% + var(--i, 0) * 12%)));
+  will-change: transform;
+}
+
+.bataa-mob-item figcaption {
+  opacity: calc(var(--p) * 1.6 - 0.3);
+  transform: translateY(calc((1 - var(--p)) * 24px));
+}
+
+/* the landing page body has zoom: .9 at 821px+ (top of this file), so 100vh would fill only 90%
+   of the window; scale up like .hero-shell does */
+@media (min-width: 821px) {
+  .bataa-mob { height: 211.112vh; }
+  .bataa-mob-pin { height: 111.112vh; }
+}
+
+/* Lenis (main.tsx): let it drive the scroll instead of CSS smooth scrolling */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* phones: no pin, no rise; the screens are a right-to-left swipe row with dots */
+.bataa-mob-dots { display: none; }
+
+@media (max-width: 760px) {
+  .bataa-mob { height: auto; }
+  .bataa-mob-pin { position: relative; height: 100svh; min-height: 620px; padding-bottom: 18px; }
+  .bataa-mob-pin::after { display: none; }
+  .bataa-mob-row { --w: min(80vw, calc((100svh - 370px) / 2.08)); flex: 1; min-height: 0; align-items: flex-end; padding: 0 calc(50vw - var(--w) / 2); }
+  .bataa-mob-crop { flex: none; height: calc(var(--w) * 2.08); }
+  .bataa-mob-phone { transform: none; }
+  .bataa-mob-item figcaption { opacity: 1; transform: none; }
+  .bataa-mob-dots { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
+  .bataa-mob-dots span { width: 7px; height: 7px; border-radius: 99px; background: rgba(255, 255, 255, 0.25); transition: width 0.25s ease, background 0.25s ease; }
+  .bataa-mob-dots span.on { width: 22px; background: #ffad4d; }
+}
+
+/* mobile section: download link under the header */
+.bataa-mob-dl {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: #ff8a1f;
+  color: #1f1611;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.bataa-mob-dl:hover { background: #ff9a3c; transform: translateY(-1px); }
+.bataa-mob-dl:active { transform: translateY(1px); }

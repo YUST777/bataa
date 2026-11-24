@@ -1,13 +1,7 @@
-import React, { useState } from 'react'
-import { X, ArrowRight } from 'lucide-react'
+import React from 'react'
+import { ArrowRight } from 'lucide-react'
 
 export function Footer() {
-  const [workingOnItem, setWorkingOnItem] = useState<string | null>(null)
-
-  const handleWorkingOn = (label: string) => {
-    setWorkingOnItem(label)
-  }
-
   return (
     <footer className="bataa-footer">
       <div className="bataa-footer-container">
@@ -52,18 +46,6 @@ export function Footer() {
           <div className="bataa-footer-col">
             <h3 className="bataa-footer-col-title">Get the App</h3>
             <div className="bataa-footer-badges">
-              <button
-                type="button"
-                className="bataa-app-badge-link"
-                aria-label="Download Bataa on App Store (Coming Soon)"
-                onClick={() => handleWorkingOn('iOS App Store Release')}
-              >
-                <img
-                  src="/app-store-badge.svg"
-                  alt="Download on the App Store"
-                  className="bataa-app-badge"
-                />
-              </button>
               <a
                 href="/Bataa.apk"
                 download="Bataa.apk"
@@ -144,56 +126,6 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Modal for Features in Progress */}
-      {workingOnItem && (
-        <div className="bataa-working-modal-backdrop" role="presentation" onClick={() => setWorkingOnItem(null)}>
-          <div
-            className="bataa-working-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="working-modal-title"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="bataa-working-modal-close"
-              onClick={() => setWorkingOnItem(null)}
-              aria-label="Close dialog"
-            >
-              <X size={20} />
-            </button>
-
-            <img
-              src="/duck_blink.webp"
-              alt="Bataa mascot duck"
-              className="bataa-working-modal-duck"
-              width={96}
-              height={96}
-            />
-
-            <h3 id="working-modal-title" className="bataa-working-modal-title">
-              We're working on {workingOnItem}!
-            </h3>
-
-            <p className="bataa-working-modal-desc">
-              This feature is currently in active development. You can jump straight into our interactive web app to practice coding right now!
-            </p>
-
-            <div className="bataa-working-modal-actions">
-              <a href="/app" className="bataa-working-modal-btn-primary">
-                Open Web App <ArrowRight size={16} />
-              </a>
-              <button
-                type="button"
-                className="bataa-working-modal-btn-secondary"
-                onClick={() => setWorkingOnItem(null)}
-              >
-                Got it
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </footer>
   )
 }

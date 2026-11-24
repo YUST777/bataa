@@ -229,12 +229,12 @@ function CertificateGraphic() {
 }
 
 /* =========================================================================
-   PITCH DECK SLIDE VIEWER FOR TAB 1 (BATAA PITCH DECK UNIT 01)
+   PITCH DECK SLIDE VIEWER FOR TAB 1 (BATAA PITCH DECK)
    ========================================================================= */
 
 function PitchDeckViewer() {
   const [slide, setSlide] = useState(1)
-  const totalSlides = 16
+  const totalSlides = 15
 
   const nextSlide = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -276,12 +276,12 @@ function PitchDeckViewer() {
           borderRadius: '8px',
           pointerEvents: 'auto'
         }}>
-          bataa pitch deck_unit01
+          bataa pitch deck
         </span>
 
         <a
-          href="/bataa_pitch_deck_unit01.pptx"
-          download="bataa pitch deck_unit01.pptx"
+          href="/bataa_pitch_deck.pptx"
+          download="bataa pitch deck.pptx"
           style={{
             background: 'var(--orange, #ff8500)',
             color: '#ffffff',
