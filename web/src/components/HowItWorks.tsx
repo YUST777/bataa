@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Download } from 'lucide-react'
 
@@ -365,10 +365,29 @@ export function HowItWorks() {
   const [activeTab, setActiveTab] = useState<TabType>('learn')
   const [seconds, setSeconds] = useState(20)
   const [isHovered, setIsHovered] = useState(false)
+  const [isVideoLocked, setIsVideoLocked] = useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  )
+  const filmRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const sync = (matches: boolean) => {
+      setPrefersReducedMotion(matches)
+      if (matches && filmRef.current) {
+        filmRef.current.pause()
+      }
+    }
+    sync(mq.matches)
+    const onChange = (e: MediaQueryListEvent) => sync(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
 
   // Auto-cycle through the 3 tabs every 20 seconds unless user is interacting/hovering
   useEffect(() => {
-    if (isHovered) return
+    if (isHovered || isVideoLocked) return
 
     const timer = setInterval(() => {
       setSeconds((prev) => {
@@ -384,11 +403,12 @@ export function HowItWorks() {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [activeTab, isHovered])
+  }, [activeTab, isHovered, isVideoLocked])
 
   const handleTabClick = (tabId: TabType) => {
     setActiveTab(tabId)
     setSeconds(20)
+    if (tabId !== 'build') setIsVideoLocked(false)
   }
 
   // Mimo.org circular timer SVG calculation (radius 14, circumference ~87.96)
@@ -438,20 +458,29 @@ export function HowItWorks() {
               {/* 2nd: PowerPoint Pitch Deck */}
               {activeTab === 'practice' && <PitchDeckViewer />}
 
-              {/* 3rd: Screenshot (fully filling the widget) */}
+              {/* 3rd: Bataa Film (WebM) */}
               {activeTab === 'build' && (
-                <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
-                  <img
-                    src="/showcase.jpg"
-                    alt="Bataa Desktop Practice Showcase"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      objectPosition: 'center',
-                      display: 'block'
+                <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden', background: '#000' }}>
+                  <video
+                    ref={filmRef}
+                    controls
+                    autoPlay={!prefersReducedMotion}
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    poster="/bataa-film-poster.webp"
+                    width={1280}
+                    height={720}
+                    {...({ loading: 'lazy' } as Record<string, unknown>)}
+                    onVolumeChange={(e) => {
+                      if (!e.currentTarget.muted) setIsVideoLocked(true)
                     }}
-                  />
+                    className="mimo-video-element"
+                    style={{ background: '#000' }}
+                  >
+                    <source src="/bataa-film.webm" type="video/webm" />
+                  </video>
                 </div>
               )}
             </div>
