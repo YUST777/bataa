@@ -4,14 +4,17 @@ import { X, Volume2, VolumeX, Play, Maximize2 } from 'lucide-react'
 export function FloatingVideoWidget() {
   const [isVisible, setIsVisible] = useState(false)
   const [isDismissed, setIsDismissed] = useState(true)
+  const [showMobilePill, setShowMobilePill] = useState(false)
   const [isPlaying, setIsPlaying] = useState(true)
   const [isMuted, setIsMuted] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    // Only show on public marketing/landing pages, not inside the desktop app (/app)
+    // Only show on public marketing/landing pages, not inside the download route (/app)
     if (typeof window === 'undefined') return
     if (window.location.pathname.startsWith('/app')) return
+
+    const isMobile = window.matchMedia('(max-width: 768px)').matches
 
     try {
       const urlParams = new URLSearchParams(window.location.search)
@@ -19,7 +22,12 @@ export function FloatingVideoWidget() {
       const hasSeen = window.localStorage.getItem('bataa_video_popup_closed')
 
       if (!hasSeen || forceShow) {
-        // Pop out smoothly on first visit
+        if (isMobile && !forceShow) {
+          // On phones, show a compact opt-in pill instead of covering the hero/footer with a video modal.
+          const timer = window.setTimeout(() => setShowMobilePill(true), 700)
+          return () => window.clearTimeout(timer)
+        }
+        // Pop out smoothly on first desktop visit
         const timer = window.setTimeout(() => {
           setIsDismissed(false)
           setIsVisible(true)
@@ -32,6 +40,7 @@ export function FloatingVideoWidget() {
 
     // Expose window helper for manual testing/reopening
     ;(window as unknown as { __bataaOpenVideoWidget?: () => void }).__bataaOpenVideoWidget = () => {
+      setShowMobilePill(false)
       setIsDismissed(false)
       setIsVisible(true)
     }
@@ -65,8 +74,15 @@ export function FloatingVideoWidget() {
     }
   }
 
+  const openFromPill = () => {
+    setShowMobilePill(false)
+    setIsDismissed(false)
+    setIsVisible(true)
+  }
+
   const handleClose = () => {
     setIsVisible(false)
+    setShowMobilePill(false)
     if (videoRef.current) {
       videoRef.current.pause()
     }
@@ -76,6 +92,20 @@ export function FloatingVideoWidget() {
       // ignore
     }
     window.setTimeout(() => setIsDismissed(true), 320)
+  }
+
+  if (showMobilePill && isDismissed) {
+    return (
+      <button
+        type="button"
+        className="bataa-video-pill"
+        onClick={openFromPill}
+        aria-label="Watch Bataa demo video"
+      >
+        <Play size={14} fill="currentColor" aria-hidden="true" />
+        <span>Watch demo</span>
+      </button>
+    )
   }
 
   if (isDismissed) return null

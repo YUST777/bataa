@@ -83,7 +83,7 @@ export function AboutPage() {
             borderRadius: '28px',
             padding: 'clamp(32px, 5vw, 56px)',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
             gap: '40px',
             alignItems: 'center',
             boxShadow: '0 20px 40px rgba(45, 24, 11, 0.05)'
@@ -166,7 +166,7 @@ export function AboutPage() {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
             gap: '24px'
           }}>
             {/* Surface 1 */}
