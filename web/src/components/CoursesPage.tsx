@@ -107,7 +107,8 @@ export function CoursesPage() {
               </p>
             </div>
             <a
-              href="/app"
+              href="/Bataa.apk"
+              download="Bataa.apk"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -122,7 +123,7 @@ export function CoursesPage() {
                 boxShadow: '0 10px 24px rgba(255, 133, 0, 0.28)'
               }}
             >
-              Start Free Path <ArrowRight size={18} />
+              Download Android APK <ArrowRight size={18} />
             </a>
           </div>
         </section>

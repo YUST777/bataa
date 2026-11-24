@@ -10,14 +10,12 @@ import { WhatYoullLearn } from './components/WhatYoullLearn'
 import { AiPowered } from './components/AiPowered'
 import { FaqSection } from './components/FaqSection'
 import { Footer } from './components/Footer'
-import { RegisterPage } from './components/RegisterPage'
 import { AboutPage } from './components/AboutPage'
 import { HowItWorksPage } from './components/HowItWorksPage'
 import { CoursesPage } from './components/CoursesPage'
 import { FaqPage } from './components/FaqPage'
 import { TermsPage } from './components/TermsPage'
 import { Navbar } from './components/Navbar'
-import { BataaApp } from './app/BataaApp'
 import { WorkingOnItPage } from './components/WorkingOnItPage'
 import { FloatingVideoWidget } from './components/FloatingVideoWidget'
 import './styles.css'
@@ -158,7 +156,42 @@ function Hero() {
   )
 }
 
-const isCapacitor = typeof window !== 'undefined' && Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.())
+function AppDownloadPage() {
+  useEffect(() => {
+    const a = document.createElement('a')
+    a.href = '/Bataa.apk'
+    a.download = 'Bataa.apk'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  }, [])
+
+  return (
+    <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '24px', textAlign: 'center', background: 'var(--cream)' }}>
+      <div style={{ maxWidth: '420px', display: 'grid', gap: '16px', justifyItems: 'center' }}>
+        <h1 style={{ margin: 0, fontSize: '28px', color: 'var(--brown)' }}>Downloading Bataa…</h1>
+        <p style={{ margin: 0, fontSize: '15px', color: 'var(--brown-soft)' }}>
+          Your download of <strong>Bataa.apk</strong> should start automatically.
+        </p>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <a
+            href="/Bataa.apk"
+            download="Bataa.apk"
+            style={{ padding: '12px 22px', borderRadius: '999px', background: 'var(--orange)', color: '#fff', fontWeight: 700, textDecoration: 'none' }}
+          >
+            Download Bataa.apk
+          </a>
+          <a
+            href="/"
+            style={{ padding: '12px 20px', borderRadius: '999px', border: '1px solid var(--line)', background: '#fff', color: 'var(--brown)', fontWeight: 600, textDecoration: 'none' }}
+          >
+            Back to home
+          </a>
+        </div>
+      </div>
+    </main>
+  )
+}
 
 function RootLayout() {
   useEffect(() => {
@@ -171,7 +204,7 @@ function RootLayout() {
       if (accessToken) {
         localStorage.setItem('bataa_access_token', accessToken)
         if (refreshToken) localStorage.setItem('bataa_refresh_token', refreshToken)
-        // Clean URL hash and STAY on current page without forcing navigation to /app
+        // Clean URL hash and STAY on current page
         window.history.replaceState({}, document.title, window.location.pathname)
       }
     }
@@ -192,17 +225,14 @@ function RootLayout() {
 }
 
 const rootRoute = createRootRoute({ component: RootLayout })
-const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: isCapacitor ? BataaApp : Hero })
-const appRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app', component: BataaApp })
+const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: Hero })
+const appRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app', component: AppDownloadPage })
 const landingRoute = createRoute({ getParentRoute: () => rootRoute, path: '/landing', component: Hero })
 const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: AboutPage })
 const howItWorksRoute = createRoute({ getParentRoute: () => rootRoute, path: '/how-it-works', component: HowItWorksPage })
 const coursesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/courses', component: CoursesPage })
 const faqRoute = createRoute({ getParentRoute: () => rootRoute, path: '/faq', component: FaqPage })
 const termsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/terms', component: TermsPage })
-const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: '/register', component: RegisterPage })
-const webRegisterRoute = createRoute({ getParentRoute: () => rootRoute, path: '/web/register', component: RegisterPage })
-const loginRoute = createRoute({ getParentRoute: () => rootRoute, path: '/login', component: RegisterPage })
 const workingOnItRoute = createRoute({ getParentRoute: () => rootRoute, path: '/working-on-it', component: WorkingOnItPage })
 const comingSoonRoute = createRoute({ getParentRoute: () => rootRoute, path: '/coming-soon', component: WorkingOnItPage })
 
@@ -215,9 +245,6 @@ const routeTree = rootRoute.addChildren([
   coursesRoute,
   faqRoute,
   termsRoute,
-  registerRoute,
-  webRegisterRoute,
-  loginRoute,
   workingOnItRoute,
   comingSoonRoute
 ])

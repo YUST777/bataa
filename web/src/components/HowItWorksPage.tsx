@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowRight, Sparkles, Download, Play } from 'lucide-react'
+import { ArrowRight, Sparkles, Download } from 'lucide-react'
 import { Navbar } from './Navbar'
 import { Footer } from './Footer'
 import { HowItWorks } from './HowItWorks'
@@ -59,7 +59,8 @@ export function HowItWorksPage() {
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', justifyContent: 'center' }}>
             <a
-              href="/app"
+              href="/Bataa.apk"
+              download="Bataa.apk"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -72,25 +73,6 @@ export function HowItWorksPage() {
                 fontSize: '15px',
                 textDecoration: 'none',
                 boxShadow: '0 8px 20px rgba(255, 133, 0, 0.25)'
-              }}
-            >
-              <Play size={16} /> Try Interactive App
-            </a>
-            <a
-              href="/Bataa.apk"
-              download="Bataa.apk"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '14px 28px',
-                borderRadius: '14px',
-                background: '#ffffff',
-                color: 'var(--brown, #2d180b)',
-                border: '1px solid var(--line, #edcfad)',
-                fontWeight: 700,
-                fontSize: '15px',
-                textDecoration: 'none'
               }}
             >
               <Download size={16} /> Download Android APK
@@ -125,7 +107,8 @@ export function HowItWorksPage() {
               </p>
             </div>
             <a
-              href="/app"
+              href="/Bataa.apk"
+              download="Bataa.apk"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',

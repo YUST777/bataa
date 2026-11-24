@@ -55,7 +55,8 @@ export function AboutPage() {
           </p>
 
           <a
-            href="/app"
+            href="/Bataa.apk"
+            download="Bataa.apk"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -70,7 +71,7 @@ export function AboutPage() {
               boxShadow: '0 10px 24px rgba(255, 133, 0, 0.28)'
             }}
           >
-            Start Learning for Free <ArrowRight size={18} />
+            Download Bataa APK <ArrowRight size={18} />
           </a>
         </section>
 
@@ -195,8 +196,8 @@ export function AboutPage() {
               <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--brown-soft, #7d5c42)', margin: '0 0 18px' }}>
                 Turn spare minutes on the bus or couch into coding progress. Complete daily bite-sized web dev challenges, build streaks, and master core concepts with interactive tactile feedback.
               </p>
-              <a href="/app" style={{ color: 'var(--orange, #ff8500)', fontWeight: 700, fontSize: '14px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                Try Mobile Lessons →
+              <a href="/Bataa.apk" download="Bataa.apk" style={{ color: 'var(--orange, #ff8500)', fontWeight: 700, fontSize: '14px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                Download Android APK →
               </a>
             </div>
 

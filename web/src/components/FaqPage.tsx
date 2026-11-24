@@ -86,11 +86,12 @@ export function FaqPage() {
               Still have questions?
             </h3>
             <p style={{ fontSize: '15px', color: 'var(--brown-soft, #7d5c42)', maxWidth: '500px', margin: '0 auto 24px', lineHeight: 1.6 }}>
-              Reach out to us on any of our official channels or try out our interactive web app directly.
+              Reach out to us on any of our official channels or download the Bataa Android app directly.
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
               <a
-                href="/app"
+                href="/Bataa.apk"
+                download="Bataa.apk"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -104,7 +105,7 @@ export function FaqPage() {
                   textDecoration: 'none'
                 }}
               >
-                Launch Web App <ArrowRight size={16} />
+                Download Android APK <ArrowRight size={16} />
               </a>
               <a
                 href="https://www.linkedin.com/company/bataaap"

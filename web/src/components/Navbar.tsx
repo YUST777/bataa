@@ -104,53 +104,31 @@ export function Navbar() {
               <div className="bataa-dropdown-col">
                 <span className="bataa-dropdown-kicker">CAREER PATHS</span>
                 <div className="bataa-dropdown-links-list">
-                  <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
+                  <a href="/courses" className="bataa-dropdown-link" role="menuitem">
                     3D Artist & Animator
                   </a>
-                  <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
+                  <a href="/courses" className="bataa-dropdown-link" role="menuitem">
                     Python & AI Developer
                   </a>
-                  <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
+                  <a href="/courses" className="bataa-dropdown-link" role="menuitem">
                     Front-End Developer
                   </a>
-                  <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
+                  <a href="/courses" className="bataa-dropdown-link" role="menuitem">
                     Full-Stack Developer
                   </a>
                 </div>
               </div>
 
-              {/* Column 2: COURSES (2 sub-columns) */}
-              <div className="bataa-dropdown-col bataa-courses-col-wide">
+              {/* Column 2: COURSES */}
+              <div className="bataa-dropdown-col">
                 <span className="bataa-dropdown-kicker">COURSES & TOOLS</span>
-                <div className="bataa-courses-subgrid">
-                  <div className="bataa-dropdown-links-list">
-                    <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                      Blender
-                    </a>
-                    <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                      VS Code
-                    </a>
-                    <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                      HTML & CSS
-                    </a>
-                    <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                      JavaScript
-                    </a>
-                  </div>
-                  <div className="bataa-dropdown-links-list">
-                    <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                      TypeScript
-                    </a>
-                    <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                      Python
-                    </a>
-                    <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                      React
-                    </a>
-                    <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                      SQL
-                    </a>
-                  </div>
+                <div className="bataa-dropdown-links-list">
+                  <a href="/courses" className="bataa-dropdown-link" role="menuitem">
+                    Blender
+                  </a>
+                  <a href="/courses" className="bataa-dropdown-link" role="menuitem">
+                    CSS
+                  </a>
                 </div>
               </div>
             </div>
@@ -183,17 +161,17 @@ export function Navbar() {
             <div className="bataa-dropdown-col">
               <span className="bataa-dropdown-kicker">RESOURCES</span>
               <div className="bataa-dropdown-links-list">
-                <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                  Glossary
+                <a href="/about" className="bataa-dropdown-link" role="menuitem">
+                  About Bataa
                 </a>
-                <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                  Tutorials
+                <a href="/how-it-works" className="bataa-dropdown-link" role="menuitem">
+                  How it works
                 </a>
-                <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                  Learner stories
+                <a href="/courses" className="bataa-dropdown-link" role="menuitem">
+                  Courses
                 </a>
-                <a href="/web/register" className="bataa-dropdown-link" role="menuitem">
-                  Blog
+                <a href="/faq" className="bataa-dropdown-link" role="menuitem">
+                  FAQ
                 </a>
               </div>
             </div>
@@ -203,27 +181,17 @@ export function Navbar() {
 
       {/* Right Account Nav */}
       <div className="account-nav">
-        {isLoggedIn ? (
-          <a
-            href="/app"
-            className="top-cta"
-            style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-          >
+        <a
+          href="/Bataa.apk"
+          download="Bataa.apk"
+          className="top-cta"
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+        >
+          {isLoggedIn && (
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
-            Open App
-          </a>
-        ) : (
-          <>
-            <a href="/web/register" className="nav-login-link">Log in</a>
-            <a
-              href="/app"
-              className="top-cta"
-              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
-            >
-              Start learning for free
-            </a>
-          </>
-        )}
+          )}
+          {isLoggedIn ? 'Download App' : 'Start learning for free'}
+        </a>
       </div>
 
       {/* Mobile Slide-Out Drawer & Backdrop */}
@@ -274,16 +242,16 @@ export function Navbar() {
             {mobileCoursesOpen && (
               <div className="bataa-mobile-group-content">
                 <span className="bataa-mobile-kicker">CAREER PATHS</span>
-                <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                <a href="/courses" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
                   3D Artist & Animator
                 </a>
-                <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                <a href="/courses" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
                   Python & AI Developer
                 </a>
-                <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                <a href="/courses" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
                   Front-End Developer
                 </a>
-                <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                <a href="/courses" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
                   Full-Stack Developer
                 </a>
 
@@ -291,29 +259,11 @@ export function Navbar() {
                   TOOLS & LANGUAGES
                 </span>
                 <div className="bataa-mobile-tools-grid">
-                  <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                  <a href="/courses" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
                     Blender
                   </a>
-                  <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                    VS Code
-                  </a>
-                  <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                    HTML & CSS
-                  </a>
-                  <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                    JavaScript
-                  </a>
-                  <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                    TypeScript
-                  </a>
-                  <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                    Python
-                  </a>
-                  <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                    React
-                  </a>
-                  <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                    SQL
+                  <a href="/courses" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                    CSS
                   </a>
                 </div>
               </div>
@@ -336,17 +286,17 @@ export function Navbar() {
             </button>
             {mobileResourcesOpen && (
               <div className="bataa-mobile-group-content">
-                <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                  Glossary
+                <a href="/about" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                  About Bataa
                 </a>
-                <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                  Tutorials
+                <a href="/how-it-works" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                  How it works
                 </a>
-                <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                  Learner stories
+                <a href="/courses" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                  Courses
                 </a>
-                <a href="/web/register" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                  Blog
+                <a href="/faq" className="bataa-mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                  FAQ
                 </a>
               </div>
             )}
@@ -355,21 +305,13 @@ export function Navbar() {
 
         <div className="bataa-mobile-drawer-footer">
           <a
-            href="/app"
+            href="/Bataa.apk"
+            download="Bataa.apk"
             className="bataa-mobile-btn-primary"
             onClick={() => setMobileMenuOpen(false)}
           >
-            {isLoggedIn ? 'Open App' : 'Start learning for free'}
+            {isLoggedIn ? 'Download App' : 'Start learning for free'}
           </a>
-          {!isLoggedIn && (
-            <a
-              href="/web/register"
-              className="bataa-mobile-btn-secondary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Log in
-            </a>
-          )}
         </div>
       </div>
     </header>

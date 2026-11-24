@@ -63,7 +63,8 @@ export function WorkingOnItPage() {
 
           <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <a
-              href="/app"
+              href="/Bataa.apk"
+              download="Bataa.apk"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -77,7 +78,7 @@ export function WorkingOnItPage() {
                 textDecoration: 'none'
               }}
             >
-              Start learning in the App <ArrowRight size={18} />
+              Download Android APK <ArrowRight size={18} />
             </a>
 
             <a

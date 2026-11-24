@@ -5,6 +5,10 @@
       "destination": "/Bataa.apk"
     },
     {
+      "source": "/app",
+      "destination": "/Bataa.apk"
+    },
+    {
       "source": "/bmc",
       "destination": "/bmc.html"
     },
